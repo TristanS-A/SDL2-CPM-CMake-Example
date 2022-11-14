@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
                     SDL_BlitScaled(ms, nullptr, test, &textRect);
 
                     //Turns test surface into a texture, so it can be rendered
-                    text = SDL_CreateTextureFromSurface(renderer, test);
+                    SDL_UpdateTexture(text,&textRect,test->pixels,test->pitch);
 
                 }
                 // Initialize renderer color white for the background
