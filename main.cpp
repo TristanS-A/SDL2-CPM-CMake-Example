@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
                     //blit ms to test and soft scaled to test's size (Which is set to the window size)
                     SDL_BlitScaled(ms, nullptr, test, &textRect);
 
-                    //Turns test surface into a texture, so it can be rendered
+                    //Updates text texture into a texture, so it can be rendered with new blit info
                     SDL_UpdateTexture(text,&textRect,test->pixels,test->pitch);
 
                 }
@@ -207,6 +207,11 @@ int main(int argc, char* argv[])
 
             // Destroy renderer
             SDL_DestroyRenderer(renderer);
+
+            //Frees surfaces
+            SDL_FreeSurface(test);
+            SDL_FreeSurface(ms);
+            SDL_FreeSurface(im);
         }
 
         // Destroy window
