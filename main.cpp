@@ -6,8 +6,8 @@ using namespace std;
 
 #include <SDL.h>
 
-#define SCREEN_WIDTH    800
-#define SCREEN_HEIGHT   600
+#define SCREEN_WIDTH    1440
+#define SCREEN_HEIGHT   810
 
 int main(int argc, char* argv[])
 {
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
                 printf( "Unable to load image %s! SDL Error: %s\n", "02_getting_an_image_on_the_screen/hello_world.bmp", SDL_GetError() );
             }
 
-            //Creates image rectangle
+            //Creates rectangle for cat image
             SDL_Rect imRect = {0, 0, 100, 100};
 
             //Exit flag
@@ -88,17 +88,14 @@ int main(int argc, char* argv[])
             Uint32 currTime;
             Uint32 prevTime = 0;
 
-            //Creates surface that will mimic window size where the ms Surface will be scaled and blitted to
+            //Creates surface that will be used for blitting
             SDL_Surface* test = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
 
-            //Creates texture from test surface to be able to render with renderer
+            //Creates texture from test surface to be able to render test surface and the images blitted to it with renderer
             SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, test);
 
-            //Creates Rect for test surface so that its dimensions can mimic the window size
+            //Creates Rect for test surface so that its dimensions can be rescaled and repositioned
             SDL_Rect textRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-
-            //Creates surface that will be soft scaled and blitted to test where test will be rendered to the screen
-            SDL_Surface* ms = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
 
             //Sets up key presses
             const Uint8* keystates = SDL_GetKeyboardState(nullptr);
@@ -113,8 +110,7 @@ int main(int argc, char* argv[])
                 if (currTime > prevTime + 1000 / 60) {
                     prevTime = currTime;
 
-                    //Clears both surfaces that were blitted to
-                    SDL_FillRect(ms, nullptr, 0x000000);
+                    //Clears surface that were blitted to
                     SDL_FillRect(test, nullptr, 0x000000);
 
                     //Gets events
@@ -127,18 +123,40 @@ int main(int argc, char* argv[])
                     SDL_PollEvent(&e);
 
                     // User requests quit
-                    if (e.type == SDL_QUIT) {
-                        quit = true;
+                    switch(e.type){
+                        case SDL_QUIT:
+                            quit = true;
+                            break;
                     }
-                    //User resizes window
-                    else if (e.type == SDL_WINDOWEVENT_RESIZED){
-                        //Resizes test surface to window size so ms can be soft scaled to its size (Because you can only
-                        // soft scale when blitting a surface to a surface, so I am soft scaling ms when it is blitting to
-                        // test so test can then be rendered)
-                        textRect.w = SDL_GetWindowSurface(window)->w;
-                        textRect.h = SDL_GetWindowSurface(window)->h;
-                        test = SDL_CreateRGBSurface(0, textRect.w, textRect.h - 5, 32, 0, 0, 0, 0);
+
+                    //Gets window hight and width
+                    textRect.w = SDL_GetWindowSurface(window)->w;
+                    textRect.h = SDL_GetWindowSurface(window)->h;
+
+                    //My computer for some reason set the hight to 1009 whn full screening even though my screen is 1080
+                    // so I changed it here because it annoyed me
+                    if (textRect.h == 1009){
+                        textRect.h = 1080;
+                        SDL_GetWindowSurface(window)->h = 1080;
                     }
+
+                    //Since I am keeping the dimensions at a 16:9 ratio, this checks weather the width or height is
+                    // unable to expand more and then sets the other side to the 16:9 ration with respects to the
+                    // restricted side
+                    if (textRect.w / 16 > textRect.h / 9){
+                        //Sets dimension of the Rect if the height cannot expand more at a 16:9 ratio
+                        textRect.w = 16 * (textRect.h / 9);
+                        textRect.h = textRect.h;
+                    }
+                    else if (textRect.w / 16 < textRect.h / 9){
+                        //Sets dimension of the Rect if the width cannot expand more at a 16:9 ration
+                        textRect.h = 9 * (textRect.w / 16);
+                        textRect.w = textRect.w;
+                    }
+
+                    //Creates equal length margins on the side that has empty space
+                    textRect.x = (SDL_GetWindowSurface(window)->w - textRect.w) / 2;
+                    textRect.y = (SDL_GetWindowSurface(window)->h - textRect.h) / 2;
 
                     //Gets key inputs
                     if ((keystates[SDL_SCANCODE_W])) {
@@ -176,14 +194,12 @@ int main(int argc, char* argv[])
                         imRect.y += 5;
                     }
 
-                    //Blit cat to ms
-                    SDL_BlitSurface(im, nullptr, ms, &imRect);
-
-                    //blit ms to test and soft scaled to test's size (Which is set to the window size)
-                    SDL_BlitScaled(ms, nullptr, test, &textRect);
+                    //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
+                    // rectangle)
+                    SDL_BlitSurface(im, nullptr, test, &imRect);
 
                     //Updates text texture into a texture, so it can be rendered with new blit info
-                    SDL_UpdateTexture(text,&textRect,test->pixels,test->pitch);
+                    SDL_UpdateTexture(text, nullptr,test->pixels,test->pitch);
 
                 }
                 // Initialize renderer color white for the background
@@ -198,8 +214,9 @@ int main(int argc, char* argv[])
                 // Draw filled square
                 //SDL_RenderFillRect(renderer, &squareRect);
 
-                //Prepares text to be rendered
-                SDL_RenderCopy(renderer, text, &textRect, nullptr);
+                //Prepares text to be rendered at the location of textRect and also resizes/soft scales it to the
+                // dimensions of textRect
+                SDL_RenderCopy(renderer, text, nullptr, &textRect);
 
                 // Update screen
                 SDL_RenderPresent(renderer);
@@ -210,7 +227,6 @@ int main(int argc, char* argv[])
 
             //Frees surfaces
             SDL_FreeSurface(test);
-            SDL_FreeSurface(ms);
             SDL_FreeSurface(im);
         }
 
