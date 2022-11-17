@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED true
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -84,6 +85,26 @@ int main(int argc, char* argv[])
             bool up;
             bool down;
 
+            //gravity
+            int gravity = 1;
+
+            //Character velocity's
+            int xVel = 0;
+            int yVel = 0;
+
+            //Jump variable to tell when the character can jump
+            bool jump = false;
+
+            //Angle from the character to the mouse position
+            double angle = 0;
+
+            //Distance from the character to the mouse position
+            double dis = 0;
+
+            //Mouse coordinates
+            int mouseX;
+            int mouseY;
+
             //Set up for delta time FPS calculator
             Uint32 currTime;
             Uint32 prevTime = 0;
@@ -122,10 +143,30 @@ int main(int argc, char* argv[])
                     //I used poll instead of wait because the key presses had a delay with wait.
                     SDL_PollEvent(&e);
 
-                    // User requests quit
+                    //Switch loop for events
                     switch(e.type){
+                        // User requests quit
                         case SDL_QUIT:
                             quit = true;
+                            break;
+                        //Presses mouse button
+                        case SDL_MOUSEBUTTONDOWN:
+
+                            //Gets mouse location
+                            SDL_GetMouseState(&mouseX, &mouseY);
+
+                            //Calculates the distance between the character and the mouse
+                            dis = sqrt(pow(((imRect.x + 100 / 2.0) - mouseX * (SCREEN_WIDTH)/textRect.w), 2) +
+                            pow(((imRect.y + 100 / 2.0) - mouseY * (SCREEN_HEIGHT)/textRect.h), 2));
+
+                            //The plan is to make an array holding either a set amount of surfaces with a sphere image
+                            //or a calculated amount of surfaces to fill the distance between the mouse and player to
+                            // then shoot them along the angle to the mouse with updating positions mimicking the
+                            // falling of the player.
+
+                            //Calculates the angle between the character and the mouse.
+                            angle = -(atan(((imRect.y + 100 / 2.0) - mouseY * (SCREEN_HEIGHT)/textRect.h) /
+                                    ((imRect.x + 100 / 2.0) - mouseX * (SCREEN_WIDTH)/textRect.w)) * (180.0 / M_PI));
                             break;
                     }
 
@@ -181,8 +222,10 @@ int main(int argc, char* argv[])
                     }
 
                     //Character control
-                    if (up) {
-                        imRect.y -= 5;
+                    if (up && jump) {
+                        yVel += 10;
+                        jump = false;
+                        imRect.y -= yVel;
                     }
                     if (left) {
                         imRect.x -= 5;
@@ -193,6 +236,25 @@ int main(int argc, char* argv[])
                     if (down) {
                         imRect.y += 5;
                     }
+
+                    //Test for seeing when two rects collide
+                    if (SDL_HasIntersection(&imRect, &squareRect)){
+                        cout << "touching!!!!\n";
+                    }
+
+                    //Applying gravity to the charter
+                    yVel -= gravity;
+
+                    //Test for when the charter is grounded so the character stops moving by setting yVel to 0
+                    if (imRect.y > 500){
+                        yVel = 0;
+
+                        //Sets jump to true so player can jump after touching thr ground and not while in the air
+                        jump = true;
+                    }
+
+                    //Applies y-axis velocity to the character
+                    imRect.y -= yVel;
 
                     //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
                     // rectangle)
@@ -208,15 +270,15 @@ int main(int argc, char* argv[])
                 // Clear screen
                 SDL_RenderClear(renderer);
 
-                // Set renderer color red to draw the square
-               // SDL_SetRenderDrawColor(renderer, 0xFF, 0x0F, 0x00, 0xFF);
-
-                // Draw filled square
-                //SDL_RenderFillRect(renderer, &squareRect);
-
                 //Prepares text to be rendered at the location of textRect and also resizes/soft scales it to the
                 // dimensions of textRect
                 SDL_RenderCopy(renderer, text, nullptr, &textRect);
+
+                // Set renderer color red to draw the square
+                //SDL_SetRenderDrawColor(renderer, 0xFF, 0x0F, 0x00, 0xFF);
+
+                // Draw filled square
+                //SDL_RenderFillRect(renderer, &squareRect);
 
                 // Update screen
                 SDL_RenderPresent(renderer);
