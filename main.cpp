@@ -26,11 +26,11 @@ int main(int argc, char* argv[])
 
 #if defined linux && SDL_VERSION_ATLEAST(2, 0, 8)
     // Disable compositor bypass
-    if(!SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0"))
-    {
-        cout << "SDL can not disable compositor bypass!" << endl;
-        return 0;
-    }
+   if(!SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0"))
+   {
+       cout << "SDL can not disable compositor bypass!" << endl;
+       return 0;
+   }
 #endif
 
     // Create window
@@ -73,6 +73,20 @@ int main(int argc, char* argv[])
                 printf( "Unable to load image %s! SDL Error: %s\n", "02_getting_an_image_on_the_screen/hello_world.bmp", SDL_GetError() );
             }
 
+            //Loads circle image
+            SDL_Surface* circle = SDL_LoadBMP( "circle.bmp" );
+            if( circle == nullptr )
+            {
+                printf( "Unable to load image %s! SDL Error: %s\n ", SDL_GetError() );
+            }
+
+            //Loads circle2 image
+            SDL_Surface* circle2 = SDL_LoadBMP( "circle2.bmp" );
+            if( circle2 == nullptr )
+            {
+                printf( "Unable to load image %s! SDL Error: %s\n ", SDL_GetError() );
+            }
+
             //Creates rectangle for cat image
             SDL_Rect imRect = {0, 0, 100, 100};
 
@@ -104,6 +118,54 @@ int main(int argc, char* argv[])
             //Mouse coordinates
             int mouseX;
             int mouseY;
+
+            //Bool for if grappling hook is shooting out
+            bool shoot;
+
+            //Bool for if the grappling hook is retracting
+            bool retrac;
+
+            //Bool store what quadrant the mouse x position is in reletive to the character
+            bool quadX;
+
+            //Bool store what quadrant the mouse y position is in reletive to the character
+            bool quadY;
+
+            //Iteration variable to keep track of grappling hook vector indexes as it shoots and retracts
+            int s;
+
+            //Bool for if the grappling hook collides with a rect
+            bool hit;
+
+            //Vector holding grappling hook images
+            vector<SDL_Surface*> arr;
+
+            int u;
+
+            for (u = 0; u < 15; u++){
+                if (u == 0){
+                    arr.push_back(circle2);
+                } else {
+                    arr.push_back(circle);
+                }
+            }
+
+            //Vector holding grappling hook rects
+            vector<SDL_Rect> arrR;
+
+            SDL_Rect placeHolder = {0, 0, 50, 50};
+
+            for (u = 0; u < 15; u++){
+                arrR.push_back(placeHolder);
+            }
+
+            //Vector holding x and y velocity for each grappling hook piece
+            vector<int> arrXY = {1, 1};
+            vector<vector<int>> arrVel;
+
+            for (u = 0; u < 15; u++){
+                arrVel.push_back(arrXY);
+            }
 
             //Set up for delta time FPS calculator
             Uint32 currTime;
@@ -149,24 +211,33 @@ int main(int argc, char* argv[])
                         case SDL_QUIT:
                             quit = true;
                             break;
-                        //Presses mouse button
+                            //Presses mouse button
                         case SDL_MOUSEBUTTONDOWN:
 
-                            //Gets mouse location
-                            SDL_GetMouseState(&mouseX, &mouseY);
+                            //So you cant fire the grappling hook while already firring it
+                            if (!shoot) {
 
-                            //Calculates the distance between the character and the mouse
-                            dis = sqrt(pow(((imRect.x + 100 / 2.0) - mouseX * (SCREEN_WIDTH)/textRect.w), 2) +
-                            pow(((imRect.y + 100 / 2.0) - mouseY * (SCREEN_HEIGHT)/textRect.h), 2));
+                                //Gets mouse location
+                                SDL_GetMouseState(&mouseX, &mouseY);
 
-                            //The plan is to make an array holding either a set amount of surfaces with a sphere image
-                            //or a calculated amount of surfaces to fill the distance between the mouse and player to
-                            // then shoot them along the angle to the mouse with updating positions mimicking the
-                            // falling of the player.
+                                //Calculates the distance between the character and the mouse
+                                dis = sqrt(pow(((imRect.x + 100 / 2.0) -
+                                                static_cast<double>(mouseX) * (SCREEN_WIDTH) / textRect.w), 2) +
+                                           pow(((imRect.y + 100 / 2.0) -
+                                                static_cast<double>(mouseY) * (SCREEN_HEIGHT) / textRect.h), 2));
 
-                            //Calculates the angle between the character and the mouse.
-                            angle = -(atan(((imRect.y + 100 / 2.0) - mouseY * (SCREEN_HEIGHT)/textRect.h) /
-                                    ((imRect.x + 100 / 2.0) - mouseX * (SCREEN_WIDTH)/textRect.w)) * (180.0 / M_PI));
+                                //TODO: Make it so grapple hook balls disappear after getting back to the player and
+                                // also make diagonal shots reach as far as up or down shots.
+
+                                //Calculates the angle between the character and the mouse.
+                                angle = -(atan(((imRect.y + 100 / 2.0) -
+                                                static_cast<double>(mouseY) * (SCREEN_HEIGHT) / textRect.h) /
+                                               ((imRect.x + 100 / 2.0) -
+                                                static_cast<double>(mouseX) * (SCREEN_WIDTH) / textRect.w)) *
+                                          (180.0 / M_PI));
+                                shoot = true;
+                                s = 0;
+                            }
                             break;
                     }
 
@@ -220,10 +291,9 @@ int main(int argc, char* argv[])
                     } else {
                         down = false;
                     }
-
                     //Character control
                     if (up && jump) {
-                        yVel += 10;
+                        yVel += 30;
                         jump = false;
                         imRect.y -= yVel;
                     }
@@ -242,19 +312,108 @@ int main(int argc, char* argv[])
                         cout << "touching!!!!\n";
                     }
 
+                    if (shoot){
+                        if (s < arr.size()){
+
+                            //Resets grappling hook rects location
+                            arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
+                            arrR[s].y = imRect.y + 100 / 2 - arrR[s].h / 2;
+
+                            //Calculates which direction to apply x and y velocity according to the angle, because I
+                            // calculated the angle so that it will be withing -90 to 90, so I have to flip the force if
+                            // the mouse position is on the left side of the character
+                            if ((mouseX * (SCREEN_WIDTH)/textRect.w) <= (imRect.x + 100 / 2)){
+
+                                arrVel[s][1] = -static_cast<int>((fabs(90 - angle) - 90) * 0.6);
+
+                                arrVel[s][0] = -static_cast<int>((fabs(-1 * (90 - fabs(angle)))) * 0.6);
+                            }
+                            else {
+
+                                arrVel[s][1] = static_cast<int>((fabs(90 - angle) - 90) * 0.6);
+                                arrVel[s][0] = static_cast<int>((fabs((90 - fabs(angle)))) * 0.6);
+                            }
+                            for (int b = 0; b < s; b++){
+
+                                SDL_BlitSurface(arr[b], nullptr, test, &arrR[b]);
+                                arrR[b].y += arrVel[s][1];
+                                arrR[b].x += arrVel[s][0];
+                            }
+                        } else {
+                            for (int k = 0; k < s; k++){
+                                SDL_BlitSurface(arr[k], nullptr, test, &arrR[k]);
+                            }
+                        }
+
+                        s++;
+
+                        if (s == arr.size()) {
+                            shoot = false;
+                            retrac = true;
+                            s--;
+                        }
+                    }
+
+                    if (retrac){
+                        if (s >= 0){
+                            if (hit){
+
+                            } else {
+
+                                for (int b = 0; b <= s; b++){
+
+                                    angle = -(atan(((imRect.y + 100 / 2.0) - static_cast<int>(arrR[b].y + arrR[b].h / 2)) / (((imRect.x + 100 / 2.0) -
+                                                                                                                              static_cast<int>(arrR[b].x + arrR[b].w / 2)))) * (180.0 / M_PI));
+
+                                    if (static_cast<int>(arrR[b].x + arrR[b].w / 2) <= (imRect.x + 100 / 2)){
+
+                                        arrVel[b][1] = -static_cast<int>((fabs(90 - angle) - 90));
+
+                                        arrVel[b][0] = -static_cast<int>((fabs(-1 * (90 - fabs(angle)))));
+                                    } else {
+
+                                        arrVel[b][1] = static_cast<int>((fabs(90 - angle) - 90));
+                                        arrVel[b][0] = static_cast<int>((fabs((90 - fabs(angle)))));
+                                    }
+
+                                    SDL_BlitSurface(arr[b], nullptr, test, &arrR[b]);
+                                    arrR[b].y -= arrVel[b][1];
+                                    arrR[b].x -= arrVel[b][0];
+                                }
+
+                            }
+
+
+                        } else {
+
+                            for (int k = s; k >= s; k--){
+                                SDL_BlitSurface(arr[k], nullptr, test, &arrR[k]);
+                            }
+                        }
+                        s--;
+                        if (s < 0){
+                            retrac = false;
+                        }
+                    }
+
                     //Applying gravity to the charter
                     yVel -= gravity;
+
+                    //Applies y-axis velocity to the character
+                    imRect.y -= yVel;
+
+                    //Applies x-axis velocity to the character
+                    imRect.x -= xVel;
 
                     //Test for when the charter is grounded so the character stops moving by setting yVel to 0
                     if (imRect.y > 500){
                         yVel = 0;
+                        xVel = 0;
+                        imRect.y = 500;
 
                         //Sets jump to true so player can jump after touching thr ground and not while in the air
                         jump = true;
                     }
-
-                    //Applies y-axis velocity to the character
-                    imRect.y -= yVel;
 
                     //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
                     // rectangle)
