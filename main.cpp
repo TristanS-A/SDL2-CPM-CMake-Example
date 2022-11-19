@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "playerMovement.h"
+#include "screenSizeChange.h"
 
 using namespace std;
 
@@ -207,20 +208,24 @@ int main(int argc, char* argv[])
                             //Gets mouse location
                             SDL_GetMouseState(&mouseX, &mouseY);
 
+                            //If the user changed the screen dimension, this will translate the mouse position to the
+                            // new screen/window dimensions
+                            mouseY = mouseY * (SCREEN_HEIGHT) / textRect.h - textRect.y * (SCREEN_HEIGHT) / textRect.h;
+                            mouseX = mouseX * (SCREEN_WIDTH) / textRect.w - textRect.x * (SCREEN_WIDTH) / textRect.w;
+                            cout << (SCREEN_WIDTH) / textRect.w << " " << (SCREEN_HEIGHT) / textRect.h << " \n";
+
                             //Calculates the angle between the character and the mouse.
                             angle = -(atan(((imRect.y + 100 / 2.0) -
-                                            static_cast<double>(mouseY) * (SCREEN_HEIGHT) / textRect.h) /
+                                            (static_cast<double>(mouseY))) /
                                            ((imRect.x + 100 / 2.0) -
-                                            static_cast<double>(mouseX) * (SCREEN_WIDTH) / textRect.w)) *
+                                            static_cast<double>(mouseX))) *
                                       (180.0 / M_PI));
 
                             //Calculates the x and y velocity to be added to each piece of the grappling hook when
                             // shooting by checking if the mouse position is on the left or right of the character
                             // (on the left or right side of the x-axis) because I calculated the angle to be
                             // between -90 and 90 so if the mouse position is on the left side, it must be flipped.
-                            // I also translated the mouse position to a changed screen size if the user changes
-                            // the screen size
-                            if ((mouseX * (SCREEN_WIDTH) / textRect.w) <= (imRect.x + 100 / 2)) {
+                            if (mouseX <= (imRect.x + 100 / 2)) {
 
                                 //Calculates x and y velocity from angle when mouse is on the left side of the
                                 // character
@@ -244,33 +249,7 @@ int main(int argc, char* argv[])
                         break;
                 }
 
-                //Gets window height and width
-                textRect.w = SDL_GetWindowSurface(window)->w;
-                textRect.h = SDL_GetWindowSurface(window)->h;
-
-                //My computer for some reason set the height to 1009 whn full screening even though my screen is 1080,
-                // so I changed it here because it annoyed me
-                if (textRect.h == 1009) {
-                    textRect.h = 1080;
-                    SDL_GetWindowSurface(window)->h = 1080;
-                }
-
-                //Since I am keeping the dimensions at a 16:9 ratio, this checks weather the width or height is
-                // unable to expand more and then sets the other side to the 16:9 ration with respects to the
-                // restricted side
-                if (textRect.w / 16 > textRect.h / 9) {
-                    //Sets dimension of the Rect if the height cannot expand more at a 16:9 ratio
-                    textRect.w = 16 * (textRect.h / 9);
-                    textRect.h = textRect.h;
-                } else if (textRect.w / 16 < textRect.h / 9) {
-                    //Sets dimension of the Rect if the width cannot expand more at a 16:9 ration
-                    textRect.h = 9 * (textRect.w / 16);
-                    textRect.w = textRect.w;
-                }
-
-                //Creates equal length margins on the side that has empty space
-                textRect.x = (SDL_GetWindowSurface(window)->w - textRect.w) / 2;
-                textRect.y = (SDL_GetWindowSurface(window)->h - textRect.h) / 2;
+                screenSizeChange(textRect, window);
 
                 //Gets key inputs
                 if ((keystates[SDL_SCANCODE_W])) {
