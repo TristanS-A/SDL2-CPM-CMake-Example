@@ -64,8 +64,8 @@ int main(int argc, char* argv[])
         SDL_Rect squareRect;
 
         // Square dimensions: Half of the min(SCREEN_WIDTH, SCREEN_HEIGHT)
-        squareRect.w = min(SCREEN_WIDTH, SCREEN_HEIGHT) / 2;
-        squareRect.h = min(SCREEN_WIDTH, SCREEN_HEIGHT) / 2;
+        squareRect.w = min(SCREEN_WIDTH, SCREEN_HEIGHT) / 8;
+        squareRect.h = min(SCREEN_WIDTH, SCREEN_HEIGHT) / 8;
 
         // Square position: In the middle of the screen
         squareRect.x = SCREEN_WIDTH / 2 - squareRect.w / 2;
@@ -128,7 +128,10 @@ int main(int argc, char* argv[])
         int s;
 
         //Bool for if the grappling hook collides with a rect
-        bool hit;
+        bool hit = false;
+
+        //
+        int track;
 
         //Vector holding grappling hook images
         vector<SDL_Surface *> arr;
@@ -281,7 +284,7 @@ int main(int argc, char* argv[])
                     }
 
                 if (shoot) {
-                    if (s < arr.size()) {
+                    if (s < arr.size() && !hit) {
 
                         //Resets grappling hook rects location
                         arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
@@ -293,7 +296,12 @@ int main(int argc, char* argv[])
                             arrR[b].y += ghPieceVelY;
                             arrR[b].x += ghPieceVelX;
                         }
-                    } else {
+
+                        if (SDL_HasIntersection(&arrR[0], &squareRect)){
+                            hit = true;
+                        }
+
+                    } else if (!hit){
                         for (int k = 0; k < s; k++) {
                             SDL_BlitSurface(arr[k], nullptr, test, &arrR[k]);
                         }
@@ -305,12 +313,30 @@ int main(int argc, char* argv[])
                         shoot = false;
                         retrac = true;
                         s--;
+                        track = s;
+                    }
+                    if (hit){
+                        shoot = false;
+                        retrac = true;
+                        track = s;
                     }
                 }
 
                 if (retrac) {
                     if (s >= 0) {
                         if (hit) {
+
+                            for (int b = track; b > track - s; b--) {
+                                cout << "" << " " << b << "\n";
+
+                                SDL_BlitSurface(arr[track - b], nullptr, test, &arrR[track - b]);
+
+                                arrR[b].y = arrR[b - 1].y - yVel / 4; //The /4 is to minimize the yVel to it pull harder
+                                arrR[b].x = arrR[b - 1].x - xVel;
+                            }
+
+                            imRect.y = arrR[track - 1].y;
+                            imRect.x = arrR[track - 1].x;
 
                         } else {
 
@@ -332,7 +358,12 @@ int main(int argc, char* argv[])
                     }
                     s--;
                     if (s < 0) {
+                        if (hit) {
+                            yVel = 0;
+                            xVel = 0;
+                        }
                         retrac = false;
+                        hit = false;
                     }
                 }
 
@@ -374,10 +405,10 @@ int main(int argc, char* argv[])
             SDL_RenderCopy(renderer, text, nullptr, &textRect);
 
             // Set renderer color red to draw the square
-            //SDL_SetRenderDrawColor(renderer, 0xFF, 0x0F, 0x00, 0xFF);
+            SDL_SetRenderDrawColor(renderer, 0xFF, 0x0F, 0x00, 0xFF);
 
             // Draw filled square
-            //SDL_RenderFillRect(renderer, &squareRect);
+            SDL_RenderFillRect(renderer, &squareRect);
 
             // Update screen
             SDL_RenderPresent(renderer);
