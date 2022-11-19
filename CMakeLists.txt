@@ -45,26 +45,27 @@ if (SDL_ADDED)
 endif()
 
 # SDL_ttf
-CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_ttf
-        GIT_TAG main
-        OPTIONS "SDL2TTF_INSTALL FALSE")
-find_package(SDL_ttf REQUIRED)
-
-# SDL_image
-CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
-        GIT_TAG main
-        OPTIONS "SDL2IMAGE_INSTALL FALSE")
-find_package(SDL_image REQUIRED)
-
-# SDL_mixer
-CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_mixer
-        GIT_TAG main
-        OPTIONS "SDL2IMIXER_INSTALL FALSE")
-find_package(SDL_mixer REQUIRED)
+#CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_ttf
+#        GIT_TAG main
+#        OPTIONS "SDL2TTF_INSTALL FALSE")
+#find_package(SDL_ttf REQUIRED)
+#
+## SDL_image
+#CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
+#        GIT_TAG main
+#        OPTIONS "SDL2IMAGE_INSTALL FALSE")
+#find_package(SDL_image REQUIRED)
+#
+## SDL_mixer
+#CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_mixer
+#        GIT_TAG main
+#        OPTIONS "SDL2IMIXER_INSTALL FALSE")
+#find_package(SDL_mixer REQUIRED)
 
 # add executable
-add_executable(main main.cpp)
+add_executable(main main.cpp playerMovement.cpp)
 target_compile_features(main PRIVATE cxx_std_20)
 include_directories(${SDL2_INCLUDE_DIR})
 target_include_directories(main PRIVATE ${SDL2_INCLUDE_DIR})
-target_link_libraries(main SDL2 SDL2_ttf SDL2_image SDL2_mixer)
+target_link_libraries(main SDL2)
+#target_link_libraries(main SDL2 SDL2_ttf SDL2_image SDL2_mixer)

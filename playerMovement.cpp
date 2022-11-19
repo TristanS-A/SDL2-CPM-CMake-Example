@@ -3,9 +3,9 @@
 //
 
 #include "playerMovement.h"
-#include <SDL.h>
+#include "SDL.h"
 
-void playerMovement(bool jump, bool up, bool left, bool right, bool down, int yVel, int xVel, SDL_Rect imRect){
+void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &yVel, int &xVel, SDL_Rect &imRect){
 
     //Character control
     if (up && jump) {
