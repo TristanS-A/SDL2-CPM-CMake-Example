@@ -5,6 +5,7 @@
 
 #include "playerMovement.h"
 #include "screenSizeChange.h"
+#include "grappleHook.h"
 
 using namespace std;
 
@@ -207,9 +208,11 @@ int main(int argc, char* argv[])
                     case SDL_QUIT:
                         quit = true;
                         break;
-                        //Presses mouse button
+
+                    //Presses mouse button
                     case SDL_MOUSEBUTTONDOWN:
 
+                        //To test if the mouse button is pressed and/or held down
                         mouseUp = false;
 
                         //So you cant fire the grappling hook while already firring it or retracting it
@@ -252,16 +255,22 @@ int main(int argc, char* argv[])
 
                             }
 
+                            //Triggers shoot function
                             shoot = true;
+
+                            //Resets iterator variable for shoot and retrac functions
                             s = 0;
 
                         }
 
                         break;
+
+                    //User lets go of the mouse button
                     case SDL_MOUSEBUTTONUP:
                         mouseUp = true;
                 }
 
+                //Function for resizing the screen
                 screenSizeChange(textRect, window);
 
                 //Gets key inputs
@@ -286,105 +295,23 @@ int main(int argc, char* argv[])
                     down = false;
                 }
 
+                //Function for player movement
                 playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
 
+                //Test if grappling hook is shooting
                 if (shoot) {
-                    if (s < arr.size() && !hit) {
 
-                        //Resets grappling hook rects location
-                        arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
-                        arrR[s].y = imRect.y + 100 / 2 - arrR[s].h / 2;
-
-                        for (int b = 0; b < s; b++) {
-
-                            SDL_BlitSurface(arr[b], nullptr, test, &arrR[b]);
-                            arrR[b].y += ghPieceVelY;
-                            arrR[b].x += ghPieceVelX;
-                        }
-
-                        if (SDL_HasIntersection(&arrR[0], &squareRect)){
-                            hit = true;
-                        }
-
-                    } else if (!hit){
-                        for (int k = 0; k < s; k++) {
-                            SDL_BlitSurface(arr[k], nullptr, test, &arrR[k]);
-                        }
-                    }
-
-                    s++;
-
-                    if (s == arr.size()) {
-                        shoot = false;
-                        retrac = true;
-                        s--;
-                        track = s;
-                    }
-                    if (hit){
-                        shoot = false;
-                        retrac = true;
-                        track = s;
-                        arrR[track].y = imRect.y;
-                        arrR[track].x = imRect.x;
-                    }
+                    //Function for shooting the grapping hook
+                    shooting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
+                             retrac,track,test,squareRect);
                 }
 
+                //Test if grappling hook is retracting
                 if (retrac) {
-                    if (s >= 0) {
-                        if (hit) {
 
-                            for (int b = track; b > track - s; b--) {
-
-                                arrR[b].y = static_cast<int>(arrR[b - 1].y + (arrR[b].y - arrR[b - 1].y)
-                                        * 0.9 - yVel);
-                                arrR[b].x = static_cast<int>(arrR[b - 1].x + (arrR[b].x - arrR[b - 1].x)
-                                        * 0.9 - xVel);
-
-                                SDL_BlitSurface(arr[track - b], nullptr, test,
-                                                &arrR[track- b]);
-
-                            }
-
-                            imRect.y = arrR[s].y + arrR[s].h / 2 - imRect.h / 2;
-                            imRect.x = arrR[s].x + arrR[s].w / 2 - imRect.w / 2;
-
-                        } else {
-
-                            for (int b = 0; b < s; b++) {
-
-                                SDL_BlitSurface(arr[b], nullptr, test, &arrR[b]);
-                                arrR[b].y = arrR[b + 1].y - yVel;
-                                arrR[b].x = arrR[b + 1].x - xVel;
-                            }
-
-                        }
-
-
-                    } else {
-
-                        for (int k = s; k >= s; k--) {
-                            SDL_BlitSurface(arr[k], nullptr, test, &arrR[k]);
-                        }
-                    }
-
-                    if (s <= 0) {
-                        if (hit) {
-                            yVel = 0;
-                            xVel = 0;
-                        }
-                        if (mouseUp) {
-                            retrac = false;
-                            hit = false;
-                        }
-                    } else {
-
-                        if (mouseUp && hit) {
-                            xVel = -ghPieceVelX / 2;
-                            yVel = -ghPieceVelY / 2;
-                            hit = false;
-                        }
-                        s--;
-                    }
+                    //Function for retracting the grappling hook
+                    retracting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
+                               retrac,track,test,squareRect, yVel, xVel, mouseUp);
                 }
 
                 //Applying gravity to the charter

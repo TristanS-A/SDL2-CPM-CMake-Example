@@ -44,21 +44,19 @@ if (SDL_ADDED)
     target_include_directories(SDL2 INTERFACE "${CMAKE_BINARY_DIR}/SDLHeaders")
 endif()
 
-#TODO Could NOT find opusfile (missing: opusfile_LIBRARY opusfile_INCLUDE_PATH)
 # TODO Could NOT find Freetype (missing: FREETYPE_LIBRARY FREETYPE_INCLUDE_DIRS)
 
-
 # SDL_ttf
-#CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_ttf
-#        GIT_TAG main
-#        OPTIONS "SDL2TTF_INSTALL FALSE")
-#find_package(SDL_ttf REQUIRED)
+CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_ttf
+        GIT_TAG main
+        OPTIONS "SDL2TTF_INSTALL FALSE")
+find_package(SDL_ttf REQUIRED)
 
 # SDL_image
-CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
-        GIT_TAG main
-        OPTIONS "SDL2IMAGE_INSTALL FALSE")
-find_package(SDL_image REQUIRED)
+#CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
+#        GIT_TAG main
+#        OPTIONS "SDL2IMAGE_INSTALL FALSE")
+#find_package(SDL_image REQUIRED)
 
 # SDL_mixer
 #CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_mixer
@@ -76,8 +74,8 @@ file(GLOB SRC
         )
 
 # add executable
-add_executable(main ${SRC} ${INC})
+add_executable(main ${SRC} ${INC} grappleHook.cpp grappleHook.h)
 target_compile_features(main PRIVATE cxx_std_20)
 include_directories(${SDL2_INCLUDE_DIR})
 target_include_directories(main PRIVATE ${SDL2_INCLUDE_DIR})
-target_link_libraries(main SDL2 SDL2_image)
+target_link_libraries(main SDL2_ttf SDL2)
