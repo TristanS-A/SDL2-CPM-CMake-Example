@@ -167,9 +167,11 @@ int main(int argc, char* argv[])
         Uint32 prevTime = 0;
 
         //Creates surface that will be used for blitting
-        SDL_Surface *test = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
+        SDL_Surface *test = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT,
+                                                 32, 0, 0, 0, 0);
 
-        //Creates texture from test surface to be able to render test surface and the images blitted to it with renderer
+        //Creates texture from test surface to be able to render test surface and the images blitted to it with
+        // renderer
         SDL_Texture *text = SDL_CreateTextureFromSurface(renderer, test);
 
         //Creates Rect for test surface so that its dimensions can be rescaled and repositioned
@@ -218,9 +220,10 @@ int main(int argc, char* argv[])
 
                             //If the user changed the screen dimension, this will translate the mouse position to the
                             // new screen/window dimensions
-                            mouseY = mouseY * (SCREEN_HEIGHT) / textRect.h - textRect.y * (SCREEN_HEIGHT) / textRect.h;
-                            mouseX = mouseX * (SCREEN_WIDTH) / textRect.w - textRect.x * (SCREEN_WIDTH) / textRect.w;
-                            cout << (SCREEN_WIDTH) / textRect.w << " " << (SCREEN_HEIGHT) / textRect.h << " \n";
+                            mouseY = mouseY * (SCREEN_HEIGHT) / textRect.h - textRect.y * (SCREEN_HEIGHT) /
+                                    textRect.h;
+                            mouseX = mouseX * (SCREEN_WIDTH) / textRect.w - textRect.x * (SCREEN_WIDTH) /
+                                    textRect.w;
 
                             //Calculates the angle between the character and the mouse.
                             angle = -(atan(((imRect.y + 100 / 2.0) -
@@ -325,7 +328,6 @@ int main(int argc, char* argv[])
                         arrR[track].x = imRect.x;
                     }
                 }
-                SDL_BlitSurface(im, nullptr, test, &imRect);
 
                 if (retrac) {
                     if (s >= 0) {
@@ -406,6 +408,7 @@ int main(int argc, char* argv[])
 
                 //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
                 // rectangle)
+                SDL_BlitSurface(im, nullptr, test, &imRect);
 
                 //Updates text texture into a texture, so it can be rendered with new blit info
                 SDL_UpdateTexture(text, nullptr, test->pixels, test->pitch);

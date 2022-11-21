@@ -44,32 +44,40 @@ if (SDL_ADDED)
     target_include_directories(SDL2 INTERFACE "${CMAKE_BINARY_DIR}/SDLHeaders")
 endif()
 
-#Temporarily commented this out so the project would compile TODO: Fix this implementation
+#TODO Could NOT find opusfile (missing: opusfile_LIBRARY opusfile_INCLUDE_PATH)
+# TODO Could NOT find Freetype (missing: FREETYPE_LIBRARY FREETYPE_INCLUDE_DIRS)
+
 
 # SDL_ttf
 #CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_ttf
 #        GIT_TAG main
 #        OPTIONS "SDL2TTF_INSTALL FALSE")
 #find_package(SDL_ttf REQUIRED)
-#
-## SDL_image
-#CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
-#        GIT_TAG main
-#        OPTIONS "SDL2IMAGE_INSTALL FALSE")
-#find_package(SDL_image REQUIRED)
-#
-## SDL_mixer
+
+# SDL_image
+CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
+        GIT_TAG main
+        OPTIONS "SDL2IMAGE_INSTALL FALSE")
+find_package(SDL_image REQUIRED)
+
+# SDL_mixer
 #CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_mixer
 #        GIT_TAG main
 #        OPTIONS "SDL2IMIXER_INSTALL FALSE")
 #find_package(SDL_mixer REQUIRED)
 
+file(GLOB INC
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
+
+file(GLOB SRC
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/*.c
+        )
+
 # add executable
-add_executable(main main.cpp playerMovement.cpp screenSizeChange.cpp screenSizeChange.h)
+add_executable(main ${SRC} ${INC})
 target_compile_features(main PRIVATE cxx_std_20)
 include_directories(${SDL2_INCLUDE_DIR})
 target_include_directories(main PRIVATE ${SDL2_INCLUDE_DIR})
-target_link_libraries(main SDL2)
-
-#Temporarily commented this out so the project would compile TODO: Fix this implementation
-#target_link_libraries(main SDL2 SDL2_ttf SDL2_image SDL2_mixer)
+target_link_libraries(main SDL2 SDL2_image)

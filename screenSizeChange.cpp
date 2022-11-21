@@ -14,7 +14,7 @@ void screenSizeChange(SDL_Rect &textRect, SDL_Window *window){
 
     //My computer for some reason set the height to 1009 whn full screening even though my screen is 1080,
     // so I changed it here because it annoyed me
-    if (textRect.h == 1009) {
+    if (textRect.h == 1009 || textRect.h == 1017){
         textRect.h = 1080;
         SDL_GetWindowSurface(window)->h = 1080;
     }
