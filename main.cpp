@@ -321,8 +321,11 @@ int main(int argc, char* argv[])
                         shoot = false;
                         retrac = true;
                         track = s;
+                        arrR[track].y = imRect.y;
+                        arrR[track].x = imRect.x;
                     }
                 }
+                SDL_BlitSurface(im, nullptr, test, &imRect);
 
                 if (retrac) {
                     if (s >= 0) {
@@ -330,10 +333,14 @@ int main(int argc, char* argv[])
 
                             for (int b = track; b > track - s; b--) {
 
-                                SDL_BlitSurface(arr[track - b], nullptr, test, &arrR[track - b]);
+                                arrR[b].y = static_cast<int>(arrR[b - 1].y + (arrR[b].y - arrR[b - 1].y)
+                                        * 0.9 - yVel);
+                                arrR[b].x = static_cast<int>(arrR[b - 1].x + (arrR[b].x - arrR[b - 1].x)
+                                        * 0.9 - xVel);
 
-                                arrR[b].y = arrR[b - 1].y - yVel;
-                                arrR[b].x = arrR[b - 1].x - xVel;
+                                SDL_BlitSurface(arr[track - b], nullptr, test,
+                                                &arrR[track- b]);
+
                             }
 
                             imRect.y = arrR[s].y + arrR[s].h / 2 - imRect.h / 2;
@@ -399,7 +406,6 @@ int main(int argc, char* argv[])
 
                 //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
                 // rectangle)
-                SDL_BlitSurface(im, nullptr, test, &imRect);
 
                 //Updates text texture into a texture, so it can be rendered with new blit info
                 SDL_UpdateTexture(text, nullptr, test->pixels, test->pitch);
