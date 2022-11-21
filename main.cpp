@@ -369,12 +369,11 @@ int main(int argc, char* argv[])
                         }
                     } else {
 
-                        if (mouseUp) {
+                        if (mouseUp && hit) {
                             xVel = -ghPieceVelX / 2;
                             yVel = -ghPieceVelY / 2;
                             hit = false;
                         }
-
                         s--;
                     }
                 }
