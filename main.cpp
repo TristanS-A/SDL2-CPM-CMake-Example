@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
         // Square position: In the middle of the screen
         squareRect.x = SCREEN_WIDTH / 2 - squareRect.w / 2;
-        squareRect.y = SCREEN_HEIGHT / 2 - squareRect.h / 2;
+        squareRect.y = 100;
 
         //Loads cat image
         SDL_Surface *im = SDL_LoadBMP("cat.bmp");
@@ -117,6 +117,9 @@ int main(int argc, char* argv[])
         //Mouse coordinates
         int mouseX;
         int mouseY;
+
+        //Bool to test if the mouse button is down
+        bool mouseUp;
 
         //Bool for if grappling hook is shooting out
         bool shoot;
@@ -205,6 +208,8 @@ int main(int argc, char* argv[])
                         //Presses mouse button
                     case SDL_MOUSEBUTTONDOWN:
 
+                        mouseUp = false;
+
                         //So you cant fire the grappling hook while already firring it or retracting it
                         if (!shoot && !retrac) {
 
@@ -250,6 +255,8 @@ int main(int argc, char* argv[])
                         }
 
                         break;
+                    case SDL_MOUSEBUTTONUP:
+                        mouseUp = true;
                 }
 
                 screenSizeChange(textRect, window);
@@ -277,11 +284,6 @@ int main(int argc, char* argv[])
                 }
 
                 playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
-
-                //Test for seeing when two rects collide
-                    if (SDL_HasIntersection(&imRect, &squareRect)){
-                        cout << "touching!!!!\n";
-                    }
 
                 if (shoot) {
                     if (s < arr.size() && !hit) {
@@ -327,16 +329,15 @@ int main(int argc, char* argv[])
                         if (hit) {
 
                             for (int b = track; b > track - s; b--) {
-                                cout << "" << " " << b << "\n";
 
                                 SDL_BlitSurface(arr[track - b], nullptr, test, &arrR[track - b]);
 
-                                arrR[b].y = arrR[b - 1].y - yVel / 4; //The /4 is to minimize the yVel to it pull harder
+                                arrR[b].y = arrR[b - 1].y - yVel;
                                 arrR[b].x = arrR[b - 1].x - xVel;
                             }
 
-                            imRect.y = arrR[track - 1].y;
-                            imRect.x = arrR[track - 1].x;
+                            imRect.y = arrR[s].y + arrR[s].h / 2 - imRect.h / 2;
+                            imRect.x = arrR[s].x + arrR[s].w / 2 - imRect.w / 2;
 
                         } else {
 
@@ -356,14 +357,25 @@ int main(int argc, char* argv[])
                             SDL_BlitSurface(arr[k], nullptr, test, &arrR[k]);
                         }
                     }
-                    s--;
-                    if (s < 0) {
+
+                    if (s <= 0) {
                         if (hit) {
                             yVel = 0;
                             xVel = 0;
                         }
-                        retrac = false;
-                        hit = false;
+                        if (mouseUp) {
+                            retrac = false;
+                            hit = false;
+                        }
+                    } else {
+
+                        if (mouseUp) {
+                            xVel = -ghPieceVelX / 2;
+                            yVel = -ghPieceVelY / 2;
+                            hit = false;
+                        }
+
+                        s--;
                     }
                 }
 

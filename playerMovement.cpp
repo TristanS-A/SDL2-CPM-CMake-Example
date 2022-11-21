@@ -14,10 +14,14 @@ void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &
         imRect.y -= yVel;
     }
     if (left) {
-        xVel = 5;
+        if (xVel < 1) {
+            xVel += 5;
+        }
     }
     if (right) {
-        xVel = -5;
+        if (xVel > -1) {
+            xVel += -5;
+        }
     }
     if (down) {
         yVel -= 5;
