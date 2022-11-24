@@ -1,4 +1,5 @@
 #define SDL_MAIN_HANDLED true
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <algorithm>
 #include <cmath>
