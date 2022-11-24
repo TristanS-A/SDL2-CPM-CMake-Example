@@ -6,9 +6,10 @@
 #include "SDL.h"
 #include <algorithm>
 
+//Function for shooting the grappling hook
 void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int ghPieceVelY,
               int ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-              SDL_Rect &squareRect){
+              vector<SDL_Rect> &hitObjects, int &sideOffsetY){
 
     //Shoots out rectangles until hitting something or until shooting all the graphing hook pieces. I made this an if
     // statement instead of a for loop so that the pieces don't instantly all go out at once before displaying and so
@@ -23,13 +24,51 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
         //Blits and adds force to each grappling piece currently shooting out
         for (int b = 0; b < s; b++) {
 
+            //This is for not extending grappling hook pieces through an object
+//            for (auto & hitObject : hitObjects)
+//                if (SDL_HasIntersection(&arrR[b], &hitObject)){
+//                    if ((arrR[b].y + arrR[b].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[b].y + arrR[b].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
+//                        arrR[b].y = hitObject.y - arrR[b].h;
+//                        sideOffsetY = arrR[b].h;
+//                    }
+//                    else if ((hitObject.y + hitObject.h - arrR[b].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) || (hitObject.y + hitObject.h - arrR[b].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
+//                        arrR[b].y = hitObject.y + hitObject.h;
+//                        sideOffsetY = 0;
+//                    }
+//                    else if ((arrR[b].x + arrR[b].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) || (hitObject.x + hitObject.w - arrR[b].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
+//                        arrR[b].x = hitObject.x - arrR[b].w;
+//                        sideOffsetY = arrR[b].w;
+//                    }
+//                    else if ((arrR[b].x + arrR[b].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) || (hitObject.x + hitObject.w - arrR[b].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
+//                        arrR[b].x = hitObject.x + hitObject.w;
+//                        sideOffsetY = 0;
+//                    }
+//                }
+
             SDL_BlitSurface(arr[b], nullptr, test, &arrR[b]);
             arrR[b].y += ghPieceVelY;
             arrR[b].x += ghPieceVelX;
         }
 
         //Test for if the hook intersects with something
-        if (SDL_HasIntersection(&arrR[0], &squareRect)){
+        for (auto & hitObject : hitObjects)
+        if (SDL_HasIntersection(&arrR[0], &hitObject)){
+            if ((arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
+                arrR[0].y = hitObject.y - arrR[0].h;
+                sideOffsetY = arrR[0].h;
+            }
+            else if ((hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) || (hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
+                arrR[0].y = hitObject.y + hitObject.h;
+                sideOffsetY = 0;
+            }
+            else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) || (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
+                arrR[0].x = hitObject.x - arrR[0].w;
+                sideOffsetY = arrR[0].w;
+            }
+            else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) || (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
+                arrR[0].x = hitObject.x + hitObject.w;
+                sideOffsetY = 0;
+            }
             hit = true;
         }
 
@@ -59,9 +98,13 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
     }
 }
 
-void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int ghPieceVelY,
-                int ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-                SDL_Rect &squareRect, int &yVel, int &xVel, bool mouseUp){
+//Function for retracting the grappling hook
+void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int &ghPieceVelY,
+                int &ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
+                SDL_Rect &squareRect, int &yVel, int &xVel, bool mouseUp, int &sideOffsetY, vector<SDL_Rect> &hitObjects){
+
+    //Variable to tell if the player is intersecting with an object in the level when retracting
+    int noCancel;
 
     //I made this an if statement instead of a for loop so that the pieces don't instantly all go out at once before
     // displaying and so that everything else in the main loop also runs together with this. This goes from the last
@@ -91,8 +134,18 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             }
 
             //Sets player location to the last element currently retracting
-            imRect.y = arrR[s].y + arrR[s].h / 2 - imRect.h / 2;
-            imRect.x = arrR[s].x + arrR[s].w / 2 - imRect.w / 2;
+            imRect.y = arrR[s].y - sideOffsetY;
+            imRect.x = arrR[s].x - sideOffsetY;
+
+            //Sets noCancel to false
+            noCancel = false;
+
+            //If the player is intersecting with an object noCancel is set to true
+            for (auto & hitObject : hitObjects)
+                if (SDL_HasIntersection(&imRect, &hitObject)){
+                    noCancel = true;
+                }
+
 
         } else {
 
@@ -125,16 +178,19 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
         if (mouseUp) {
             retrac = false;
             hit = false;
+            ghPieceVelY = 0;
+            ghPieceVelX = 0;
         }
     } else {
 
-        //If something was hit and the mouse button stopped being held before the grappling hook retracted all the way,
-        // the player takes the velocity that the grappling hook pieces were shot out at and applies it to the player,
-        // launching the player
-        if (mouseUp && hit) {
+        //Sets player velocity to grappling hook piece velocity if the player lets go of the mouse button before the
+        // hook retracts all the way, unless the player is intersecting with an object in the level.
+        if (mouseUp && hit && !noCancel) {
             xVel = -ghPieceVelX / 2;
             yVel = -ghPieceVelY / 2;
             hit = false;
+            ghPieceVelY = 0;
+            ghPieceVelX = 0;
         }
 
         //Subtracts from the iteration variable to move on to the next grappling hoo piece

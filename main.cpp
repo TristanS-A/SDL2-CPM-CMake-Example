@@ -7,10 +7,12 @@
 #include "playerMovement.h"
 #include "screenSizeChange.h"
 #include "grappleHook.h"
+#include "rooms.h"
 
 using namespace std;
 
 #include <SDL.h>
+#include <SDL_image.h>
 
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
@@ -61,6 +63,12 @@ int main(int argc, char* argv[])
         error = true;
     }
 
+    if (IMG_Init(IMG_INIT_PNG) == 0) {
+        cout << "SDL_Image could not be created!" << endl
+             << "SDL_Error: " << SDL_GetError() << endl;
+        error = true;
+    }
+
     if (!error) {
         // Declare rect of square
         SDL_Rect squareRect;
@@ -71,7 +79,7 @@ int main(int argc, char* argv[])
 
         // Square position: In the middle of the screen
         squareRect.x = SCREEN_WIDTH / 2 - squareRect.w / 2;
-        squareRect.y = 100;
+        squareRect.y = 200;
 
         //Loads cat image
         SDL_Surface *im = SDL_LoadBMP("cat.bmp");
@@ -129,13 +137,16 @@ int main(int argc, char* argv[])
         //Bool for if the grappling hook is retracting
         bool retrac;
 
+        //To test what side of an object the hook contacts
+        int sideOffsetY = 0;
+
         //Iteration variable to keep track of grappling hook vector indexes as it shoots and retracts
         int s;
 
         //Bool for if the grappling hook collides with a rect
         bool hit = false;
 
-        //
+        //To keep track of the last grappling hook rect to be shot out
         int track;
 
         //Vector holding grappling hook images
@@ -161,8 +172,8 @@ int main(int argc, char* argv[])
         }
 
         //Ints holding x and y velocity for each grappling hook piece
-        int ghPieceVelX;
-        int ghPieceVelY;
+        int ghPieceVelX = 0;
+        int ghPieceVelY = 0;
 
         //Set up for delta time FPS calculator
         Uint32 currTime;
@@ -181,6 +192,29 @@ int main(int argc, char* argv[])
 
         //Sets up key presses
         const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
+
+        //Vector holding all rects for a level
+        vector<SDL_Rect> roomRects = {{0, 700, SCREEN_WIDTH, 100}, squareRect};
+
+        //Uses SDL_image to load a color to fill the rect skeleton
+        SDL_Surface* color = IMG_Load("color.png");
+
+        if (color == nullptr) {
+            cout << "Error loading image: " << IMG_GetError();
+        }
+
+        //To keep track of the current room the player is in
+        int currRoom = 0;
+
+        //Creates a vector of surfaces to blit into the Rect objects of the room object
+        vector<SDL_Surface *> roomSkellSurfs = {color, color};
+
+        //Creates room objects
+        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs);
+        Rooms room2 = *new Rooms(2, roomRects, roomSkellSurfs);
+
+        //Vector of all the rooms
+        vector<Rooms> roomsArr = {room1, room2};
 
         // Event loop
         while (!quit) {
@@ -302,9 +336,12 @@ int main(int argc, char* argv[])
                 //Test if grappling hook is shooting
                 if (shoot) {
 
-                    //Function for shooting the grapping hook
+                    //Gets rects that can be hit with the hook in the current level
+                    roomRects = roomsArr[currRoom].getRects();
+
+                    //Function for shooting the grappling hook
                     shooting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
-                             retrac,track,test,squareRect);
+                             retrac,track,test, roomRects, sideOffsetY);
                 }
 
                 //Test if grappling hook is retracting
@@ -312,7 +349,8 @@ int main(int argc, char* argv[])
 
                     //Function for retracting the grappling hook
                     retracting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
-                               retrac,track,test,squareRect, yVel, xVel, mouseUp);
+                               retrac,track,test,squareRect, yVel, xVel, mouseUp,
+                               sideOffsetY, roomRects);
                 }
 
                 //Applying gravity to the charter
@@ -324,15 +362,9 @@ int main(int argc, char* argv[])
                 //Applies x-axis velocity to the character
                 imRect.x -= xVel;
 
-                //Test for when the charter is grounded so the character stops moving by setting yVel to 0
-                if (imRect.y > 500) {
-                    yVel = 0;
-                    xVel = 0;
-                    imRect.y = 500;
-
-                    //Sets jump to true so player can jump after touching thr ground and not while in the air
-                    jump = true;
-                }
+                //Tests blitting for room objects
+                roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
+                                              ghPieceVelY, ghPieceVelX);
 
                 //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
                 // rectangle)
@@ -353,10 +385,10 @@ int main(int argc, char* argv[])
             SDL_RenderCopy(renderer, text, nullptr, &textRect);
 
             // Set renderer color red to draw the square
-            SDL_SetRenderDrawColor(renderer, 0xFF, 0x0F, 0x00, 0xFF);
-
-            // Draw filled square
-            SDL_RenderFillRect(renderer, &squareRect);
+//            SDL_SetRenderDrawColor(renderer, 0xFF, 0x0F, 0x00, 0xFF);
+//
+//            // Draw filled square
+//            SDL_RenderFillRect(renderer, &squareRect);
 
             // Update screen
             SDL_RenderPresent(renderer);
