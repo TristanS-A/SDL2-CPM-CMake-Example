@@ -9,6 +9,7 @@
 #include "grappleHook.h"
 #include "rooms.h"
 #include "loadImages.h"
+#include "roomSwitch.h"
 
 using namespace std;
 
@@ -83,25 +84,16 @@ int main(int argc, char* argv[])
         squareRect.y = 200;
 
         //Loads cat image
-        SDL_Surface *im = SDL_LoadBMP("cat.bmp");
-        if (im == nullptr) {
-            printf("Unable to load image %s! SDL Error: %s\n",
-                   "02_getting_an_image_on_the_screen/hello_world.bmp", SDL_GetError());
-        }
+        SDL_Surface *im = loadImages("cat.png");
+
         //Loads circle image
-        SDL_Surface *circle = SDL_LoadBMP("circle.bmp");
-        if (circle == nullptr) {
-            printf("Unable to load image %s! SDL Error: \n ", SDL_GetError());
-        }
+        SDL_Surface *circle = loadImages("circle.png");
 
         //Loads circle2 image
-        SDL_Surface *circle2 = SDL_LoadBMP("circle2.bmp");
-        if (circle2 == nullptr) {
-            printf("Unable to load image %s! SDL Error: \n ", SDL_GetError());
-        }
+        SDL_Surface *circle2 = loadImages("circle2.png");
 
         //Creates rectangle for cat image
-        SDL_Rect imRect = {0, 0, 100, 100};
+        SDL_Rect imRect = {100, 100, 100, 100};
 
         //Exit flag
         bool quit = false;
@@ -196,21 +188,43 @@ int main(int argc, char* argv[])
         const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
         //Vector holding all rects for a level
-        vector<SDL_Rect> roomRects = {{0, 700, SCREEN_WIDTH, 100}, {0, 0, SCREEN_WIDTH, 100}, squareRect};
+        SDL_Rect squareRect2 = {0, 0, SCREEN_WIDTH, 100};
+        SDL_Rect squareRect3 = {0, 700, SCREEN_WIDTH, 100};
+        vector<SDL_Rect *> roomRects = {&squareRect, &squareRect2, &squareRect3};
+
+        SDL_Rect squareRect4 = {SCREEN_WIDTH, 0, SCREEN_WIDTH, 100};
+        SDL_Rect squareRect5 = {SCREEN_WIDTH, 700, SCREEN_WIDTH, 100};
+
+        vector<SDL_Rect *> roomRects2 = {&squareRect4, &squareRect5};
 
         //To keep track of the current room the player is in
         int currRoom = 0;
 
+        //To assign the next room to transition to
+        int nextRoom = 0;
+
+        //Speed the room switch will happen at
+        int speed = 0;
+
+        //Makes it so the transition doesn't happen immediately again in the opposite direction
+        bool noSwitch;
+
         //Creates a vector of surfaces to blit into the Rect objects of the room object
         vector<SDL_Surface *> roomSkellSurfs = {loadImages("color.png"), loadImages("color.png"),
                                                 loadImages("color.png")};
+        vector<SDL_Surface *> roomSkellSurfs2 = {loadImages("color.png"), loadImages("color.png")};
 
         //Creates room objects
         Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs);
-        Rooms room2 = *new Rooms(2, roomRects, roomSkellSurfs);
+        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2);
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2};
+
+        bool transition;
+
+        int y = SCREEN_WIDTH;
+        int x = SCREEN_WIDTH;
 
         // Event loop
         while (!quit) {
@@ -321,63 +335,94 @@ int main(int argc, char* argv[])
                 //Function for resizing the screen
                 screenSizeChange(textRect, window);
 
-                //Gets key inputs
-                if ((keystates[SDL_SCANCODE_W])) {
-                    up = true;
+                if (!transition) {
+                    //Gets key inputs
+                    if ((keystates[SDL_SCANCODE_W])) {
+                        up = true;
+                    } else {
+                        up = false;
+                    }
+                    if (keystates[SDL_SCANCODE_A]) {
+                        left = true;
+                    } else {
+                        left = false;
+                    }
+                    if ((keystates[SDL_SCANCODE_D])) {
+                        right = true;
+                    } else {
+                        right = false;
+                    }
+                    if ((keystates[SDL_SCANCODE_S])) {
+                        down = true;
+                    } else {
+                        down = false;
+                    }
+
+                    //Function for player movement
+                    playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
+
+                    //Test if grappling hook is shooting
+                    if (shoot) {
+
+                        //Gets rects that can be hit with the hook in the current level
+                        roomRects = roomsArr[currRoom].getRects();
+
+                        //Function for shooting the grappling hook
+                        shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
+                                 retrac, track, test, roomRects, sideOffsetY, sideOffsetX);
+                    }
+
+                    //Test if grappling hook is retracting
+                    if (retrac) {
+
+                        //Function for retracting the grappling hook
+                        retracting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit,
+                                   retrac, track, test, yVel, xVel, mouseUp,
+                                   sideOffsetY, roomRects, sideOffsetX);
+                    }
+
+                    //Applying gravity to the charter
+                    yVel -= gravity;
+
+                    //Applies y-axis velocity to the character
+                    imRect.y -= yVel;
+
+                    //Applies x-axis velocity to the character
+                    imRect.x -= xVel;
+
+                    if (imRect.x >= SCREEN_WIDTH && !noSwitch){
+                        transition = true;
+                        nextRoom = 1;
+                        speed = 20;
+                        y = SCREEN_WIDTH;
+                    } else if (imRect.x + imRect.w <= 0 && !noSwitch){
+                        transition = true;
+                        nextRoom = -1;
+                        speed = -20;
+                        y = -SCREEN_WIDTH;
+                    } else if (imRect.x + imRect.w > 0 && imRect.x < SCREEN_WIDTH){
+                        noSwitch = false;
+                    }
+
                 } else {
-                    up = false;
-                }
-                if (keystates[SDL_SCANCODE_A]) {
-                    left = true;
-                } else {
-                    left = false;
-                }
-                if ((keystates[SDL_SCANCODE_D])) {
-                    right = true;
-                } else {
-                    right = false;
-                }
-                if ((keystates[SDL_SCANCODE_S])) {
-                    down = true;
-                } else {
-                    down = false;
+
+                    vector<SDL_Rect *> currObjs = roomsArr[currRoom].getRects();
+                    vector<SDL_Rect *> nextObjs = roomsArr[currRoom + nextRoom].getRects();
+                    vector<SDL_Surface *> nextSurfs = roomsArr[currRoom + nextRoom].getSurfs();
+
+                    if (switchRooms(currObjs, nextObjs, nextSurfs, imRect, y, x, speed, test)){
+                        transition = false;
+                        noSwitch = true;
+                        currRoom = currRoom + nextRoom;
+                    }
                 }
 
-                //Function for player movement
-                playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
-
-                //Test if grappling hook is shooting
-                if (shoot) {
-
-                    //Gets rects that can be hit with the hook in the current level
-                    roomRects = roomsArr[currRoom].getRects();
-
-                    //Function for shooting the grappling hook
-                    shooting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
-                             retrac,track,test, roomRects, sideOffsetY, sideOffsetX);
-                }
-
-                //Test if grappling hook is retracting
-                if (retrac) {
-
-                    //Function for retracting the grappling hook
-                    retracting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
-                               retrac,track,test,squareRect, yVel, xVel, mouseUp,
-                               sideOffsetY, roomRects, sideOffsetX);
-                }
-
-                //Applying gravity to the charter
-                yVel -= gravity;
-
-                //Applies y-axis velocity to the character
-                imRect.y -= yVel;
-
-                //Applies x-axis velocity to the character
-                imRect.x -= xVel;
+                //Placeholder so that imRect does not get altered by the blitting function
+                SDL_Rect placeH = imRect;
 
                 //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
                 // rectangle)
-                SDL_BlitSurface(im, nullptr, test, &imRect);
+                SDL_BlitSurface(im, nullptr, test, &placeH);
 
                 //Tests blitting for room objects
                 roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
