@@ -9,7 +9,7 @@
 //Function for shooting the grappling hook
 void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int ghPieceVelY,
               int ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-              vector<SDL_Rect> &hitObjects, int &sideOffsetY){
+              vector<SDL_Rect> &hitObjects, int &sideOffsetY, int &sideOffsetX){
 
     //Shoots out rectangles until hitting something or until shooting all the graphing hook pieces. I made this an if
     // statement instead of a for loop so that the pieces don't instantly all go out at once before displaying and so
@@ -55,19 +55,23 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
         if (SDL_HasIntersection(&arrR[0], &hitObject)){
             if ((arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
                 arrR[0].y = hitObject.y - arrR[0].h;
-                sideOffsetY = arrR[0].h;
+                sideOffsetY = -arrR[0].h;
+                sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
             }
             else if ((hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) || (hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
                 arrR[0].y = hitObject.y + hitObject.h;
                 sideOffsetY = 0;
+                sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
             }
             else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) || (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
                 arrR[0].x = hitObject.x - arrR[0].w;
-                sideOffsetY = arrR[0].w;
+                sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
+                sideOffsetX = -arrR[0].w;
             }
             else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) || (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
                 arrR[0].x = hitObject.x + hitObject.w;
-                sideOffsetY = 0;
+                sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
+                sideOffsetX = 0;
             }
             hit = true;
         }
@@ -101,7 +105,8 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 //Function for retracting the grappling hook
 void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int &ghPieceVelY,
                 int &ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-                SDL_Rect &squareRect, int &yVel, int &xVel, bool mouseUp, int &sideOffsetY, vector<SDL_Rect> &hitObjects){
+                SDL_Rect &squareRect, int &yVel, int &xVel, bool mouseUp, int &sideOffsetY,
+                vector<SDL_Rect> &hitObjects, int &sideOffsetX){
 
     //Variable to tell if the player is intersecting with an object in the level when retracting
     int noCancel;
@@ -134,8 +139,8 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             }
 
             //Sets player location to the last element currently retracting
-            imRect.y = arrR[s].y - sideOffsetY;
-            imRect.x = arrR[s].x - sideOffsetY;
+            imRect.y = arrR[s].y - imRect.h / 2 + arrR[s].h / 2;
+            imRect.x = arrR[s].x - imRect.w / 2 + arrR[s].w / 2;
 
             //Sets noCancel to false
             noCancel = false;
@@ -167,8 +172,11 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
     // hook pieces have been retracted.
     if (s <= 0) {
 
-        //Sets the velocity of the player to 0 so they stay stuck there if the hook had hit something
+        //Sets the velocity of the player to 0, so they stay stuck there if the hook had hit something
         if (hit) {
+            //Sets player location to the last element currently retracting
+            imRect.y = arrR[s].y + sideOffsetY;
+            imRect.x = arrR[s].x + sideOffsetX;
             yVel = 0;
             xVel = 0;
         }

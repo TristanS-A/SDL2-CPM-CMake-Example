@@ -8,6 +8,7 @@
 #include "screenSizeChange.h"
 #include "grappleHook.h"
 #include "rooms.h"
+#include "loadImages.h"
 
 using namespace std;
 
@@ -139,6 +140,7 @@ int main(int argc, char* argv[])
 
         //To test what side of an object the hook contacts
         int sideOffsetY = 0;
+        int sideOffsetX = 0;
 
         //Iteration variable to keep track of grappling hook vector indexes as it shoots and retracts
         int s;
@@ -194,20 +196,14 @@ int main(int argc, char* argv[])
         const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
         //Vector holding all rects for a level
-        vector<SDL_Rect> roomRects = {{0, 700, SCREEN_WIDTH, 100}, squareRect};
-
-        //Uses SDL_image to load a color to fill the rect skeleton
-        SDL_Surface* color = IMG_Load("color.png");
-
-        if (color == nullptr) {
-            cout << "Error loading image: " << IMG_GetError();
-        }
+        vector<SDL_Rect> roomRects = {{0, 700, SCREEN_WIDTH, 100}, {0, 0, SCREEN_WIDTH, 100}, squareRect};
 
         //To keep track of the current room the player is in
         int currRoom = 0;
 
         //Creates a vector of surfaces to blit into the Rect objects of the room object
-        vector<SDL_Surface *> roomSkellSurfs = {color, color};
+        vector<SDL_Surface *> roomSkellSurfs = {loadImages("color.png"), loadImages("color.png"),
+                                                loadImages("color.png")};
 
         //Creates room objects
         Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs);
@@ -272,24 +268,41 @@ int main(int argc, char* argv[])
 
                             //Calculates the x and y velocity to be added to each piece of the grappling hook when
                             // shooting by checking if the mouse position is on the left or right of the character
-                            // (on the left or right side of the x-axis) because I calculated the angle to be
-                            // between -90 and 90 so if the mouse position is on the left side, it must be flipped.
+                            // because I calculated the angle to be between -90 and 90 so if the mouse position is on 
+                            // the left side, it must be flipped. After calculating an x and y velocity though, with 
+                            // the x vel being 90 - fabs(angle) and the y vel being fabs(90 - angle) - 90 I had to
+                            // convert these values to a circle, because graphing all the possible vels would
+                            // show a cube rotated 90 degrees with the player in the center, and that was the max
+                            // distance that the grappling hook would reach given the direction. So the rest of the
+                            // math makes it so if you graphed all the possible vels, it would show a circle so that
+                            // no matter what direction you shot the grappling hook in, it would always travel the
+                            // same distance from the player. The * 0.4 is just a dampener that shortens the length
+                            // that the hook shoots
                             if (mouseX <= (imRect.x + 100 / 2)) {
 
                                 //Calculates x and y velocity from angle when mouse is on the left side of the
                                 // character
-                                ghPieceVelY = -static_cast<int>((fabs(90 - angle) - 90) * 0.6);
-                                ghPieceVelX = -static_cast<int>((fabs(-1 * (90 - fabs(angle)))) * 0.6);
+                                ghPieceVelY = static_cast<int>((((fabs(90 - angle) - 90) * -1) * (90 / 
+                                        sqrt(pow(((fabs(90 - angle) - 90) * -1), 2)
+                                        + pow(((90 - fabs(angle)) * -1), 2)))) * 0.4);
+                                ghPieceVelX = static_cast<int>((((90 - fabs(angle)) * -1) * (90 
+                                        / sqrt(pow(((90 - fabs(angle)) * -1), 2)
+                                        + pow(((fabs(90 - angle) - 90) * -1), 2)))) * 0.4);
+
 
                             } else {
 
                                 //Calculates x and y velocity from angle when mouse is on the right side of the
                                 // character
-                                ghPieceVelY = static_cast<int>((fabs(90 - angle) - 90) * 0.6);
-                                ghPieceVelX = static_cast<int>((fabs((90 - fabs(angle)))) * 0.6);
+                                ghPieceVelY = static_cast<int>(((fabs(90 - angle) - 90) * (90 
+                                        / sqrt(pow((fabs(90 - angle) - 90), 2)
+                                        + pow((90 - fabs(angle)), 2)))) * 0.4);
+                                ghPieceVelX = static_cast<int>(((90 - fabs(angle)) * (90 
+                                        / sqrt(pow((90 - fabs(angle)), 2)
+                                        + pow((fabs(90 - angle) - 90), 2)))) * 0.4);
 
                             }
-
+                            
                             //Triggers shoot function
                             shoot = true;
 
@@ -341,7 +354,7 @@ int main(int argc, char* argv[])
 
                     //Function for shooting the grappling hook
                     shooting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
-                             retrac,track,test, roomRects, sideOffsetY);
+                             retrac,track,test, roomRects, sideOffsetY, sideOffsetX);
                 }
 
                 //Test if grappling hook is retracting
@@ -350,7 +363,7 @@ int main(int argc, char* argv[])
                     //Function for retracting the grappling hook
                     retracting(s, arrR,arr,imRect,ghPieceVelY, ghPieceVelX,hit,shoot,
                                retrac,track,test,squareRect, yVel, xVel, mouseUp,
-                               sideOffsetY, roomRects);
+                               sideOffsetY, roomRects, sideOffsetX);
                 }
 
                 //Applying gravity to the charter
@@ -362,13 +375,13 @@ int main(int argc, char* argv[])
                 //Applies x-axis velocity to the character
                 imRect.x -= xVel;
 
-                //Tests blitting for room objects
-                roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                              ghPieceVelY, ghPieceVelX);
-
                 //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
                 // rectangle)
                 SDL_BlitSurface(im, nullptr, test, &imRect);
+
+                //Tests blitting for room objects
+                roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
+                                              ghPieceVelY, ghPieceVelX);
 
                 //Updates text texture into a texture, so it can be rendered with new blit info
                 SDL_UpdateTexture(text, nullptr, test->pixels, test->pitch);
