@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         squareRect.h = min(SCREEN_WIDTH, SCREEN_HEIGHT) / 8;
 
         // Square position: In the middle of the screen
-        squareRect.x = SCREEN_WIDTH / 2 - squareRect.w / 2;
+        squareRect.x = SCREEN_WIDTH + SCREEN_WIDTH / 2 - squareRect.w / 2;
         squareRect.y = 200;
 
         //Loads cat image
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
         SDL_Surface *circle2 = loadImages("circle2.png");
 
         //Creates rectangle for cat image
-        SDL_Rect imRect = {100, 100, 100, 100};
+        SDL_Rect imRect = {200, 200, 100, 100};
 
         //Exit flag
         bool quit = false;
@@ -189,13 +189,33 @@ int main(int argc, char* argv[])
 
         //Vector holding all rects for a level
         SDL_Rect squareRect2 = {0, 0, SCREEN_WIDTH, 100};
-        SDL_Rect squareRect3 = {0, 700, SCREEN_WIDTH, 100};
-        vector<SDL_Rect *> roomRects = {&squareRect, &squareRect2, &squareRect3};
+        SDL_Rect squareRect3 = {0, 710, SCREEN_WIDTH, 100};
+        SDL_Rect squareRect33 = {0, 100, 100, SCREEN_HEIGHT - 200};
 
-        SDL_Rect squareRect4 = {SCREEN_WIDTH, 0, SCREEN_WIDTH, 100};
-        SDL_Rect squareRect5 = {SCREEN_WIDTH, 700, SCREEN_WIDTH, 100};
+        //Doesn't load if I don't do this for some reason
+        //TODO: Remake grappling hook head so it doesnt clip the player into walls
+        SDL_Rect sdfgh = {0,0,0,0};
 
-        vector<SDL_Rect *> roomRects2 = {&squareRect4, &squareRect5};
+        vector<SDL_Rect *> roomRects = {&squareRect2, &squareRect3, &squareRect33};
+
+        SDL_Rect squareRect4 = {SCREEN_WIDTH, 0, 500, 100};
+        SDL_Rect squareRect5 = {SCREEN_WIDTH + 500 + 440, 0, 500, 100};
+        SDL_Rect squareRect6 = {SCREEN_WIDTH, 710, 500, 100};
+        SDL_Rect squareRect66 = {SCREEN_WIDTH + 500 + 440, 710, 500, 100};
+
+        vector<SDL_Rect *> roomRects2 = {&squareRect, &squareRect4, &squareRect5, &squareRect6, &squareRect66};
+
+        SDL_Rect squareRect7 = {0, -SCREEN_HEIGHT + 710, 500, 100};
+        SDL_Rect squareRect8 = {500 + 440, -SCREEN_HEIGHT + 710, 500, 100};
+        SDL_Rect squareRect9 = {0, -SCREEN_HEIGHT, SCREEN_WIDTH, 100};
+
+        vector<SDL_Rect *> roomRects3 = {&squareRect7, &squareRect8, &squareRect9};
+
+        SDL_Rect squareRect10 = {0, SCREEN_HEIGHT, 500, 100};
+        SDL_Rect squareRect11 = {500 + 440, SCREEN_HEIGHT, 500, 100};
+        SDL_Rect squareRect12 = {0, SCREEN_HEIGHT + 710, SCREEN_WIDTH, 100};
+
+        vector<SDL_Rect *> roomRects4 = {&squareRect10, &squareRect11, &squareRect12};
 
         //To keep track of the current room the player is in
         int currRoom = 0;
@@ -209,22 +229,39 @@ int main(int argc, char* argv[])
         //Makes it so the transition doesn't happen immediately again in the opposite direction
         bool noSwitch;
 
+        //Checks if the user is exiting a room and what room, gets room number to travel to and the speed to transition
+        // (Like in case the screen needs to change left or right
+        vector<int> exitInfo;
+
         //Creates a vector of surfaces to blit into the Rect objects of the room object
-        vector<SDL_Surface *> roomSkellSurfs = {loadImages("color.png"), loadImages("color.png"),
-                                                loadImages("color.png")};
-        vector<SDL_Surface *> roomSkellSurfs2 = {loadImages("color.png"), loadImages("color.png")};
+        vector<SDL_Surface *> roomSkellSurfs = {loadImages("color.png"), loadImages("color.png"), loadImages("color.png")};
+        vector<SDL_Surface *> roomSkellSurfs2 = {loadImages("color.png"), loadImages("color.png"),
+                                                 loadImages("color.png"), loadImages("color.png"), loadImages("color.png")};
+
+        vector<SDL_Rect> exits = {{SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
 
         //Creates room objects
-        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs);
-        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2);
+        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}});
+
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
+
+        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}});
+
+        exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
+
+        Rooms room3 = *new Rooms(3, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}});
+
+        exits = {{500, -100, 440, 50}};
+
+        Rooms room4 = *new Rooms(4, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}});
 
         //Vector of all the rooms
-        vector<Rooms> roomsArr = {room1, room2};
+        vector<Rooms> roomsArr = {room1, room2, room3, room4};
 
-        bool transition;
+        bool transition = false;
 
-        int y = SCREEN_WIDTH;
-        int x = SCREEN_WIDTH;
+        int y = 0;
+        int x = 0;
 
         // Event loop
         while (!quit) {
@@ -282,8 +319,8 @@ int main(int argc, char* argv[])
 
                             //Calculates the x and y velocity to be added to each piece of the grappling hook when
                             // shooting by checking if the mouse position is on the left or right of the character
-                            // because I calculated the angle to be between -90 and 90 so if the mouse position is on 
-                            // the left side, it must be flipped. After calculating an x and y velocity though, with 
+                            // because I calculated the angle to be between -90 and 90 so if the mouse position is on
+                            // the left side, it must be flipped. After calculating an x and y velocity though, with
                             // the x vel being 90 - fabs(angle) and the y vel being fabs(90 - angle) - 90 I had to
                             // convert these values to a circle, because graphing all the possible vels would
                             // show a cube rotated 90 degrees with the player in the center, and that was the max
@@ -296,10 +333,10 @@ int main(int argc, char* argv[])
 
                                 //Calculates x and y velocity from angle when mouse is on the left side of the
                                 // character
-                                ghPieceVelY = static_cast<int>((((fabs(90 - angle) - 90) * -1) * (90 / 
+                                ghPieceVelY = static_cast<int>((((fabs(90 - angle) - 90) * -1) * (90 /
                                         sqrt(pow(((fabs(90 - angle) - 90) * -1), 2)
                                         + pow(((90 - fabs(angle)) * -1), 2)))) * 0.4);
-                                ghPieceVelX = static_cast<int>((((90 - fabs(angle)) * -1) * (90 
+                                ghPieceVelX = static_cast<int>((((90 - fabs(angle)) * -1) * (90
                                         / sqrt(pow(((90 - fabs(angle)) * -1), 2)
                                         + pow(((fabs(90 - angle) - 90) * -1), 2)))) * 0.4);
 
@@ -308,15 +345,15 @@ int main(int argc, char* argv[])
 
                                 //Calculates x and y velocity from angle when mouse is on the right side of the
                                 // character
-                                ghPieceVelY = static_cast<int>(((fabs(90 - angle) - 90) * (90 
+                                ghPieceVelY = static_cast<int>(((fabs(90 - angle) - 90) * (90
                                         / sqrt(pow((fabs(90 - angle) - 90), 2)
                                         + pow((90 - fabs(angle)), 2)))) * 0.4);
-                                ghPieceVelX = static_cast<int>(((90 - fabs(angle)) * (90 
+                                ghPieceVelX = static_cast<int>(((90 - fabs(angle)) * (90
                                         / sqrt(pow((90 - fabs(angle)), 2)
                                         + pow((fabs(90 - angle) - 90), 2)))) * 0.4);
 
                             }
-                            
+
                             //Triggers shoot function
                             shoot = true;
 
@@ -390,30 +427,44 @@ int main(int argc, char* argv[])
                     //Applies x-axis velocity to the character
                     imRect.x -= xVel;
 
-                    if (imRect.x >= SCREEN_WIDTH && !noSwitch){
+                    exitInfo = roomsArr[currRoom].exitRoom(imRect);
+
+                    if (exitInfo[1] > 0){
+                        if (right){
+                            noSwitch = false;
+                        }
+                    } else if (exitInfo[1] < 0){
+                        if (left){
+                            noSwitch = false;
+                        }
+                    }
+
+                    if (exitInfo[0] != -1 && !noSwitch){
                         transition = true;
-                        nextRoom = 1;
-                        speed = 20;
-                        y = SCREEN_WIDTH;
-                    } else if (imRect.x + imRect.w <= 0 && !noSwitch){
-                        transition = true;
-                        nextRoom = -1;
-                        speed = -20;
-                        y = -SCREEN_WIDTH;
-                    } else if (imRect.x + imRect.w > 0 && imRect.x < SCREEN_WIDTH){
+                        retrac = false;
+                        shoot = false;
+                        cout << exitInfo[0];
+                        nextRoom = exitInfo[0];
+                        speed = exitInfo[1];
+                        x = exitInfo[2];
+                        y = exitInfo[3];
+                        if (y < -speed){
+                            yVel = 30;
+                        }
+                    } else if (exitInfo[0] == -1){
                         noSwitch = false;
                     }
 
                 } else {
 
                     vector<SDL_Rect *> currObjs = roomsArr[currRoom].getRects();
-                    vector<SDL_Rect *> nextObjs = roomsArr[currRoom + nextRoom].getRects();
-                    vector<SDL_Surface *> nextSurfs = roomsArr[currRoom + nextRoom].getSurfs();
+                    vector<SDL_Rect *> nextObjs = roomsArr[nextRoom].getRects();
+                    vector<SDL_Surface *> nextSurfs = roomsArr[nextRoom].getSurfs();
 
                     if (switchRooms(currObjs, nextObjs, nextSurfs, imRect, y, x, speed, test)){
                         transition = false;
                         noSwitch = true;
-                        currRoom = currRoom + nextRoom;
+                        currRoom = exitInfo[0];
                     }
                 }
 
