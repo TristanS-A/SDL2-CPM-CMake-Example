@@ -17,9 +17,15 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
     if (s < arr.size()) {
 
 
-        //Resets grappling hook rect locations to the player's location
-        arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
-        arrR[s].y = imRect.y + 100 / 2 - arrR[s].h / 2;
+        //Resets grappling hook rect locations to the player's location, but since the first grappling hook rec is a
+        // bigger rect, it will spawn under the player if not for the iff statement
+        if (s == 0){
+            arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
+            arrR[s].y = imRect.y;
+        } else {
+            arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
+            arrR[s].y = imRect.y + 100 / 2 - arrR[s].h / 2;
+        }
 
         //Blits and adds force to each grappling piece currently shooting out
         for (int b = 0; b < s; b++) {
@@ -55,27 +61,27 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
         if (SDL_HasIntersection(&arrR[0], &hitObject)){
             if ((arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y +
             arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
-                arrR[0].y = hitObject.y - arrR[0].h;
-                sideOffsetY = -arrR[0].h;
+                arrR[0].y = hitObject.y - arrR[0].h + arrR[0].h / 2;
+                sideOffsetY = -arrR[0].h / 2;
                 sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
             }
             else if ((hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) ||
             (hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
-                arrR[0].y = hitObject.y + hitObject.h;
-                sideOffsetY = 0;
+                arrR[0].y = hitObject.y + hitObject.h - arrR[0].h / 2;
+                sideOffsetY = arrR[0].h / 2;
                 sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
             }
             else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) ||
             (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
-                arrR[0].x = hitObject.x - arrR[0].w;
+                arrR[0].x = hitObject.x - arrR[0].w / 2;
                 sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
-                sideOffsetX = -arrR[0].w;
+                sideOffsetX = -arrR[0].w / 2;
             }
             else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) ||
             (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
-                arrR[0].x = hitObject.x + hitObject.w;
+                arrR[0].x = hitObject.x + hitObject.w - arrR[0].w / 2;
                 sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
-                sideOffsetX = 0;
+                sideOffsetX = arrR[0].w / 2;
             }
 
             if (yVel > 5){
@@ -176,9 +182,16 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             // falling, the grappling hook pieces will also fall), and also blits them at the same index.
             for (int b = 0; b < s; b++) {
 
+
+
                 SDL_BlitSurface(arr[b], nullptr, test, &arrR[b]);
-                arrR[b].y = arrR[b + 1].y - yVel;
-                arrR[b].x = arrR[b + 1].x - xVel;
+                if (b == 0){
+                    arrR[b].y = arrR[b + 1].y - yVel - arrR[b + 1].h / 2;
+                    arrR[b].x = arrR[b + 1].x - xVel - arrR[b + 1].w / 2;
+                } else {
+                    arrR[b].y = arrR[b + 1].y - yVel;
+                    arrR[b].x = arrR[b + 1].x - xVel;
+                }
             }
 
         }

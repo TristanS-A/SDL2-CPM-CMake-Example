@@ -182,8 +182,6 @@ int main(int argc, char* argv[])
         SDL_Rect squareRect2 = {0, 710, SCREEN_WIDTH, 100};
         SDL_Rect squareRect3 = {0, 100, 100, SCREEN_HEIGHT - 200};
 
-        //TODO: Remake grappling hook head so it doesnt clip the player into walls
-
         vector<SDL_Rect> roomRects = {squareRect1, squareRect2, squareRect3};
 
         squareRect1 = {0, 0, 500, 100};
