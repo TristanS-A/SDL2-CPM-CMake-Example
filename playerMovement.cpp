@@ -9,7 +9,7 @@ void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &
 
     //Character control
     if (up && jump) {
-        yVel += 30;
+        yVel = 30;
         jump = false;
         imRect.y -= yVel;
     }

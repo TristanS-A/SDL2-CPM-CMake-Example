@@ -9,7 +9,7 @@
 //Function for shooting the grappling hook
 void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int ghPieceVelY,
               int ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-              vector<SDL_Rect *> &hitObjects, int &sideOffsetY, int &sideOffsetX){
+              vector<SDL_Rect> &hitObjects, int &sideOffsetY, int &sideOffsetX, int &yVel, int &xVel){
 
     //Shoots out rectangles until hitting something or until shooting all the graphing hook pieces. I made this an if
     // statement instead of a for loop so that the pieces don't instantly all go out at once before displaying and so
@@ -52,31 +52,44 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 
         //Test for if the hook intersects with something
         for (auto & hitObject : hitObjects)
-        if (SDL_HasIntersection(&arrR[0], hitObject)){
-            if ((arrR[0].y + arrR[0].h - hitObject->y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y +
-            arrR[0].h - hitObject->y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
-                arrR[0].y = hitObject->y - arrR[0].h;
+        if (SDL_HasIntersection(&arrR[0], &hitObject)){
+            if ((arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y +
+            arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
+                arrR[0].y = hitObject.y - arrR[0].h;
                 sideOffsetY = -arrR[0].h;
                 sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
             }
-            else if ((hitObject->y + hitObject->h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) ||
-            (hitObject->y + hitObject->h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
-                arrR[0].y = hitObject->y + hitObject->h;
+            else if ((hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) ||
+            (hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
+                arrR[0].y = hitObject.y + hitObject.h;
                 sideOffsetY = 0;
                 sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
             }
-            else if ((arrR[0].x + arrR[0].w - hitObject->x <= fabs(ghPieceVelX) && ghPieceVelX > 0) ||
-            (hitObject->x + hitObject->w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
-                arrR[0].x = hitObject->x - arrR[0].w;
+            else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) ||
+            (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
+                arrR[0].x = hitObject.x - arrR[0].w;
                 sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
                 sideOffsetX = -arrR[0].w;
             }
-            else if ((arrR[0].x + arrR[0].w - hitObject->x <= fabs(ghPieceVelX) && ghPieceVelX < 0) ||
-            (hitObject->x + hitObject->w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
-                arrR[0].x = hitObject->x + hitObject->w;
+            else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) ||
+            (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
+                arrR[0].x = hitObject.x + hitObject.w;
                 sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
                 sideOffsetX = 0;
             }
+
+            if (yVel > 5){
+                yVel = 5;
+            } else if (yVel < -5){
+                yVel = -5;
+            }
+
+            if (xVel > 5){
+                xVel = 5;
+            } else if (xVel < -5){
+                xVel = -5;
+            }
+
             hit = true;
         }
 
@@ -110,7 +123,7 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int &ghPieceVelY,
                 int &ghPieceVelX, bool &hit, bool &retrac, int &track, SDL_Surface *test, int &yVel, int
                 &xVel, bool mouseUp, int &sideOffsetY,
-                vector<SDL_Rect *> &hitObjects, int &sideOffsetX){
+                vector<SDL_Rect> &hitObjects, int &sideOffsetX){
 
     //Variable to tell if the player is intersecting with an object in the level when retracting
     int noCancel;
@@ -133,9 +146,9 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             for (int b = track; b > track - s; b--) {
 
                 arrR[b].y = static_cast<int>(arrR[b - 1].y + (arrR[b].y - arrR[b - 1].y)
-                                                             * 0.9 - yVel);
+                                                             * 0.9 - static_cast<int>(yVel / 2));
                 arrR[b].x = static_cast<int>(arrR[b - 1].x + (arrR[b].x - arrR[b - 1].x)
-                                                             * 0.9 - xVel);
+                                                             * 0.9 - xVel * 4);
 
                 SDL_BlitSurface(arr[track - b], nullptr, test,
                                 &arrR[track- b]);
@@ -151,7 +164,7 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
 
             //If the player is intersecting with an object noCancel is set to true
             for (auto & hitObject : hitObjects)
-                if (SDL_HasIntersection(&imRect, hitObject)){
+                if (SDL_HasIntersection(&imRect, &hitObject)){
                     noCancel = true;
                 }
 
@@ -198,8 +211,8 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
         //Sets player velocity to grappling hook piece velocity if the player lets go of the mouse button before the
         // hook retracts all the way, unless the player is intersecting with an object in the level.
         if (mouseUp && hit && !noCancel) {
-            xVel = -ghPieceVelX / 2;
-            yVel = -ghPieceVelY / 2;
+            xVel = -ghPieceVelX;
+            yVel = -ghPieceVelY;
             hit = false;
             ghPieceVelY = 0;
             ghPieceVelX = 0;

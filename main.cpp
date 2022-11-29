@@ -72,16 +72,6 @@ int main(int argc, char* argv[])
     }
 
     if (!error) {
-        // Declare rect of square
-        SDL_Rect squareRect;
-
-        // Square dimensions: Half of the min(SCREEN_WIDTH, SCREEN_HEIGHT)
-        squareRect.w = min(SCREEN_WIDTH, SCREEN_HEIGHT) / 8;
-        squareRect.h = min(SCREEN_WIDTH, SCREEN_HEIGHT) / 8;
-
-        // Square position: In the middle of the screen
-        squareRect.x = SCREEN_WIDTH + SCREEN_WIDTH / 2 - squareRect.w / 2;
-        squareRect.y = 200;
 
         //Loads cat image
         SDL_Surface *im = loadImages("cat.png");
@@ -148,7 +138,7 @@ int main(int argc, char* argv[])
 
         int u;
 
-        for (u = 0; u < 15; u++) {
+        for (u = 0; u < 20; u++) {
             if (u == 0) {
                 arr.push_back(circle2);
             } else {
@@ -161,7 +151,7 @@ int main(int argc, char* argv[])
 
         SDL_Rect placeHolder = {0, 0, 50, 50};
 
-        for (u = 0; u < 15; u++) {
+        for (u = 0; u < 20; u++) {
             arrR.push_back(placeHolder);
         }
 
@@ -188,34 +178,32 @@ int main(int argc, char* argv[])
         const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
 
         //Vector holding all rects for a level
-        SDL_Rect squareRect2 = {0, 0, SCREEN_WIDTH, 100};
-        SDL_Rect squareRect3 = {0, 710, SCREEN_WIDTH, 100};
-        SDL_Rect squareRect33 = {0, 100, 100, SCREEN_HEIGHT - 200};
+        SDL_Rect squareRect1 = {0, 0, SCREEN_WIDTH, 100};
+        SDL_Rect squareRect2 = {0, 710, SCREEN_WIDTH, 100};
+        SDL_Rect squareRect3 = {0, 100, 100, SCREEN_HEIGHT - 200};
 
-        //Doesn't load if I don't do this for some reason
         //TODO: Remake grappling hook head so it doesnt clip the player into walls
-        SDL_Rect sdfgh = {0,0,0,0};
 
-        vector<SDL_Rect *> roomRects = {&squareRect2, &squareRect3, &squareRect33};
+        vector<SDL_Rect> roomRects = {squareRect1, squareRect2, squareRect3};
 
-        SDL_Rect squareRect4 = {SCREEN_WIDTH, 0, 500, 100};
-        SDL_Rect squareRect5 = {SCREEN_WIDTH + 500 + 440, 0, 500, 100};
-        SDL_Rect squareRect6 = {SCREEN_WIDTH, 710, 500, 100};
-        SDL_Rect squareRect66 = {SCREEN_WIDTH + 500 + 440, 710, 500, 100};
+        squareRect1 = {0, 0, 500, 100};
+        squareRect2 = {0 + 500 + 440, 0, 500, 100};
+        squareRect3 = {0, 710, 500, 100};
+        SDL_Rect squareRect4 = {0 + 500 + 440, 710, 500, 100};
 
-        vector<SDL_Rect *> roomRects2 = {&squareRect, &squareRect4, &squareRect5, &squareRect6, &squareRect66};
+        vector<SDL_Rect> roomRects2 = {{600, 300, 150, 150}, squareRect1, squareRect2, squareRect3, squareRect4};
 
-        SDL_Rect squareRect7 = {0, -SCREEN_HEIGHT + 710, 500, 100};
-        SDL_Rect squareRect8 = {500 + 440, -SCREEN_HEIGHT + 710, 500, 100};
-        SDL_Rect squareRect9 = {0, -SCREEN_HEIGHT, SCREEN_WIDTH, 100};
+        squareRect1 = {0, 0 + 710, 500, 100};
+        squareRect2 = {500 + 440, 0 + 710, 500, 100};
+        squareRect3 = {0, 0, SCREEN_WIDTH, 100};
 
-        vector<SDL_Rect *> roomRects3 = {&squareRect7, &squareRect8, &squareRect9};
+        vector<SDL_Rect> roomRects3 = {squareRect1, squareRect2, squareRect3};
 
-        SDL_Rect squareRect10 = {0, SCREEN_HEIGHT, 500, 100};
-        SDL_Rect squareRect11 = {500 + 440, SCREEN_HEIGHT, 500, 100};
-        SDL_Rect squareRect12 = {0, SCREEN_HEIGHT + 710, SCREEN_WIDTH, 100};
+        squareRect1 = {0, 0, 500, 100};
+        squareRect2 = {500 + 440, 0, 500, 100};
+        squareRect3 = {0, 0 + 710, SCREEN_WIDTH, 100};
 
-        vector<SDL_Rect *> roomRects4 = {&squareRect10, &squareRect11, &squareRect12};
+        vector<SDL_Rect> roomRects4 = {squareRect1, squareRect2, squareRect3};
 
         //To keep track of the current room the player is in
         int currRoom = 0;
@@ -335,10 +323,10 @@ int main(int argc, char* argv[])
                                 // character
                                 ghPieceVelY = static_cast<int>((((fabs(90 - angle) - 90) * -1) * (90 /
                                         sqrt(pow(((fabs(90 - angle) - 90) * -1), 2)
-                                        + pow(((90 - fabs(angle)) * -1), 2)))) * 0.4);
+                                        + pow(((90 - fabs(angle)) * -1), 2)))) * 0.3);
                                 ghPieceVelX = static_cast<int>((((90 - fabs(angle)) * -1) * (90
                                         / sqrt(pow(((90 - fabs(angle)) * -1), 2)
-                                        + pow(((fabs(90 - angle) - 90) * -1), 2)))) * 0.4);
+                                        + pow(((fabs(90 - angle) - 90) * -1), 2)))) * 0.3);
 
 
                             } else {
@@ -347,10 +335,10 @@ int main(int argc, char* argv[])
                                 // character
                                 ghPieceVelY = static_cast<int>(((fabs(90 - angle) - 90) * (90
                                         / sqrt(pow((fabs(90 - angle) - 90), 2)
-                                        + pow((90 - fabs(angle)), 2)))) * 0.4);
+                                        + pow((90 - fabs(angle)), 2)))) * 0.3);
                                 ghPieceVelX = static_cast<int>(((90 - fabs(angle)) * (90
                                         / sqrt(pow((90 - fabs(angle)), 2)
-                                        + pow((fabs(90 - angle) - 90), 2)))) * 0.4);
+                                        + pow((fabs(90 - angle) - 90), 2)))) * 0.3);
 
                             }
 
@@ -406,7 +394,7 @@ int main(int argc, char* argv[])
 
                         //Function for shooting the grappling hook
                         shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
-                                 retrac, track, test, roomRects, sideOffsetY, sideOffsetX);
+                                 retrac, track, test, roomRects, sideOffsetY, sideOffsetX, yVel, xVel);
                     }
 
                     //Test if grappling hook is retracting
@@ -455,29 +443,34 @@ int main(int argc, char* argv[])
                         noSwitch = false;
                     }
 
+                    //Placeholder so that imRect does not get altered by the blitting function
+                    SDL_Rect placeH = imRect;
+
+                    //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
+                    // rectangle)
+                    SDL_BlitSurface(im, nullptr, test, &placeH);
+
+                    //Tests blitting for room objects
+                    roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
+                                                  ghPieceVelY, ghPieceVelX);
+
                 } else {
 
-                    vector<SDL_Rect *> currObjs = roomsArr[currRoom].getRects();
-                    vector<SDL_Rect *> nextObjs = roomsArr[nextRoom].getRects();
+                    vector<SDL_Rect> currObjs = roomsArr[currRoom].getRects();
+                    vector<SDL_Surface *> currSurfs = roomsArr[currRoom].getSurfs();
+                    vector<SDL_Rect> nextObjs = roomsArr[nextRoom].getRects();
                     vector<SDL_Surface *> nextSurfs = roomsArr[nextRoom].getSurfs();
 
-                    if (switchRooms(currObjs, nextObjs, nextSurfs, imRect, y, x, speed, test)){
+                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
                         transition = false;
                         noSwitch = true;
                         currRoom = exitInfo[0];
+
+                        //Tests blitting for room objects
+                        roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
+                                                      ghPieceVelY, ghPieceVelX);
                     }
                 }
-
-                //Placeholder so that imRect does not get altered by the blitting function
-                SDL_Rect placeH = imRect;
-
-                //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
-                // rectangle)
-                SDL_BlitSurface(im, nullptr, test, &placeH);
-
-                //Tests blitting for room objects
-                roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                              ghPieceVelY, ghPieceVelX);
 
                 //Updates text texture into a texture, so it can be rendered with new blit info
                 SDL_UpdateTexture(text, nullptr, test->pixels, test->pitch);

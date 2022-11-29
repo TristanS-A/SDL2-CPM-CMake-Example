@@ -11,6 +11,5 @@
 
 using namespace std;
 
-bool switchRooms(vector<SDL_Rect *> &currRects, vector<SDL_Rect *> &nextRects, vector<SDL_Surface *> &surfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int speed, SDL_Surface* test);
-
+bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im);
 #endif //MYPROJECT_ROOMSWITCH_H
