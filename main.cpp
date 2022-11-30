@@ -104,6 +104,9 @@ int main(int argc, char* argv[])
         //Jump variable to tell when the character can jump
         bool jump = false;
 
+        //For if the player dies
+        bool dead = false;
+
         //Angle from the character to the mouse position
         double angle;
 
@@ -219,27 +222,35 @@ int main(int argc, char* argv[])
         // (Like in case the screen needs to change left or right
         vector<int> exitInfo;
 
+        SDL_Surface * colorImage = loadImages("color.png");
+
         //Creates a vector of surfaces to blit into the Rect objects of the room object
-        vector<SDL_Surface *> roomSkellSurfs = {loadImages("color.png"), loadImages("color.png"), loadImages("color.png")};
-        vector<SDL_Surface *> roomSkellSurfs2 = {loadImages("color.png"), loadImages("color.png"),
-                                                 loadImages("color.png"), loadImages("color.png"), loadImages("color.png")};
+        vector<SDL_Surface *> roomSkellSurfs = {colorImage, colorImage, colorImage};
+        vector<SDL_Surface *> roomSkellSurfs2 = {colorImage, colorImage,
+                                                 colorImage, colorImage, colorImage};
 
         vector<SDL_Rect> exits = {{SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
 
+        vector<SDL_Rect> placeHolderObsRects = {{500, 400, 100, 100}};
+
+        vector<vector<SDL_Surface *>> placeHolderObsSurfs = {{colorImage, loadImages("color2.png")}};
+
+        vector<bool> placeHolderObsHookable = {true};
+
         //Creates room objects
-        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}});
+        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {});
 
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}});
+        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {});
 
         exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room3 = *new Rooms(3, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}});
+        Rooms room3 = *new Rooms(3, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable);
 
         exits = {{500, -100, 440, 50}};
 
-        Rooms room4 = *new Rooms(4, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}});
+        Rooms room4 = *new Rooms(4, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {});
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4};
@@ -392,7 +403,7 @@ int main(int argc, char* argv[])
 
                         //Function for shooting the grappling hook
                         shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
-                                 retrac, track, test, roomRects, sideOffsetY, sideOffsetX, yVel, xVel);
+                                 retrac, track, test, roomRects,roomsArr[currRoom].getHittableRects(), roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel);
                     }
 
                     //Test if grappling hook is retracting
@@ -450,7 +461,7 @@ int main(int argc, char* argv[])
 
                     //Tests blitting for room objects
                     roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                  ghPieceVelY, ghPieceVelX);
+                                                  ghPieceVelY, ghPieceVelX, dead);
 
                 } else {
 
@@ -466,9 +477,11 @@ int main(int argc, char* argv[])
 
                         //Tests blitting for room objects
                         roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                      ghPieceVelY, ghPieceVelX);
+                                                      ghPieceVelY, ghPieceVelX, dead);
                     }
                 }
+
+                cout << dead << endl;
 
                 //Updates text texture into a texture, so it can be rendered with new blit info
                 SDL_UpdateTexture(text, nullptr, test->pixels, test->pitch);

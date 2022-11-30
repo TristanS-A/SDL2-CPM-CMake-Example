@@ -9,7 +9,7 @@
 //Function for shooting the grappling hook
 void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int ghPieceVelY,
               int ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-              vector<SDL_Rect> &hitObjects, int &sideOffsetY, int &sideOffsetX, int &yVel, int &xVel){
+              vector<SDL_Rect> &hitObjects, vector<SDL_Rect> possibleHit, vector<bool> hitTest, int &sideOffsetY, int &sideOffsetX, int &yVel, int &xVel){
 
     //Shoots out rectangles until hitting something or until shooting all the graphing hook pieces. I made this an if
     // statement instead of a for loop so that the pieces don't instantly all go out at once before displaying and so
@@ -57,46 +57,94 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
         }
 
         //Test for if the hook intersects with something
-        for (auto & hitObject : hitObjects)
-        if (SDL_HasIntersection(&arrR[0], &hitObject)){
-            if ((arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y +
-            arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
-                arrR[0].y = hitObject.y - arrR[0].h + arrR[0].h / 2;
-                sideOffsetY = -arrR[0].h / 2;
-                sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
-            }
-            else if ((hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) ||
-            (hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
-                arrR[0].y = hitObject.y + hitObject.h - arrR[0].h / 2;
-                sideOffsetY = arrR[0].h / 2;
-                sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
-            }
-            else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) ||
-            (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
-                arrR[0].x = hitObject.x - arrR[0].w / 2;
-                sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
-                sideOffsetX = -arrR[0].w / 2;
-            }
-            else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) ||
-            (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
-                arrR[0].x = hitObject.x + hitObject.w - arrR[0].w / 2;
-                sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
-                sideOffsetX = arrR[0].w / 2;
-            }
+        for (auto & hitObject : hitObjects) {
+            if (SDL_HasIntersection(&arrR[0], &hitObject)) {
+                if ((arrR[0].y + arrR[0].h - hitObject.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y +
+                                                                                                       arrR[0].h -
+                                                                                                       hitObject.y <=
+                                                                                                       fabs(ghPieceVelY) &&
+                                                                                                       ghPieceVelY >=
+                                                                                                       0)) {
+                    arrR[0].y = hitObject.y - arrR[0].h + arrR[0].h / 2;
+                    sideOffsetY = -arrR[0].h / 2;
+                    sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
+                } else if ((hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) ||
+                           (hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)) {
+                    arrR[0].y = hitObject.y + hitObject.h - arrR[0].h / 2;
+                    sideOffsetY = arrR[0].h / 2;
+                    sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
+                } else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) ||
+                           (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
+                    arrR[0].x = hitObject.x - arrR[0].w / 2;
+                    sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
+                    sideOffsetX = -arrR[0].w / 2;
+                } else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) ||
+                           (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
+                    arrR[0].x = hitObject.x + hitObject.w - arrR[0].w / 2;
+                    sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
+                    sideOffsetX = arrR[0].w / 2;
+                }
 
-            if (yVel > 5){
-                yVel = 5;
-            } else if (yVel < -5){
-                yVel = -5;
-            }
+                if (yVel > 5) {
+                    yVel = 5;
+                } else if (yVel < -5) {
+                    yVel = -5;
+                }
 
-            if (xVel > 5){
-                xVel = 5;
-            } else if (xVel < -5){
-                xVel = -5;
-            }
+                if (xVel > 5) {
+                    xVel = 5;
+                } else if (xVel < -5) {
+                    xVel = -5;
+                }
 
-            hit = true;
+                hit = true;
+            }
+        }
+
+        for (int l = 0; l < possibleHit.size(); l++){
+            if (hitTest[l]){
+                if (SDL_HasIntersection(&arrR[0], &possibleHit[l])) {
+                    if ((arrR[0].y + arrR[0].h - possibleHit[l].y <= fabs(ghPieceVelY) && ghPieceVelY >= 0) || (arrR[0].y +
+                                                                                                           arrR[0].h -
+                                                                                                           possibleHit[l].y <=
+                                                                                                           fabs(ghPieceVelY) &&
+                                                                                                           ghPieceVelY >=
+                                                                                                           0)) {
+                        arrR[0].y = possibleHit[l].y - arrR[0].h + arrR[0].h / 2;
+                        sideOffsetY = -arrR[0].h / 2;
+                        sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
+                    } else if ((possibleHit[l].y + possibleHit[l].h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) ||
+                               (possibleHit[l].y + possibleHit[l].h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)) {
+                        arrR[0].y = possibleHit[l].y + possibleHit[l].h - arrR[0].h / 2;
+                        sideOffsetY = arrR[0].h / 2;
+                        sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
+                    } else if ((arrR[0].x + arrR[0].w - possibleHit[l].x <= fabs(ghPieceVelX) && ghPieceVelX > 0) ||
+                               (possibleHit[l].x + possibleHit[l].w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
+                        arrR[0].x = possibleHit[l].x - arrR[0].w / 2;
+                        sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
+                        sideOffsetX = -arrR[0].w / 2;
+                    } else if ((arrR[0].x + arrR[0].w - possibleHit[l].x <= fabs(ghPieceVelX) && ghPieceVelX < 0) ||
+                               (possibleHit[l].x + possibleHit[l].w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
+                        arrR[0].x = possibleHit[l].x + possibleHit[l].w - arrR[0].w / 2;
+                        sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
+                        sideOffsetX = arrR[0].w / 2;
+                    }
+
+                    if (yVel > 5) {
+                        yVel = 5;
+                    } else if (yVel < -5) {
+                        yVel = -5;
+                    }
+
+                    if (xVel > 5) {
+                        xVel = 5;
+                    } else if (xVel < -5) {
+                        xVel = -5;
+                    }
+
+                    hit = true;
+                }
+            }
         }
 
     }
@@ -154,7 +202,7 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
                 arrR[b].y = static_cast<int>(arrR[b - 1].y + (arrR[b].y - arrR[b - 1].y)
                                                              * 0.9 - static_cast<int>(yVel / 2));
                 arrR[b].x = static_cast<int>(arrR[b - 1].x + (arrR[b].x - arrR[b - 1].x)
-                                                             * 0.9 - xVel * 4);
+                                                             * 0.9 - xVel * 2);
 
                 SDL_BlitSurface(arr[track - b], nullptr, test,
                                 &arrR[track- b]);
@@ -181,10 +229,6 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             // hook piece to the one before it while also adding the velocity of the player (So like if the player is
             // falling, the grappling hook pieces will also fall), and also blits them at the same index.
             for (int b = 0; b < s; b++) {
-
-
-
-                SDL_BlitSurface(arr[b], nullptr, test, &arrR[b]);
                 if (b == 0){
                     arrR[b].y = arrR[b + 1].y - yVel - arrR[b + 1].h / 2;
                     arrR[b].x = arrR[b + 1].x - xVel - arrR[b + 1].w / 2;
@@ -192,6 +236,15 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
                     arrR[b].y = arrR[b + 1].y - yVel;
                     arrR[b].x = arrR[b + 1].x - xVel;
                 }
+            }
+
+            //Blits here so the hook piece of the grappling hook blits over the other pieces
+            for (int h = s - 1; h >= 0; h--) {
+
+                //Placeholder so that the rects don't get changed when blitted by the blit function
+                SDL_Rect p = arrR[h];
+
+                SDL_BlitSurface(arr[h], nullptr, test, &p);
             }
 
         }

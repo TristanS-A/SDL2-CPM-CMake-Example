@@ -2,22 +2,58 @@
 // Created by tropi on 11/24/2022.
 //
 
-//Idk how to make classes in header files with cpp files
-
 #include "rooms.h"
+
+#include <utility>
 #include "SDL.h"
+#include <iostream>
+using namespace std;
 
 //Constructor description
-Rooms::Rooms(int rNum, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo) {
+Rooms::Rooms(int rNum, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable){
     roomNum = rNum;
     roomObjs = rects;
     roomSurfs = surfs;
     roomExits = std::move(exits);
     roomExitInfo = std::move(exitInfo);
+    roomObs = std::move(obstacles);
+    roomObsSurfs = std::move(obsSurfs);
+    roomObsHookable = std::move(hookable);
+    for (int j = 0; j < roomObs.size(); j++){
+        cycleLoopMax.push_back(roomObsSurfs.size());
+        cycleLoopIndex.push_back(0);
+    }
+    currTime = static_cast<int>(SDL_GetTicks());
+    prevTime = 0;
 }
 
 void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump,
-                       int &ghPieceVelY, int &ghPieceVelX) {
+                       int &ghPieceVelY, int &ghPieceVelX, bool &dead) {
+
+    //Gets console ticks for delta time calculations
+    currTime = static_cast<int>(SDL_GetTicks());
+
+    for (int k = 0; k < roomObs.size(); k++){
+
+        SDL_Rect placeHolder = roomObs[k];
+
+
+        if (currTime > prevTime + 1000) {
+            prevTime = currTime;
+            if (cycleLoopIndex[k] < cycleLoopMax[k]) {
+                cycleLoopIndex[k]++;
+            } else {
+                cycleLoopIndex[k] = 0;
+            }
+        }
+
+        SDL_BlitSurface(roomObsSurfs[k][cycleLoopIndex[k]], &roomObs[k], test, &placeHolder);
+
+        if (SDL_HasIntersection(&roomObjs[k], &imRect)){
+            dead = true;
+        }
+
+    }
 
     //Bool to set xVel to 0 after running through every object so other objects can get collisions
     bool d;
@@ -59,6 +95,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
             }
         }
 
+
         //This is a placeholder so that the actual rect position does not get changed by the blit function
         SDL_Rect re = roomObjs[t];
 
@@ -86,4 +123,12 @@ vector<SDL_Rect> Rooms::getRects() {
 
 vector<SDL_Surface *> Rooms::getSurfs() {
     return roomSurfs;
+}
+
+vector<SDL_Rect> Rooms::getHittableRects() {
+    return roomObs;
+}
+
+vector<bool> Rooms::getHitTest() {
+    return roomObsHookable;
 }
