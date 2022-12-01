@@ -10,7 +10,7 @@
 using namespace std;
 
 //Function for switching rooms
-bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im){
+bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs,SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im){
 
     //Doesn't return true until the rooms have fully switched, where the current stage has been moved off screen
     if (yOffset != -speed || xOffset != -speed) {
@@ -77,8 +77,42 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
             }
         }
 
-        for (int h = 0; h < obsRects.size(); h++){
+        SDL_Rect tempObs;
 
+        for (int q = 0; q < obsRects.size(); q++){
+            //Sets placeholder to rect info
+            tempObs = obsRects[q];
+
+            //Applies offset to placeholder
+            if (xOffset != -speed) {
+                tempObs.x = tempObs.x - constDis + xOffset;
+            }
+            if (yOffset != -speed) {
+                tempObs.y = tempObs.y - constDis + yOffset;
+            }
+
+            //Blits rect object with offset
+            if (xOffset != -speed || yOffset != -speed) {
+                SDL_BlitSurface(obsSurfs[q], &tempObs, test, &tempObs);
+            }
+        }
+
+        SDL_Rect tempNextObs;
+
+        for (int z = 0; z < nextObsRects.size(); z++){
+            //Sets placeholder to rect info
+            tempNextObs = nextObsRects[z];
+            if (xOffset != -speed) {
+                tempNextObs.x = tempNextObs.x + xOffset;
+            }
+            if (yOffset != -speed) {
+                tempNextObs.y = tempNextObs.y + yOffset;
+            }
+
+            //Blits rect object with offset
+            if (xOffset != -speed || yOffset != -speed) {
+                SDL_BlitSurface(nextObsSurfs[z], &tempNextObs, test, &tempNextObs);
+            }
         }
 
         //Placeholder for the current room rect objects, so they don't change when getting blit

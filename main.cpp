@@ -478,12 +478,14 @@ int main(int argc, char* argv[])
                     vector<SDL_Surface *> nextSurfs = roomsArr[nextRoom].getSurfs();
                     vector<SDL_Rect> currObs = roomsArr[currRoom].getObsRects();
                     vector<SDL_Surface *> currObsSurfs = roomsArr[currRoom].getObsSurfs();
+                    vector<SDL_Rect> nextObs = roomsArr[nextRoom].getObsRects();
+                    vector<SDL_Surface *> nextObsSurfs = roomsArr[nextRoom].getObsSurfs();
                     vector<SDL_Rect> currEnemieRects = roomsArr[currRoom].getEnemieRects();
                     vector<SDL_Surface *> currEnemieSurfs = roomsArr[currRoom].getEnemieSurfs();
                     vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
                     vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
 
-                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs, nextEnemieRects, nextEnemieSurfs, currObs, currObsSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
+                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs, nextEnemieRects, nextEnemieSurfs, currObs, currObsSurfs, nextObs, nextObsSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
                         transition = false;
                         noSwitch = true;
                         currRoom = exitInfo[0];
