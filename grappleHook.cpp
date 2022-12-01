@@ -188,7 +188,7 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int &ghPieceVelY,
                 int &ghPieceVelX, bool &hit, bool &retrac, int &track, SDL_Surface *test, int &yVel, int
                 &xVel, bool mouseUp, int &sideOffsetY,
-                vector<SDL_Rect> &hitObjects, int &sideOffsetX){
+                vector<SDL_Rect> &hitObjects, int &sideOffsetX, bool &hitEnemie){
 
     //Variable to tell if the player is intersecting with an object in the level when retracting
     int noCancel;
@@ -284,6 +284,7 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
         if (mouseUp) {
             retrac = false;
             hit = false;
+            hitEnemie = false;
             ghPieceVelY = 0;
             ghPieceVelX = 0;
 
@@ -299,6 +300,7 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             xVel = -ghPieceVelX;
             yVel = -ghPieceVelY;
             hit = false;
+            hitEnemie = false;
             ghPieceVelY = 0;
             ghPieceVelX = 0;
 

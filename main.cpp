@@ -420,7 +420,7 @@ int main(int argc, char* argv[])
                         //Function for retracting the grappling hook
                         retracting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit,
                                    retrac, track, test, yVel, xVel, mouseUp,
-                                   sideOffsetY, roomRects, sideOffsetX);
+                                   sideOffsetY, roomRects, sideOffsetX, hitEnemie);
                     }
 
                     //Applying gravity to the charter
