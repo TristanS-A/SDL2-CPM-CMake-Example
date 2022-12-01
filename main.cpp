@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
                     vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
                     vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
 
-                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs, nextEnemieRects, nextEnemieSurfs, currObs, currObsSurfs, nextObs, nextObsSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
+                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs, nextEnemieRects, nextEnemieSurfs, roomsArr[currRoom].getEnemies(), roomsArr[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
                         transition = false;
                         noSwitch = true;
                         currRoom = exitInfo[0];

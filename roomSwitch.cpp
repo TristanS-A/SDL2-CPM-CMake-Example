@@ -6,11 +6,12 @@
 #include <algorithm>
 #include "SDL.h"
 #include "roomSwitch.h"
+#include "enemies.h"
 
 using namespace std;
 
 //Function for switching rooms
-bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs,SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im){
+bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<Enemies> currEnemies, vector<Enemies> nextEnemies, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im){
 
     //Doesn't return true until the rooms have fully switched, where the current stage has been moved off screen
     if (yOffset != -speed || xOffset != -speed) {
@@ -42,38 +43,41 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
         SDL_Rect tempCurrEnemie;
 
         for (int j = 0; j < enemieRects.size(); j++){
-            //Sets placeholder to rect info
-            tempCurrEnemie = enemieRects[j];
+            if (!currEnemies[j].isDead()) {//Sets placeholder to rect info
+                //Sets placeholder to rect info
+                tempCurrEnemie = enemieRects[j];d
 
-            //Applies offset to placeholder
-            if (xOffset != -speed) {
-                tempCurrEnemie.x = tempCurrEnemie.x - constDis + xOffset;
-            }
-            if (yOffset != -speed) {
-                tempCurrEnemie.y = tempCurrEnemie.y - constDis + yOffset;
-            }
+                //Applies offset to placeholder
+                if (xOffset != -speed) {
+                    tempCurrEnemie.x = tempCurrEnemie.x - constDis + xOffset;
+                }
+                if (yOffset != -speed) {
+                    tempCurrEnemie.y = tempCurrEnemie.y - constDis + yOffset;
+                }
 
-            //Blits rect object with offset
-            if (xOffset != -speed || yOffset != -speed) {
-                SDL_BlitSurface(enemieSurf[j], &tempCurrEnemie, test, &tempCurrEnemie);
+                //Blits rect object with offset
+                if (xOffset != -speed || yOffset != -speed) {
+                    SDL_BlitSurface(enemieSurf[j], &tempCurrEnemie, test, &tempCurrEnemie);
+                }
             }
         }
 
         SDL_Rect tempNextEnemie;
 
         for (int e = 0; e < nextEnemieRects.size(); e++){
-            //Sets placeholder to rect info
-            tempNextEnemie = nextEnemieRects[e];
-            if (xOffset != -speed) {
-                tempNextEnemie.x = tempNextEnemie.x + xOffset;
-            }
-            if (yOffset != -speed) {
-                tempNextEnemie.y = tempNextEnemie.y + yOffset;
-            }
+            if (!nextEnemies[e].isDead()){//Sets placeholder to rect info
+                tempNextEnemie = nextEnemieRects[e];
+                if (xOffset != -speed) {
+                    tempNextEnemie.x = tempNextEnemie.x + xOffset;
+                }
+                if (yOffset != -speed) {
+                    tempNextEnemie.y = tempNextEnemie.y + yOffset;
+                }
 
-            //Blits rect object with offset
-            if (xOffset != -speed || yOffset != -speed) {
-                SDL_BlitSurface(nextEnemieSurfs[e], &tempNextEnemie, test, &tempNextEnemie);
+                //Blits rect object with offset
+                if (xOffset != -speed || yOffset != -speed) {
+                    SDL_BlitSurface(nextEnemieSurfs[e], &tempNextEnemie, test, &tempNextEnemie);
+                }
             }
         }
 
