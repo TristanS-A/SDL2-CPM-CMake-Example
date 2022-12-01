@@ -18,7 +18,7 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 
 
         //Resets grappling hook rect locations to the player's location, but since the first grappling hook rec is a
-        // bigger rect, it will spawn under the player if not for the iff statement
+        // bigger rect, it will spawn under the player if not for the if statement
         if (s == 0){
             arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
             arrR[s].y = imRect.y;
@@ -154,8 +154,14 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 
     //Sets retrac to true to start retracting the grappling hook after nothing was hit
     if (s == arr.size()) {
+
+        //To fix glitch were hit is true and s == arrsize() is true too
+        if (hit){
+            hit = false;
+        }
         shoot = false;
         retrac = true;
+
     }
 
     //If something was hit, sets retrac to true to start retracting the grappling hook and pull the player to the object
@@ -271,6 +277,10 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             hit = false;
             ghPieceVelY = 0;
             ghPieceVelX = 0;
+
+            //So that it doesn't hit the enemies again after retracting
+            arrR[0].x = -100;
+            arrR[0].y = -100;
         }
     } else {
 
@@ -282,6 +292,10 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             hit = false;
             ghPieceVelY = 0;
             ghPieceVelX = 0;
+
+            //So that it doesn't hit the enemies again after retracting
+            arrR[0].x = -100;
+            arrR[0].y = -100;
         }
 
         //Subtracts from the iteration variable to move on to the next grappling hoo piece

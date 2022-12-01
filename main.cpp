@@ -10,6 +10,7 @@
 #include "rooms.h"
 #include "loadImages.h"
 #include "roomSwitch.h"
+#include "enemies.h"
 
 using namespace std;
 
@@ -237,20 +238,22 @@ int main(int argc, char* argv[])
 
         vector<bool> placeHolderObsHookable = {true};
 
+        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("color2.png")}, loadImages("color3.png"), 10, gravity);
+
         //Creates room objects
-        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {});
+        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1});
 
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {});
+        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {});
 
         exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room3 = *new Rooms(3, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable);
+        Rooms room3 = *new Rooms(3, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {});
 
         exits = {{500, -100, 440, 50}};
 
-        Rooms room4 = *new Rooms(4, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {});
+        Rooms room4 = *new Rooms(4, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {});
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4};
@@ -401,6 +404,8 @@ int main(int argc, char* argv[])
                         //Gets rects that can be hit with the hook in the current level
                         roomRects = roomsArr[currRoom].getRects();
 
+                        vector<Enemies> roomEns = roomsArr[currRoom].getEnemies();
+
                         //Function for shooting the grappling hook
                         shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
                                  retrac, track, test, roomRects,roomsArr[currRoom].getHittableRects(), roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel);
@@ -440,7 +445,6 @@ int main(int argc, char* argv[])
                         transition = true;
                         retrac = false;
                         shoot = false;
-                        cout << exitInfo[0];
                         nextRoom = exitInfo[0];
                         speed = exitInfo[1];
                         x = exitInfo[2];
@@ -461,7 +465,7 @@ int main(int argc, char* argv[])
 
                     //Tests blitting for room objects
                     roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                  ghPieceVelY, ghPieceVelX, dead);
+                                                  ghPieceVelY, ghPieceVelX, dead, arrR);
 
                 } else {
 
@@ -477,11 +481,9 @@ int main(int argc, char* argv[])
 
                         //Tests blitting for room objects
                         roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                      ghPieceVelY, ghPieceVelX, dead);
+                                                      ghPieceVelY, ghPieceVelX, dead, arrR);
                     }
                 }
-
-                cout << dead << endl;
 
                 //Updates text texture into a texture, so it can be rendered with new blit info
                 SDL_UpdateTexture(text, nullptr, test->pixels, test->pitch);
