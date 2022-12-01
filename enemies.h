@@ -23,6 +23,9 @@ private:
     int currTime{};
     int prevTime;
 
+    //To keep track of current image for the enemies
+    SDL_Surface *currImage;
+
     //To move the enemies
     int yVel;
     int xVel;
@@ -57,6 +60,10 @@ public:
     bool dealDamage(int damage);
 
     bool isDead();
+
+    SDL_Surface* getCurrImage();
+
+    SDL_Surface* getDefaultImage();
 
 };
 

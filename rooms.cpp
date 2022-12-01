@@ -30,7 +30,7 @@ Rooms::Rooms(int rNum, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, ve
 }
 
 void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump,
-                       int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> &grappleArr) {
+                       int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie) {
 
     for (auto & roomEnemie : roomEnemies){
 
@@ -42,6 +42,8 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
                 roomEnemie.addForce(ghPieceVelX, ghPieceVelY);
                 if (roomEnemie.dealDamage(1)) {
                     roomEnemie.setDead(true);
+                } else {
+                    hitEnemie = true;
                 }
             }
         }
@@ -161,4 +163,40 @@ vector<bool> Rooms::getHitTest() {
 
 vector<Enemies> Rooms::getEnemies() {
     return roomEnemies;
+}
+
+vector<SDL_Rect> Rooms::getObsRects() {
+    return roomObs;
+}
+
+vector<SDL_Surface *> Rooms::getObsSurfs() {
+    vector<SDL_Surface *> temp;
+    for (int t = 0; t < roomObs.size(); t++){
+        temp.push_back(roomObsSurfs[t][cycleLoopIndex[t]]);
+    }
+    return temp;
+}
+
+vector<SDL_Rect> Rooms::getEnemieRects() {
+    vector<SDL_Rect> temp;
+    for (auto & roomEnemie : roomEnemies){
+        temp.push_back(roomEnemie.getHitBox());
+    }
+    return temp;
+}
+
+vector<SDL_Surface *> Rooms::getEnemieSurfs() {
+    vector<SDL_Surface *> temp;
+    for (auto & roomEnemie : roomEnemies){
+        temp.push_back(roomEnemie.getCurrImage());
+    }
+    return temp;
+}
+
+vector<SDL_Surface *> Rooms::getEnemieDefaultSurfs() {
+    vector<SDL_Surface *> temp;
+    for (auto & roomEnemie : roomEnemies){
+        temp.push_back(roomEnemie.getDefaultImage());
+    }
+    return temp;
 }

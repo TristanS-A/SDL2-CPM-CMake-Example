@@ -9,7 +9,7 @@
 //Function for shooting the grappling hook
 void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int ghPieceVelY,
               int ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-              vector<SDL_Rect> &hitObjects, vector<SDL_Rect> possibleHit, vector<bool> hitTest, int &sideOffsetY, int &sideOffsetX, int &yVel, int &xVel){
+              vector<SDL_Rect> &hitObjects, vector<SDL_Rect> possibleHit, vector<bool> hitTest, int &sideOffsetY, int &sideOffsetX, int &yVel, int &xVel, bool &hitEnemie){
 
     //Shoots out rectangles until hitting something or until shooting all the graphing hook pieces. I made this an if
     // statement instead of a for loop so that the pieces don't instantly all go out at once before displaying and so
@@ -165,7 +165,12 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
     }
 
     //If something was hit, sets retrac to true to start retracting the grappling hook and pull the player to the object
-    if (hit){
+    if (hit || hitEnemie){
+        if (hitEnemie){
+            hit = false;
+        }
+
+        hitEnemie = false;
         shoot = false;
         retrac = true;
 
@@ -263,6 +268,10 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
 
         //Sets the velocity of the player to 0, so they stay stuck there if the hook had hit something
         if (hit) {
+
+            SDL_BlitSurface(arr[0], nullptr, test,
+                            &arrR[0]);
+
             //Sets player location to the last element currently retracting
             imRect.y = arrR[s].y + sideOffsetY;
             imRect.x = arrR[s].x + sideOffsetX;

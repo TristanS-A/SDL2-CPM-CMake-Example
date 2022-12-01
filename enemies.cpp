@@ -69,11 +69,13 @@ void Enemies::update(SDL_Surface *test, SDL_Rect &imRect) {
     }
 
     if (damageTime == 0) {
-        SDL_BlitSurface(animationCycle[index], &enemieTemp, test, &enemieTemp);
+        currImage = animationCycle[index];
     } else if (damageTime > 0){
-        SDL_BlitSurface(hitImage, &enemieTemp, test, &enemieTemp);
+        currImage = hitImage;
         damageTime -= 1;
     }
+
+    SDL_BlitSurface(currImage, &enemieTemp, test, &enemieTemp);
 
 }
 
@@ -150,5 +152,14 @@ bool Enemies::isDead() {
     } else {
         return false;
     }
+}
+
+SDL_Surface *Enemies::getCurrImage() {
+    return currImage;
+}
+
+SDL_Surface *Enemies::getDefaultImage() {
+    damageTime = 0;
+    return animationCycle[0];
 }
 

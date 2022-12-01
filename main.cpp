@@ -134,6 +134,9 @@ int main(int argc, char* argv[])
         //Bool for if the grappling hook collides with a rect
         bool hit = false;
 
+        //Bool to test if grapling hook collides with an enemie
+        bool hitEnemie;
+
         //To keep track of the last grappling hook rect to be shot out
         int track;
 
@@ -408,7 +411,7 @@ int main(int argc, char* argv[])
 
                         //Function for shooting the grappling hook
                         shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
-                                 retrac, track, test, roomRects,roomsArr[currRoom].getHittableRects(), roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel);
+                                 retrac, track, test, roomRects,roomsArr[currRoom].getHittableRects(), roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel, hitEnemie);
                     }
 
                     //Test if grappling hook is retracting
@@ -465,7 +468,7 @@ int main(int argc, char* argv[])
 
                     //Tests blitting for room objects
                     roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                  ghPieceVelY, ghPieceVelX, dead, arrR);
+                                                  ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
 
                 } else {
 
@@ -473,15 +476,26 @@ int main(int argc, char* argv[])
                     vector<SDL_Surface *> currSurfs = roomsArr[currRoom].getSurfs();
                     vector<SDL_Rect> nextObjs = roomsArr[nextRoom].getRects();
                     vector<SDL_Surface *> nextSurfs = roomsArr[nextRoom].getSurfs();
+                    vector<SDL_Rect> currObs = roomsArr[currRoom].getObsRects();
+                    vector<SDL_Surface *> currObsSurfs = roomsArr[currRoom].getObsSurfs();
+                    vector<SDL_Rect> currEnemieRects = roomsArr[currRoom].getEnemieRects();
+                    vector<SDL_Surface *> currEnemieSurfs = roomsArr[currRoom].getEnemieSurfs();
+                    vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
+                    vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
 
-                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
+                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs, nextEnemieRects, nextEnemieSurfs, currObs, currObsSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
                         transition = false;
                         noSwitch = true;
                         currRoom = exitInfo[0];
 
+                        //So that if you leave the room while shooting the grappling hook, it resets so it doesn't
+                        // stay if you go back to that room before shooting the hook again
+                        arrR[0].x = -100;
+                        arrR[0].y = -100;
+
                         //Tests blitting for room objects
                         roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                      ghPieceVelY, ghPieceVelX, dead, arrR);
+                                                      ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
                     }
                 }
 
