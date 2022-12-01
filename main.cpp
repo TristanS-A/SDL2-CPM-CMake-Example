@@ -243,8 +243,10 @@ int main(int argc, char* argv[])
 
         Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("color2.png")}, loadImages("color3.png"), 10, gravity);
 
+        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("color2.png")}, loadImages("color3.png"), 10, gravity);
+
         //Creates room objects
-        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1});
+        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2});
 
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 

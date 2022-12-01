@@ -45,7 +45,7 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
         for (int j = 0; j < enemieRects.size(); j++){
             if (!currEnemies[j].isDead()) {//Sets placeholder to rect info
                 //Sets placeholder to rect info
-                tempCurrEnemie = enemieRects[j];d
+                tempCurrEnemie = enemieRects[j];
 
                 //Applies offset to placeholder
                 if (xOffset != -speed) {

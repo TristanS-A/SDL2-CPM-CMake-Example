@@ -38,7 +38,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
             roomEnemie.update(test, imRect);
             SDL_Rect r = roomEnemie.getHitBox();
 
-            if (SDL_HasIntersection(&grappleArr[0], &r)) {
+            if (SDL_HasIntersection(&grappleArr[0], &r) && !hitEnemie) {
                 roomEnemie.addForce(ghPieceVelX, ghPieceVelY);
                 if (roomEnemie.dealDamage(1)) {
                     roomEnemie.setDead(true);
