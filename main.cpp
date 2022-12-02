@@ -628,7 +628,7 @@ int main(int argc, char* argv[])
                             }
                         } else {
                             curtainOffset = 5;
-                            roomsArr[currRoom].roomReset(imRect, yVel, xVel, arrR);
+                            roomsArr[currRoom].roomReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
                             raiseCurtain = true;
                             dropCurtain = false;
                             dead = false;

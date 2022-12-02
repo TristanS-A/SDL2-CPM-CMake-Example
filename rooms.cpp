@@ -206,7 +206,7 @@ SDL_Rect Rooms::getRespawnLocation() {
     return respawnLocation;
 }
 
-void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR) {
+void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac) {
     for (auto & enemie : roomEnemies){
         enemie.resetEnemie();
     }
@@ -221,6 +221,10 @@ void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &
 
     yVel = 0;
     xVel = 0;
+
+    shoot = false;
+    retrac = false;
+    hit = false;
 
 }
 
