@@ -11,7 +11,7 @@
 using namespace std;
 
 //Function for switching rooms
-bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<Enemies> currEnemies, vector<Enemies> nextEnemies, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im){
+bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<Enemies> currEnemies, vector<Enemies> nextEnemies, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im, SDL_Surface *currBG, SDL_Surface *nextBG){
 
     //Doesn't return true until the rooms have fully switched, where the current stage has been moved off screen
     if (yOffset != -speed || xOffset != -speed) {
@@ -33,6 +33,22 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
         if (yOffset != -speed) {
             imRect.y -= speed;
         }
+
+        SDL_Rect phBG1 = {0, 0, 0, 0};
+        SDL_Rect phBG2 = {0, 0, 0, 0};
+
+        //Moves the room backgrounds
+        if (xOffset != -speed) {
+            phBG1.x = - constDis + xOffset;
+            phBG2.x = xOffset;
+        }
+        if (yOffset != -speed) {
+            phBG1.y = -constDis + yOffset;
+            phBG2.y = yOffset;
+        }
+
+        SDL_BlitSurface(currBG, nullptr, test, &phBG1);
+        SDL_BlitSurface(nextBG, nullptr, test, &phBG2);
 
         //Placeholder so imRect doesn't get moved when blitted
         SDL_Rect placeH = imRect;

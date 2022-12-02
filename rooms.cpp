@@ -11,7 +11,7 @@
 using namespace std;
 
 //Constructor description
-Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies){
+Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies, SDL_Surface *backImage){
     respawnLocation = resetLocation;
     roomObjs = rects;
     roomSurfs = surfs;
@@ -21,6 +21,7 @@ Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface
     roomObs = std::move(obstacles);
     roomObsSurfs = std::move(obsSurfs);
     roomObsHookable = std::move(hookable);
+    bgImage = backImage;
     for (int j = 0; j < roomObs.size(); j++){
         cycleLoopMax.push_back(static_cast<int>(roomObsSurfs.size()));
         cycleLoopIndex.push_back(0);
@@ -205,7 +206,7 @@ SDL_Rect Rooms::getRespawnLocation() {
     return respawnLocation;
 }
 
-void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel) {
+void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR) {
     for (auto & enemie : roomEnemies){
         enemie.resetEnemie();
     }
@@ -213,8 +214,19 @@ void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel) {
     imRect.x = respawnLocation.x;
     imRect.y = respawnLocation.y;
 
+    for (auto &arr : arrR){
+        arr.x = imRect.x;
+        arr.y = imRect.y;
+    }
+
     yVel = 0;
     xVel = 0;
+
+}
+
+SDL_Surface* Rooms::getBG() {
+
+    return bgImage;
 
 }
 

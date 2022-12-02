@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
         deathAnimation.push_back(loadImages("images/deathAnimation/ex12.png"));
 
         //Death index to display images
-        int deathAnimationIndex;
+        int deathAnimationIndex = 0;
 
         //To play death animation at specific speed
         int deathCurrTime = static_cast<int>(SDL_GetTicks());
@@ -256,6 +256,13 @@ int main(int argc, char* argv[])
         //Makes it so the transition doesn't happen immediately again in the opposite direction
         bool noSwitch;
 
+        //Gets room backgroound
+        SDL_Surface *currBG;
+        SDL_Surface *nextBG;
+
+        //Placeholder for bg rect location
+        SDL_Rect pHolder = {0, 0, 0, 0};
+
         //Checks if the user is exiting a room and what room, gets room number to travel to and the speed to transition
         // (Like in case the screen needs to change left or right
         vector<int> exitInfo;
@@ -280,19 +287,19 @@ int main(int argc, char* argv[])
         Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), 10, gravity);
 
         //Creates room objects
-        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2});
+        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/color3.png"));
 
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {});
+        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/color3.png"));
 
         exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room3 = *new Rooms({200, 605, 0, 0}, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {});
+        Rooms room3 = *new Rooms({200, 605, 0, 0}, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/color3.png"));
 
         exits = {{500, -100, 440, 50}};
 
-        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {});
+        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/color3.png"));
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4};
@@ -432,6 +439,11 @@ int main(int argc, char* argv[])
 
                 if (!dead) {
                     if (!transition) {
+
+                        currBG = roomsArr[currRoom].getBG();
+
+                        SDL_BlitSurface(currBG, nullptr, test, &pHolder);
+
                         //Gets key inputs
                         if ((keystates[SDL_SCANCODE_W])) {
                             up = true;
@@ -542,11 +554,13 @@ int main(int argc, char* argv[])
                         vector<SDL_Surface *> currEnemieSurfs = roomsArr[currRoom].getEnemieSurfs();
                         vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
                         vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
+                        currBG = roomsArr[currRoom].getBG();
+                        nextBG = roomsArr[currRoom].getBG();
 
                         if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs,
                                         nextEnemieRects, nextEnemieSurfs, roomsArr[currRoom].getEnemies(),
                                         roomsArr[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs,
-                                        imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)) {
+                                        imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im, currBG, nextBG)) {
                             transition = false;
                             noSwitch = true;
                             currRoom = exitInfo[0];
@@ -556,6 +570,10 @@ int main(int argc, char* argv[])
                             arrR[0].x = -100;
                             arrR[0].y = -100;
 
+                            currBG = roomsArr[currRoom].getBG();
+
+                            SDL_BlitSurface(currBG, nullptr, test, &pHolder);
+
                             //Tests blitting for room objects
                             roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
                                                           ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
@@ -563,6 +581,11 @@ int main(int argc, char* argv[])
                     }
 
                 } else {
+
+                    currBG = roomsArr[currRoom].getBG();
+
+                    SDL_BlitSurface(currBG, nullptr, test, &pHolder);
+
                     //Tests blitting for room objects
                     roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
                                                   ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
@@ -605,7 +628,7 @@ int main(int argc, char* argv[])
                             }
                         } else {
                             curtainOffset = 5;
-                            roomsArr[currRoom].roomReset(imRect, yVel, xVel);
+                            roomsArr[currRoom].roomReset(imRect, yVel, xVel, arrR);
                             raiseCurtain = true;
                             dropCurtain = false;
                             dead = false;

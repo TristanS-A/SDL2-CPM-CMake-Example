@@ -16,7 +16,7 @@ class Rooms{
 
 private:
 
-    SDL_Rect respawnLocation;
+    SDL_Rect respawnLocation{};
     vector<SDL_Rect> roomObjs;
     vector<SDL_Surface *> roomSurfs;
     vector<SDL_Rect> roomExits;
@@ -33,12 +33,16 @@ private:
     int currTime;
     int prevTime;
 
+    //Vector for room enemies
     vector<Enemies> roomEnemies;
+
+    //Background image for room
+    SDL_Surface *bgImage;
 
 public:
 
     //Constructor
-    Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies);
+    Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies, SDL_Surface *backImage);
 
     //Blits the surfaces in the level and handles collision for the rects in the level
     void updateRoom(SDL_Surface * test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump,
@@ -71,7 +75,9 @@ public:
 
     SDL_Rect getRespawnLocation();
 
-    void roomReset(SDL_Rect &imRect, int &yVel, int &xVel);
+    void roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR);
+
+    SDL_Surface* getBG();
 
 };
 
