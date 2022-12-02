@@ -75,16 +75,50 @@ int main(int argc, char* argv[])
     if (!error) {
 
         //Loads cat image
-        SDL_Surface *im = loadImages("cat.png");
+        SDL_Surface *im = loadImages("images/cat.png");
 
         //Loads circle image
-        SDL_Surface *circle = loadImages("circle.png");
+        SDL_Surface *circle = loadImages("images/circle.png");
 
         //Loads circle2 image
-        SDL_Surface *circle2 = loadImages("circle2.png");
+        SDL_Surface *circle2 = loadImages("images/circle2.png");
 
         //Creates rectangle for cat image
         SDL_Rect imRect = {200, 200, 100, 100};
+
+        //Death animation images
+        vector<SDL_Surface *> deathAnimation;
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex1.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex2.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex3.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex4.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex5.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex6.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex7.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex8.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex9.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex10.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex11.png"));
+        deathAnimation.push_back(loadImages("images/deathAnimation/ex12.png"));
+
+        //Death index to display images
+        int deathAnimationIndex;
+
+        //To play death animation at specific speed
+        int deathCurrTime = static_cast<int>(SDL_GetTicks());
+        int deathPrevTime = 0;
+
+        //Curtain to fall after death
+        SDL_Surface *curtain = loadImages("images/curtain.png");
+
+        //To activate curtain to drop
+        bool dropCurtain;
+
+        //To activate curtain to rise
+        bool raiseCurtain;
+
+        //To move curtain
+        int curtainOffset = 5;
 
         //Exit flag
         bool quit = false;
@@ -226,7 +260,7 @@ int main(int argc, char* argv[])
         // (Like in case the screen needs to change left or right
         vector<int> exitInfo;
 
-        SDL_Surface * colorImage = loadImages("color.png");
+        SDL_Surface * colorImage = loadImages("images/color.png");
 
         //Creates a vector of surfaces to blit into the Rect objects of the room object
         vector<SDL_Surface *> roomSkellSurfs = {colorImage, colorImage, colorImage};
@@ -237,13 +271,13 @@ int main(int argc, char* argv[])
 
         vector<SDL_Rect> placeHolderObsRects = {{500, 400, 100, 100}};
 
-        vector<vector<SDL_Surface *>> placeHolderObsSurfs = {{colorImage, loadImages("color2.png")}};
+        vector<vector<SDL_Surface *>> placeHolderObsSurfs = {{colorImage, loadImages("images/color2.png")}};
 
         vector<bool> placeHolderObsHookable = {true};
 
-        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("color2.png")}, loadImages("color3.png"), 10, gravity);
+        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), 10, gravity);
 
-        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("color2.png")}, loadImages("color3.png"), 10, gravity);
+        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), 10, gravity);
 
         //Creates room objects
         Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2});
@@ -517,7 +551,7 @@ int main(int argc, char* argv[])
                             noSwitch = true;
                             currRoom = exitInfo[0];
 
-                            //So that if you leave the room while shooting the grappling hook, it resets so it doesn't
+                            //So that if you leave the room while shooting the grappling hook, it resets, so it doesn't
                             // stay if you go back to that room before shooting the hook again
                             arrR[0].x = -100;
                             arrR[0].y = -100;
@@ -527,14 +561,67 @@ int main(int argc, char* argv[])
                                                           ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
                         }
                     }
+
                 } else {
                     //Tests blitting for room objects
                     roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
                                                   ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
 
-                    roomsArr[currRoom].roomReset(imRect, yVel, xVel);
+                    if (!dropCurtain){
 
-                    dead = false;
+                        //Placeholder for image rects so that the blit function doesn't change the rectangle location, and
+                        // also centers the image to the player
+                        SDL_Rect imPlaceHolder = {imRect.x + imRect.w / 2 - 100, imRect.y + imRect.h / 2 - 100, 0, 0};
+
+                        SDL_BlitSurface(deathAnimation[deathAnimationIndex], nullptr, test, &imPlaceHolder);
+                    } else {
+                        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
+                        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+                    }
+
+                    deathCurrTime = static_cast<int>(SDL_GetTicks());
+
+                    if (!dropCurtain) {
+                        if (deathCurrTime > deathPrevTime + 1000 / 10) {
+                            if (deathAnimationIndex < deathAnimation.size() - 1) {
+                                deathAnimationIndex++;
+                            } else {
+                                deathAnimationIndex = 0;
+                                curtainOffset = -810;
+                                dropCurtain = true;
+                            }
+
+                            deathPrevTime = deathCurrTime;
+
+                        }
+                    }
+                    else if (!raiseCurtain){
+                        if (curtainOffset < 0){
+                            curtainOffset = static_cast<int>(curtainOffset / 1.1);
+
+                            //Check so the curtain doesn't lower more than the screen high
+                            if (curtainOffset > 0){
+                                curtainOffset = 0;
+                            }
+                        } else {
+                            curtainOffset = 5;
+                            roomsArr[currRoom].roomReset(imRect, yVel, xVel);
+                            raiseCurtain = true;
+                            dropCurtain = false;
+                            dead = false;
+                        }
+                    }
+                }
+
+                if (raiseCurtain){
+                    if (curtainOffset > -810) {
+                        curtainOffset = -static_cast<int>(fabs(curtainOffset * 1.39));
+                        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
+                        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+                    } else {
+                        curtainOffset = -810;
+                        raiseCurtain = false;
+                    }
                 }
 
                 //Updates text texture into a texture, so it can be rendered with new blit info
