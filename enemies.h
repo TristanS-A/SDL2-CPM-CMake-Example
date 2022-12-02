@@ -13,9 +13,20 @@ using namespace std;
 class Enemies{
 
 private:
+
+    //Body and position of enemies
     SDL_Rect hitbox{};
+
+    //To reset the position of enemies
+    SDL_Rect resetHitbox;
+
+    //Images for animation
     vector<SDL_Surface *> animationCycle;
+
+    //Image for when enemies are hurt
     SDL_Surface *hitImage;
+
+    //Indexes to cycle through images
     int maxIndex;
     int index;
 
@@ -34,8 +45,11 @@ private:
     //To let the enemies die
     bool dead;
 
-    //Enemie's health
+    //Enemies health
     int enemieHealth;
+
+    //To reset enemies health
+    int resetHealth;
 
     //Buffer so you can't damage the enemies every frame
     int bufferCurrTime;
@@ -64,6 +78,8 @@ public:
     SDL_Surface* getCurrImage();
 
     SDL_Surface* getDefaultImage();
+
+    void resetEnemie();
 
 };
 

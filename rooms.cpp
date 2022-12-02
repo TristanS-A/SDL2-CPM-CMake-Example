@@ -11,8 +11,8 @@
 using namespace std;
 
 //Constructor description
-Rooms::Rooms(int rNum, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies){
-    roomNum = rNum;
+Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies){
+    respawnLocation = resetLocation;
     roomObjs = rects;
     roomSurfs = surfs;
     roomEnemies = std::move(enemies);
@@ -200,3 +200,21 @@ vector<SDL_Surface *> Rooms::getEnemieDefaultSurfs() {
     }
     return temp;
 }
+
+SDL_Rect Rooms::getRespawnLocation() {
+    return respawnLocation;
+}
+
+void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel) {
+    for (auto & enemie : roomEnemies){
+        enemie.resetEnemie();
+    }
+
+    imRect.x = respawnLocation.x;
+    imRect.y = respawnLocation.y;
+
+    yVel = 0;
+    xVel = 0;
+
+}
+

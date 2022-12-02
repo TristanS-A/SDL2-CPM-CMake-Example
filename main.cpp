@@ -246,19 +246,19 @@ int main(int argc, char* argv[])
         Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("color2.png")}, loadImages("color3.png"), 10, gravity);
 
         //Creates room objects
-        Rooms room1 = *new Rooms(1, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2});
+        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2});
 
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room2 = *new Rooms(2, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {});
+        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {});
 
         exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room3 = *new Rooms(3, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {});
+        Rooms room3 = *new Rooms({200, 605, 0, 0}, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {});
 
         exits = {{500, -100, 440, 50}};
 
-        Rooms room4 = *new Rooms(4, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {});
+        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {});
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4};
@@ -302,69 +302,88 @@ int main(int argc, char* argv[])
                         //To test if the mouse button is pressed and/or held down
                         mouseUp = false;
 
-                        //So you cant fire the grappling hook while already firring it or retracting it
-                        if (!shoot && !retrac) {
+                        if (!transition && !dead) {
+                            //So you cant fire the grappling hook while already firring it or retracting it
+                            if (!shoot && !retrac) {
 
-                            //Gets mouse location
-                            SDL_GetMouseState(&mouseX, &mouseY);
+                                //Gets mouse location
+                                SDL_GetMouseState(&mouseX, &mouseY);
 
-                            //If the user changed the screen dimension, this will translate the mouse position to the
-                            // new screen/window dimensions
-                            mouseY = mouseY * (SCREEN_HEIGHT) / textRect.h - textRect.y * (SCREEN_HEIGHT) /
-                                    textRect.h;
-                            mouseX = mouseX * (SCREEN_WIDTH) / textRect.w - textRect.x * (SCREEN_WIDTH) /
-                                    textRect.w;
+                                //If the user changed the screen dimension, this will translate the mouse position to the
+                                // new screen/window dimensions
+                                mouseY = mouseY * (SCREEN_HEIGHT) / textRect.h - textRect.y * (SCREEN_HEIGHT) /
+                                                                                 textRect.h;
+                                mouseX = mouseX * (SCREEN_WIDTH) / textRect.w - textRect.x * (SCREEN_WIDTH) /
+                                                                                textRect.w;
 
-                            //Calculates the angle between the character and the mouse.
-                            angle = -(atan(((imRect.y + 100 / 2.0) -
-                                            (static_cast<double>(mouseY))) /
-                                           ((imRect.x + 100 / 2.0) -
-                                            static_cast<double>(mouseX))) *
-                                      (180.0 / M_PI));
+                                //Calculates the angle between the character and the mouse.
+                                angle = -(atan(((imRect.y + 100 / 2.0) -
+                                                (static_cast<double>(mouseY))) /
+                                               ((imRect.x + 100 / 2.0) -
+                                                static_cast<double>(mouseX))) *
+                                          (180.0 / M_PI));
 
-                            //Calculates the x and y velocity to be added to each piece of the grappling hook when
-                            // shooting by checking if the mouse position is on the left or right of the character
-                            // because I calculated the angle to be between -90 and 90 so if the mouse position is on
-                            // the left side, it must be flipped. After calculating an x and y velocity though, with
-                            // the x vel being 90 - fabs(angle) and the y vel being fabs(90 - angle) - 90 I had to
-                            // convert these values to a circle, because graphing all the possible vels would
-                            // show a cube rotated 90 degrees with the player in the center, and that was the max
-                            // distance that the grappling hook would reach given the direction. So the rest of the
-                            // math makes it so if you graphed all the possible vels, it would show a circle so that
-                            // no matter what direction you shot the grappling hook in, it would always travel the
-                            // same distance from the player. The * 0.4 is just a dampener that shortens the length
-                            // that the hook shoots
-                            if (mouseX <= (imRect.x + 100 / 2)) {
+                                //Calculates the x and y velocity to be added to each piece of the grappling hook when
+                                // shooting by checking if the mouse position is on the left or right of the character
+                                // because I calculated the angle to be between -90 and 90 so if the mouse position is on
+                                // the left side, it must be flipped. After calculating an x and y velocity though, with
+                                // the x vel being 90 - fabs(angle) and the y vel being fabs(90 - angle) - 90 I had to
+                                // convert these values to a circle, because graphing all the possible vels would
+                                // show a cube rotated 90 degrees with the player in the center, and that was the max
+                                // distance that the grappling hook would reach given the direction. So the rest of the
+                                // math makes it so if you graphed all the possible vels, it would show a circle so that
+                                // no matter what direction you shot the grappling hook in, it would always travel the
+                                // same distance from the player. The * 0.4 is just a dampener that shortens the length
+                                // that the hook shoots
+                                if (mouseX <= (imRect.x + 100 / 2)) {
 
-                                //Calculates x and y velocity from angle when mouse is on the left side of the
-                                // character
-                                ghPieceVelY = static_cast<int>((((fabs(90 - angle) - 90) * -1) * (90 /
-                                        sqrt(pow(((fabs(90 - angle) - 90) * -1), 2)
-                                        + pow(((90 - fabs(angle)) * -1), 2)))) * 0.3);
-                                ghPieceVelX = static_cast<int>((((90 - fabs(angle)) * -1) * (90
-                                        / sqrt(pow(((90 - fabs(angle)) * -1), 2)
-                                        + pow(((fabs(90 - angle) - 90) * -1), 2)))) * 0.3);
+                                    //Calculates x and y velocity from angle when mouse is on the left side of the
+                                    // character
+                                    ghPieceVelY = static_cast<int>((((fabs(90 - angle) - 90) * -1) * (90 /
+                                                                                                      sqrt(pow(
+                                                                                                              ((fabs(90 -
+                                                                                                                     angle) -
+                                                                                                                90) *
+                                                                                                               -1), 2)
+                                                                                                           + pow(((90 -
+                                                                                                                   fabs(angle)) *
+                                                                                                                  -1),
+                                                                                                                 2)))) *
+                                                                   0.3);
+                                    ghPieceVelX = static_cast<int>((((90 - fabs(angle)) * -1) * (90
+                                                                                                 / sqrt(pow(
+                                            ((90 - fabs(angle)) * -1), 2)
+                                                                                                        + pow(((fabs(
+                                            90 - angle) - 90) * -1), 2)))) * 0.3);
 
 
-                            } else {
+                                } else {
 
-                                //Calculates x and y velocity from angle when mouse is on the right side of the
-                                // character
-                                ghPieceVelY = static_cast<int>(((fabs(90 - angle) - 90) * (90
-                                        / sqrt(pow((fabs(90 - angle) - 90), 2)
-                                        + pow((90 - fabs(angle)), 2)))) * 0.3);
-                                ghPieceVelX = static_cast<int>(((90 - fabs(angle)) * (90
-                                        / sqrt(pow((90 - fabs(angle)), 2)
-                                        + pow((fabs(90 - angle) - 90), 2)))) * 0.3);
+                                    //Calculates x and y velocity from angle when mouse is on the right side of the
+                                    // character
+                                    ghPieceVelY = static_cast<int>(((fabs(90 - angle) - 90) * (90
+                                                                                               / sqrt(pow(
+                                            (fabs(90 - angle) - 90), 2)
+                                                                                                      + pow((90 -
+                                                                                                             fabs(angle)),
+                                                                                                            2)))) *
+                                                                   0.3);
+                                    ghPieceVelX = static_cast<int>(((90 - fabs(angle)) * (90
+                                                                                          / sqrt(pow((90 - fabs(angle)),
+                                                                                                     2)
+                                                                                                 +
+                                                                                                 pow((fabs(90 - angle) -
+                                                                                                      90), 2)))) * 0.3);
+
+                                }
+
+                                //Triggers shoot function
+                                shoot = true;
+
+                                //Resets iterator variable for shoot and retrac functions
+                                s = 0;
 
                             }
-
-                            //Triggers shoot function
-                            shoot = true;
-
-                            //Resets iterator variable for shoot and retrac functions
-                            s = 0;
-
                         }
 
                         break;
@@ -377,130 +396,145 @@ int main(int argc, char* argv[])
                 //Function for resizing the screen
                 screenSizeChange(textRect, window);
 
-                if (!transition) {
-                    //Gets key inputs
-                    if ((keystates[SDL_SCANCODE_W])) {
-                        up = true;
-                    } else {
-                        up = false;
-                    }
-                    if (keystates[SDL_SCANCODE_A]) {
-                        left = true;
-                    } else {
-                        left = false;
-                    }
-                    if ((keystates[SDL_SCANCODE_D])) {
-                        right = true;
-                    } else {
-                        right = false;
-                    }
-                    if ((keystates[SDL_SCANCODE_S])) {
-                        down = true;
-                    } else {
-                        down = false;
-                    }
+                if (!dead) {
+                    if (!transition) {
+                        //Gets key inputs
+                        if ((keystates[SDL_SCANCODE_W])) {
+                            up = true;
+                        } else {
+                            up = false;
+                        }
+                        if (keystates[SDL_SCANCODE_A]) {
+                            left = true;
+                        } else {
+                            left = false;
+                        }
+                        if ((keystates[SDL_SCANCODE_D])) {
+                            right = true;
+                        } else {
+                            right = false;
+                        }
+                        if ((keystates[SDL_SCANCODE_S])) {
+                            down = true;
+                            dead = true;
+                        } else {
+                            down = false;
+                        }
 
-                    //Function for player movement
-                    playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
+                        //Function for player movement
+                        playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
 
-                    //Test if grappling hook is shooting
-                    if (shoot) {
+                        //Test if grappling hook is shooting
+                        if (shoot) {
 
-                        //Gets rects that can be hit with the hook in the current level
-                        roomRects = roomsArr[currRoom].getRects();
+                            //Gets rects that can be hit with the hook in the current level
+                            roomRects = roomsArr[currRoom].getRects();
 
-                        vector<Enemies> roomEns = roomsArr[currRoom].getEnemies();
+                            vector<Enemies> roomEns = roomsArr[currRoom].getEnemies();
 
-                        //Function for shooting the grappling hook
-                        shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
-                                 retrac, track, test, roomRects,roomsArr[currRoom].getHittableRects(), roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel, hitEnemie);
-                    }
+                            //Function for shooting the grappling hook
+                            shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
+                                     retrac, track, test, roomRects, roomsArr[currRoom].getHittableRects(),
+                                     roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel, hitEnemie);
+                        }
 
-                    //Test if grappling hook is retracting
-                    if (retrac) {
+                        //Test if grappling hook is retracting
+                        if (retrac) {
 
-                        //Function for retracting the grappling hook
-                        retracting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit,
-                                   retrac, track, test, yVel, xVel, mouseUp,
-                                   sideOffsetY, roomRects, sideOffsetX, hitEnemie);
-                    }
+                            //Function for retracting the grappling hook
+                            retracting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit,
+                                       retrac, track, test, yVel, xVel, mouseUp,
+                                       sideOffsetY, roomRects, sideOffsetX, hitEnemie);
+                        }
 
-                    //Applying gravity to the charter
-                    yVel -= gravity;
+                        //Applying gravity to the charter
+                        yVel -= gravity;
 
-                    //Applies y-axis velocity to the character
-                    imRect.y -= yVel;
+                        //Applies y-axis velocity to the character
+                        imRect.y -= yVel;
 
-                    //Applies x-axis velocity to the character
-                    imRect.x -= xVel;
+                        //Applies x-axis velocity to the character
+                        imRect.x -= xVel;
 
-                    exitInfo = roomsArr[currRoom].exitRoom(imRect);
+                        exitInfo = roomsArr[currRoom].exitRoom(imRect);
 
-                    if (exitInfo[1] > 0){
-                        if (right){
+                        if (exitInfo[1] > 0) {
+                            if (right) {
+                                noSwitch = false;
+                            }
+                        } else if (exitInfo[1] < 0) {
+                            if (left) {
+                                noSwitch = false;
+                            }
+                        }
+
+                        if (exitInfo[0] != -1 && !noSwitch) {
+                            transition = true;
+                            retrac = false;
+                            shoot = false;
+                            nextRoom = exitInfo[0];
+                            speed = exitInfo[1];
+                            x = exitInfo[2];
+                            y = exitInfo[3];
+                            if (y < -speed) {
+                                yVel = 30;
+                            }
+                        } else if (exitInfo[0] == -1) {
                             noSwitch = false;
                         }
-                    } else if (exitInfo[1] < 0){
-                        if (left){
-                            noSwitch = false;
-                        }
-                    }
 
-                    if (exitInfo[0] != -1 && !noSwitch){
-                        transition = true;
-                        retrac = false;
-                        shoot = false;
-                        nextRoom = exitInfo[0];
-                        speed = exitInfo[1];
-                        x = exitInfo[2];
-                        y = exitInfo[3];
-                        if (y < -speed){
-                            yVel = 30;
-                        }
-                    } else if (exitInfo[0] == -1){
-                        noSwitch = false;
-                    }
+                        //Placeholder so that imRect does not get altered by the blitting function
+                        SDL_Rect placeH = imRect;
 
-                    //Placeholder so that imRect does not get altered by the blitting function
-                    SDL_Rect placeH = imRect;
-
-                    //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
-                    // rectangle)
-                    SDL_BlitSurface(im, nullptr, test, &placeH);
-
-                    //Tests blitting for room objects
-                    roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                  ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
-
-                } else {
-
-                    vector<SDL_Rect> currObjs = roomsArr[currRoom].getRects();
-                    vector<SDL_Surface *> currSurfs = roomsArr[currRoom].getSurfs();
-                    vector<SDL_Rect> nextObjs = roomsArr[nextRoom].getRects();
-                    vector<SDL_Surface *> nextSurfs = roomsArr[nextRoom].getSurfs();
-                    vector<SDL_Rect> currObs = roomsArr[currRoom].getObsRects();
-                    vector<SDL_Surface *> currObsSurfs = roomsArr[currRoom].getObsSurfs();
-                    vector<SDL_Rect> nextObs = roomsArr[nextRoom].getObsRects();
-                    vector<SDL_Surface *> nextObsSurfs = roomsArr[nextRoom].getObsSurfs();
-                    vector<SDL_Rect> currEnemieRects = roomsArr[currRoom].getEnemieRects();
-                    vector<SDL_Surface *> currEnemieSurfs = roomsArr[currRoom].getEnemieSurfs();
-                    vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
-                    vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
-
-                    if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs, nextEnemieRects, nextEnemieSurfs, roomsArr[currRoom].getEnemies(), roomsArr[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs, imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)){
-                        transition = false;
-                        noSwitch = true;
-                        currRoom = exitInfo[0];
-
-                        //So that if you leave the room while shooting the grappling hook, it resets so it doesn't
-                        // stay if you go back to that room before shooting the hook again
-                        arrR[0].x = -100;
-                        arrR[0].y = -100;
+                        //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
+                        // rectangle)
+                        SDL_BlitSurface(im, nullptr, test, &placeH);
 
                         //Tests blitting for room objects
                         roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
                                                       ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
+
+                    } else {
+
+                        vector<SDL_Rect> currObjs = roomsArr[currRoom].getRects();
+                        vector<SDL_Surface *> currSurfs = roomsArr[currRoom].getSurfs();
+                        vector<SDL_Rect> nextObjs = roomsArr[nextRoom].getRects();
+                        vector<SDL_Surface *> nextSurfs = roomsArr[nextRoom].getSurfs();
+                        vector<SDL_Rect> currObs = roomsArr[currRoom].getObsRects();
+                        vector<SDL_Surface *> currObsSurfs = roomsArr[currRoom].getObsSurfs();
+                        vector<SDL_Rect> nextObs = roomsArr[nextRoom].getObsRects();
+                        vector<SDL_Surface *> nextObsSurfs = roomsArr[nextRoom].getObsSurfs();
+                        vector<SDL_Rect> currEnemieRects = roomsArr[currRoom].getEnemieRects();
+                        vector<SDL_Surface *> currEnemieSurfs = roomsArr[currRoom].getEnemieSurfs();
+                        vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
+                        vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
+
+                        if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs,
+                                        nextEnemieRects, nextEnemieSurfs, roomsArr[currRoom].getEnemies(),
+                                        roomsArr[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs,
+                                        imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im)) {
+                            transition = false;
+                            noSwitch = true;
+                            currRoom = exitInfo[0];
+
+                            //So that if you leave the room while shooting the grappling hook, it resets so it doesn't
+                            // stay if you go back to that room before shooting the hook again
+                            arrR[0].x = -100;
+                            arrR[0].y = -100;
+
+                            //Tests blitting for room objects
+                            roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
+                                                          ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
+                        }
                     }
+                } else {
+                    //Tests blitting for room objects
+                    roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
+                                                  ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
+
+                    roomsArr[currRoom].roomReset(imRect, yVel, xVel);
+
+                    dead = false;
                 }
 
                 //Updates text texture into a texture, so it can be rendered with new blit info

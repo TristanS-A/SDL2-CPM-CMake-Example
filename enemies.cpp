@@ -10,6 +10,7 @@ using namespace std;
 Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Surface *hurtImage, int health, int grav) {
 
     hitbox = enemieRec;
+    resetHitbox = enemieRec;
     animationCycle = std::move(enemieImages);
     hitImage = hurtImage;
     maxIndex = static_cast<int>(animationCycle.size());
@@ -20,6 +21,7 @@ Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Sur
     gravity = grav;
     dead = false;
     enemieHealth = health;
+    resetHealth = health;
     bufferCurrTime = static_cast<int>(SDL_GetTicks());
     bufferPrevTime = 0;
     damageTime = 0;
@@ -161,5 +163,16 @@ SDL_Surface *Enemies::getCurrImage() {
 SDL_Surface *Enemies::getDefaultImage() {
     damageTime = 0;
     return animationCycle[0];
+}
+
+void Enemies::resetEnemie() {
+    enemieHealth = resetHealth;
+    hitbox.x = resetHitbox.x;
+    hitbox.y = resetHitbox.y;
+    xVel = 0;
+    yVel = 0;
+    damageTime = 0;
+    dead = false;
+
 }
 
