@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
         Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), 10, gravity);
 
         //Creates room objects
-        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/color3.png"));
+        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/color2.png"));
 
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 
@@ -555,7 +555,7 @@ int main(int argc, char* argv[])
                         vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
                         vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
                         currBG = roomsArr[currRoom].getBG();
-                        nextBG = roomsArr[currRoom].getBG();
+                        nextBG = roomsArr[nextRoom].getBG();
 
                         if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs,
                                         nextEnemieRects, nextEnemieSurfs, roomsArr[currRoom].getEnemies(),
