@@ -260,6 +260,13 @@ int main(int argc, char* argv[])
         SDL_Surface *currBG;
         SDL_Surface *nextBG;
 
+        int paraBGx = 0;
+        int paraBGy = 0;
+
+        SDL_Rect g;
+
+        SDL_Surface *paraBG = loadImages("images/parallaxBG.png");
+
         //Placeholder for bg rect location
         SDL_Rect pHolder = {0, 0, 0, 0};
 
@@ -287,19 +294,19 @@ int main(int argc, char* argv[])
         Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), 10, gravity);
 
         //Creates room objects
-        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/color2.png"));
+        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));
 
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/color3.png"));
+        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/bg.png"));
 
         exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
 
-        Rooms room3 = *new Rooms({200, 605, 0, 0}, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/color3.png"));
+        Rooms room3 = *new Rooms({200, 605, 0, 0}, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/bg.png"));
 
         exits = {{500, -100, 440, 50}};
 
-        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/color3.png"));
+        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/bg.png"));
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4};
@@ -440,8 +447,16 @@ int main(int argc, char* argv[])
                 if (!dead) {
                     if (!transition) {
 
+                        //Placeholder for the parallax bg rect
+                        g = {paraBGx % 1440, paraBGy % 810, 0, 0};
+
+                        //Blits parallax background
+                        SDL_BlitSurface(paraBG, nullptr, test, &g);
+
+                        //Placeholder for non-parallax bg rect
                         currBG = roomsArr[currRoom].getBG();
 
+                        //Blits no-parallax bg
                         SDL_BlitSurface(currBG, nullptr, test, &pHolder);
 
                         //Gets key inputs
@@ -560,7 +575,7 @@ int main(int argc, char* argv[])
                         if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs,
                                         nextEnemieRects, nextEnemieSurfs, roomsArr[currRoom].getEnemies(),
                                         roomsArr[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs,
-                                        imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im, currBG, nextBG)) {
+                                        imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im, currBG, nextBG, g, paraBG, paraBGx, paraBGy)) {
                             transition = false;
                             noSwitch = true;
                             currRoom = exitInfo[0];
@@ -570,8 +585,16 @@ int main(int argc, char* argv[])
                             arrR[0].x = -100;
                             arrR[0].y = -100;
 
+                            //Placeholder for the parallax bg rect
+                            g = {paraBGx % 1440, paraBGy % 810, 0, 0};
+
+                            //Blits parallax background
+                            SDL_BlitSurface(paraBG, nullptr, test, &g);
+
+                            //Placeholder for non-parallax bg rect
                             currBG = roomsArr[currRoom].getBG();
 
+                            //Blits no-parallax bg
                             SDL_BlitSurface(currBG, nullptr, test, &pHolder);
 
                             //Tests blitting for room objects
@@ -582,8 +605,16 @@ int main(int argc, char* argv[])
 
                 } else {
 
+                    //Placeholder for the parallax bg rect
+                    g = {paraBGx % 1440, paraBGy % 810, 0, 0};
+
+                    //Blits parallax background
+                    SDL_BlitSurface(paraBG, nullptr, test, &g);
+
+                    //Placeholder for non-parallax bg rect
                     currBG = roomsArr[currRoom].getBG();
 
+                    //Blits no-parallax bg
                     SDL_BlitSurface(currBG, nullptr, test, &pHolder);
 
                     //Tests blitting for room objects

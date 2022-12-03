@@ -11,7 +11,7 @@
 using namespace std;
 
 //Function for switching rooms
-bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<Enemies> currEnemies, vector<Enemies> nextEnemies, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im, SDL_Surface *currBG, SDL_Surface *nextBG){
+bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<Enemies> currEnemies, vector<Enemies> nextEnemies, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface * im, SDL_Surface *currBG, SDL_Surface *nextBG, SDL_Rect &g, SDL_Surface *paraBG, int &paraBGx, int &paraBGy){
 
     //Doesn't return true until the rooms have fully switched, where the current stage has been moved off screen
     if (yOffset != -speed || xOffset != -speed) {
@@ -34,6 +34,7 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
             imRect.y -= speed;
         }
 
+        //Creates rects for the location of the non-parallax backgrounds
         SDL_Rect phBG1 = {0, 0, 0, 0};
         SDL_Rect phBG2 = {0, 0, 0, 0};
 
@@ -47,6 +48,32 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
             phBG2.y = yOffset;
         }
 
+        //Moves the parallax bg
+        if (xOffset != -speed) {
+            paraBGx -= speed / 2;
+        }
+        if (yOffset != -speed) {
+            paraBGy -= speed / 2;
+        }
+
+        //Sets the location of the parallax bg
+        g.x = paraBGx % 1440;
+        g.y = paraBGy % 810;
+
+        //Keeps these variables negative so the moving of the parallax bg works.
+        if (paraBGy > 0){
+            paraBGy = -810;
+        }
+
+        //Keeps these variables negative so the moving of the parallax bg works.
+        if (paraBGx > 0){
+            paraBGy = -1440;
+        }
+
+        //Blits parallax background
+        SDL_BlitSurface(paraBG, nullptr, test, &g);
+
+        //Blits non-parallax backgrounds for incoming and current room
         SDL_BlitSurface(currBG, nullptr, test, &phBG1);
         SDL_BlitSurface(nextBG, nullptr, test, &phBG2);
 
