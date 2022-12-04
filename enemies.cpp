@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Surface *hurtImage, int health, int grav) {
+Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Surface *hurtImage, vector<SDL_Surface *> deathAni, int health, int grav) {
 
     hitbox = enemieRec;
     resetHitbox = enemieRec;
@@ -25,6 +25,8 @@ Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Sur
     bufferCurrTime = static_cast<int>(SDL_GetTicks());
     bufferPrevTime = 0;
     damageTime = 0;
+    deathAnimation = std::move(deathAni);
+    deathIndex = 0;
 }
 
 void Enemies::update(SDL_Surface *test, SDL_Rect &imRect) {
@@ -173,6 +175,23 @@ void Enemies::resetEnemie() {
     yVel = 0;
     damageTime = 0;
     dead = false;
+    deathIndex = 0;
 
+}
+
+void Enemies::enemieDeath(SDL_Surface *test) {
+    SDL_Rect deathHolder = {hitbox.x + hitbox.w / 2 - 100, hitbox.y + hitbox.h / 2 - 100, 0, 0};
+
+    currTime = static_cast<int>(SDL_GetTicks());
+
+    if (currTime > prevTime + 1000 / 10) {
+        prevTime = currTime;
+        deathIndex++;
+    }
+    SDL_BlitSurface(deathAnimation[deathIndex], nullptr, test, &deathHolder);
+}
+
+bool Enemies::deathAnimationDone() {
+    return deathIndex == deathAnimation.size() - 1;
 }
 

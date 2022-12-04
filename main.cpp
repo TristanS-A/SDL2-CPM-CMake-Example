@@ -289,9 +289,9 @@ int main(int argc, char* argv[])
 
         vector<bool> placeHolderObsHookable = {true};
 
-        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), 10, gravity);
+        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), deathAnimation, 10, gravity);
 
-        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), 10, gravity);
+        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), deathAnimation, 10, gravity);
 
         //Creates room objects
         Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));
@@ -621,25 +621,26 @@ int main(int argc, char* argv[])
                     roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
                                                   ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
 
-                    if (!dropCurtain){
-
-                        //Placeholder for image rects so that the blit function doesn't change the rectangle location, and
-                        // also centers the image to the player
-                        SDL_Rect imPlaceHolder = {imRect.x + imRect.w / 2 - 100, imRect.y + imRect.h / 2 - 100, 0, 0};
-
-                        SDL_BlitSurface(deathAnimation[deathAnimationIndex], nullptr, test, &imPlaceHolder);
-                    } else {
-                        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
-                        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
-                    }
-
                     deathCurrTime = static_cast<int>(SDL_GetTicks());
 
                     if (!dropCurtain) {
+
+                        //Placeholder for image rects so that the blit function doesn't change the rectangle location, and
+                        // also centers the images to the player
+                        SDL_Rect imPlaceHolder = {imRect.x + imRect.w / 2 - 100, imRect.y + imRect.h / 2 - 100, 0, 0};
+
+                        //Blits death animation
+                        SDL_BlitSurface(deathAnimation[deathAnimationIndex], nullptr, test, &imPlaceHolder);
+
                         if (deathCurrTime > deathPrevTime + 1000 / 10) {
                             if (deathAnimationIndex < deathAnimation.size() - 1) {
+
+                                //Moves through death animation images
                                 deathAnimationIndex++;
                             } else {
+
+                                //Resets death animation and drops curtain after it is done and when the curtain has
+                                // been raised all the way
                                 deathAnimationIndex = 0;
                                 curtainOffset = -810;
                                 dropCurtain = true;
@@ -650,14 +651,21 @@ int main(int argc, char* argv[])
                         }
                     }
                     else if (!raiseCurtain){
+
+                        //Placeholder for curtain and blits it with blit function
+                        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
+                        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+
                         if (curtainOffset < 0){
                             curtainOffset = static_cast<int>(curtainOffset / 1.1);
 
-                            //Check so the curtain doesn't lower more than the screen high
+                            //Check so the curtain doesn't lower more than the screen hight
                             if (curtainOffset > 0){
                                 curtainOffset = 0;
                             }
                         } else {
+
+                            //Gets curtain ready to raise
                             curtainOffset = 5;
                             roomsArr[currRoom].roomReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
                             raiseCurtain = true;
@@ -669,12 +677,20 @@ int main(int argc, char* argv[])
 
                 if (raiseCurtain){
                     if (curtainOffset > -810) {
+
+                        //Raises curtain
                         curtainOffset = -static_cast<int>(fabs(curtainOffset * 1.39));
+
+                        //Curtain placeholder and blit function
                         SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
                         SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+
                     } else {
+
+                        //Resets curtain after raising all the way
                         curtainOffset = -810;
                         raiseCurtain = false;
+
                     }
                 }
 

@@ -47,6 +47,8 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
                     hitEnemie = true;
                 }
             }
+        } else if (!roomEnemie.deathAnimationDone()){
+            roomEnemie.enemieDeath(test);
         }
     }
 
@@ -215,8 +217,8 @@ void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &
     imRect.y = respawnLocation.y;
 
     for (auto &arr : arrR){
-        arr.x = imRect.x;
-        arr.y = imRect.y;
+        arr.x = -100;
+        arr.y = -100;
     }
 
     yVel = 0;

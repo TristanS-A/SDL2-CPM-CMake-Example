@@ -58,8 +58,14 @@ private:
     //Time showing damageImage
     int damageTime;
 
+    //Death animation
+    vector<SDL_Surface *> deathAnimation;
+
+    //Index for death animation
+    int deathIndex;
+
 public:
-    Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Surface *hurtImage, int health, int grav);
+    Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Surface *hurtImage, vector<SDL_Surface *> deathAni, int health, int grav);
 
     void update(SDL_Surface *test, SDL_Rect &imRect);
 
@@ -80,6 +86,10 @@ public:
     SDL_Surface* getDefaultImage();
 
     void resetEnemie();
+
+    void enemieDeath(SDL_Surface *test);
+
+    bool deathAnimationDone();
 
 };
 
