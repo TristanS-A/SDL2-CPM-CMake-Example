@@ -11,6 +11,8 @@
 #include "loadImages.h"
 #include "roomSwitch.h"
 #include "enemies.h"
+#include "levels.h"
+#include "handleCollision.h"
 
 using namespace std;
 
@@ -118,7 +120,7 @@ int main(int argc, char* argv[])
         bool raiseCurtain;
 
         //To move curtain
-        int curtainOffset = 5;
+        int curtainOffset = -810;
 
         //Exit flag
         bool quit = false;
@@ -153,7 +155,7 @@ int main(int argc, char* argv[])
         bool mouseUp;
 
         //Bool for if grappling hook is shooting out
-        bool shoot;
+        bool shoot = false;
 
         //Bool for if the grappling hook is retracting
         bool retrac;
@@ -250,6 +252,21 @@ int main(int argc, char* argv[])
         //To assign the next room to transition to
         int nextRoom = 0;
 
+        //To keep track of levels
+        int currLevel = 0;
+
+        //To tell if player is on the level select screen
+        bool levelSelect = true;
+
+        //Checks if the player is entering a level
+        bool enteringLevel = false;
+
+        //To keep track of entering animation
+        int enterIndex = -1;
+
+        //Handles camera movement in levelSelectScreen
+        int cameraOffset = 0;
+
         //Speed the room switch will happen at
         int speed = 0;
 
@@ -266,6 +283,8 @@ int main(int argc, char* argv[])
         SDL_Rect g;
 
         SDL_Surface *paraBG = loadImages("images/parallaxBG.png");
+
+        SDL_Rect paraBGRect;
 
         //Placeholder for bg rect location
         SDL_Rect pHolder = {0, 0, 0, 0};
@@ -289,6 +308,11 @@ int main(int argc, char* argv[])
 
         vector<bool> placeHolderObsHookable = {true};
 
+        vector<SDL_Rect> levelSelectRects = {{0, 710, SCREEN_WIDTH, 100}};
+        vector<SDL_Surface *> levelSelectSurfs = {loadImages("images/color2.png")};
+        vector<SDL_Rect> levelDoors = {{200, 510, 200, 200}};
+        vector<vector<SDL_Surface *>> levelDoorSurfs = {{loadImages("images/color2.png"), loadImages("images/color3.png"), loadImages("images/color.png")}};
+
         Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), deathAnimation, 10, gravity);
 
         Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), deathAnimation, 10, gravity);
@@ -310,6 +334,10 @@ int main(int argc, char* argv[])
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4};
+
+        Levels level1 = *new Levels(roomsArr, paraBG);
+
+        vector<Levels> levels = {level1};
 
         bool transition = false;
 
@@ -444,21 +472,10 @@ int main(int argc, char* argv[])
                 //Function for resizing the screen
                 screenSizeChange(textRect, window);
 
-                if (!dead) {
-                    if (!transition) {
+                //Tests if the player is in the level selecting area
+                if (levelSelect){
 
-                        //Placeholder for the parallax bg rect
-                        g = {paraBGx % 1440, paraBGy % 810, 0, 0};
-
-                        //Blits parallax background
-                        SDL_BlitSurface(paraBG, nullptr, test, &g);
-
-                        //Placeholder for non-parallax bg rect
-                        currBG = roomsArr[currRoom].getBG();
-
-                        //Blits no-parallax bg
-                        SDL_BlitSurface(currBG, nullptr, test, &pHolder);
-
+                    if (!enteringLevel) {
                         //Gets key inputs
                         if ((keystates[SDL_SCANCODE_W])) {
                             up = true;
@@ -484,214 +501,226 @@ int main(int argc, char* argv[])
 
                         //Function for player movement
                         playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
+                    }
 
-                        //Test if grappling hook is shooting
-                        if (shoot) {
+                    //Placeholder for the parallax bg rect
+                    paraBGRect = {paraBGx % 1440, paraBGy % 810, 0, 0};
 
-                            //Gets rects that can be hit with the hook in the current level
-                            roomRects = roomsArr[currRoom].getRects();
+                    //Blits parallax background
+                    SDL_BlitSurface(paraBG, nullptr, test, &paraBGRect);
 
-                            vector<Enemies> roomEns = roomsArr[currRoom].getEnemies();
+                    //Blits no-parallax bg
+                    SDL_BlitSurface(roomsArr[currRoom].getBG(), nullptr, test, &pHolder);
 
-                            //Function for shooting the grappling hook
-                            shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
-                                     retrac, track, test, roomRects, roomsArr[currRoom].getHittableRects(),
-                                     roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel, hitEnemie);
+
+                    //Applying gravity to the charter
+                    yVel -= gravity;
+
+                    //Applies y-axis velocity to the character
+                    imRect.y -= yVel;
+
+                    //Applies x-axis velocity to the character
+                    imRect.x -= xVel;
+
+
+                    //Makes it appear that the camera is following the player by moving everything but the player
+                    if (imRect.x + imRect.w / 2 > SCREEN_WIDTH / 2 || cameraOffset > 0){
+
+                        //Adds the offset to the parallax bg at a different rate than the rest to add the parallax effect
+                        paraBGx += xVel / 2;
+
+                        //Adds the offset to the non-parallax bg
+                        pHolder.x = -cameraOffset;
+
+                        //Adds the offset to the levelSelectRects
+                        for (auto & levelSelectRect : levelSelectRects){
+                            levelSelectRect.x += xVel;
                         }
 
-                        //Test if grappling hook is retracting
-                        if (retrac) {
-
-                            //Function for retracting the grappling hook
-                            retracting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit,
-                                       retrac, track, test, yVel, xVel, mouseUp,
-                                       sideOffsetY, roomRects, sideOffsetX, hitEnemie);
+                        //Adds the offset to the level doors
+                        for (auto & levelDoor : levelDoors){
+                            levelDoor.x += xVel;
                         }
 
-                        //Applying gravity to the charter
-                        yVel -= gravity;
+                        //Keeps the player position stagnant
+                        imRect.x += xVel;
 
-                        //Applies y-axis velocity to the character
-                        imRect.y -= yVel;
+                        //Adds to the camera offset
+                        cameraOffset -= xVel;
+                    }
 
-                        //Applies x-axis velocity to the character
-                        imRect.x -= xVel;
+                    //Goes through all doors in levelDoors
+                    for (int d = 0; d < levelDoors.size(); d ++){
 
-                        exitInfo = roomsArr[currRoom].exitRoom(imRect);
+                        //Blits doors with placeholder
+                        SDL_Rect doorHolder = levelDoors[d];
+                        SDL_BlitSurface(levelDoorSurfs[d][0], &doorHolder, test, &doorHolder);
 
-                        if (exitInfo[1] > 0) {
-                            if (right) {
-                                noSwitch = false;
+                        //Tests is player enters a door
+                        if (SDL_HasIntersection(&levelDoors[d], &imRect) && up){
+
+                            enteringLevel = true;
+
+                            //So the player doesn't jump when entering a level or move
+                            if (yVel > 0){
+                                imRect.y += yVel * 2;
+                                yVel = 0;
                             }
-                        } else if (exitInfo[1] < 0) {
-                            if (left) {
-                                noSwitch = false;
-                            }
+                            xVel = 0;
+
+                            //Does door entering animation and then lowers the curtain
+                            deathCurrTime = static_cast<int>(SDL_GetTicks());
+                                if (enterIndex < static_cast<int>(levelDoorSurfs[d].size()) - 1) {
+                                    if (deathCurrTime > deathPrevTime + 1000 / 5) {
+                                        deathPrevTime = deathCurrTime;
+                                        enterIndex++;
+                                    }
+                                } else {
+                                    //Placeholder for curtain and blits it with blit function
+                                    SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
+                                    SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+
+                                    if (curtainOffset < 0){
+                                        curtainOffset = static_cast<int>(curtainOffset / 1.1);
+
+                                        //Check so the curtain doesn't lower more than the screen height
+                                        if (curtainOffset > 0){
+                                            curtainOffset = 0;
+                                        }
+                                    } else {
+
+                                        //Gets curtain ready to raise
+                                        curtainOffset = 5;
+                                        levels[currLevel].getRoom().roomReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
+                                        raiseCurtain = true;
+                                        dropCurtain = false;
+                                        dead = false;
+                                        enterIndex = 1;
+                                        levelSelect = false;
+                                    }
+                                }
+
+                            //Blits animation over door
+                            SDL_BlitSurface(levelDoorSurfs[d][enterIndex], &doorHolder, test, &doorHolder);
                         }
+                    }
 
-                        if (exitInfo[0] != -1 && !noSwitch) {
-                            transition = true;
-                            retrac = false;
-                            shoot = false;
-                            nextRoom = exitInfo[0];
-                            speed = exitInfo[1];
-                            x = exitInfo[2];
-                            y = exitInfo[3];
-                            if (y < -speed) {
-                                yVel = 30;
-                            }
-                        } else if (exitInfo[0] == -1) {
-                            noSwitch = false;
-                        }
+                    //So that when testing for multiple rect collisions, it doesnt reset the x velocity before testing
+                    // all the possible collisions
+                    bool waitToSet = false;
 
-                        //Placeholder so that imRect does not get altered by the blitting function
-                        SDL_Rect placeH = imRect;
+                    //This is a placeholder so that the actual rect position does not get changed by the blit function
+                    SDL_Rect playerHolder = imRect;
 
-                        //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
-                        // rectangle)
-                        SDL_BlitSurface(im, nullptr, test, &placeH);
+                    SDL_BlitSurface(im, nullptr, test, &playerHolder);
 
-                        //Tests blitting for room objects
-                        roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                      ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
+                    //Blits level select room rects
+                    for (int h = 0; h < levelSelectRects.size(); h++){
+                        handleCollision(levelSelectRects[h], imRect, yVel, xVel, waitToSet, jump);
 
-                    } else {
+                        //This is a placeholder so that the actual rect position does not get changed by the blit function
+                        SDL_Rect holder = levelSelectRects[h];
 
-                        vector<SDL_Rect> currObjs = roomsArr[currRoom].getRects();
-                        vector<SDL_Surface *> currSurfs = roomsArr[currRoom].getSurfs();
-                        vector<SDL_Rect> nextObjs = roomsArr[nextRoom].getRects();
-                        vector<SDL_Surface *> nextSurfs = roomsArr[nextRoom].getSurfs();
-                        vector<SDL_Rect> currObs = roomsArr[currRoom].getObsRects();
-                        vector<SDL_Surface *> currObsSurfs = roomsArr[currRoom].getObsSurfs();
-                        vector<SDL_Rect> nextObs = roomsArr[nextRoom].getObsRects();
-                        vector<SDL_Surface *> nextObsSurfs = roomsArr[nextRoom].getObsSurfs();
-                        vector<SDL_Rect> currEnemieRects = roomsArr[currRoom].getEnemieRects();
-                        vector<SDL_Surface *> currEnemieSurfs = roomsArr[currRoom].getEnemieSurfs();
-                        vector<SDL_Rect> nextEnemieRects = roomsArr[nextRoom].getEnemieRects();
-                        vector<SDL_Surface *> nextEnemieSurfs = roomsArr[nextRoom].getEnemieDefaultSurfs();
-                        currBG = roomsArr[currRoom].getBG();
-                        nextBG = roomsArr[nextRoom].getBG();
+                        SDL_BlitSurface(levelSelectSurfs[h], &holder, test, &holder);
 
-                        if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs,
-                                        nextEnemieRects, nextEnemieSurfs, roomsArr[currRoom].getEnemies(),
-                                        roomsArr[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs,
-                                        imRect, y, x, exitInfo[2] + exitInfo[3], speed, test, im, currBG, nextBG, g, paraBG, paraBGx, paraBGy)) {
-                            transition = false;
-                            noSwitch = true;
-                            currRoom = exitInfo[0];
+                    }
 
-                            //So that if you leave the room while shooting the grappling hook, it resets, so it doesn't
-                            // stay if you go back to that room before shooting the hook again
-                            arrR[0].x = -100;
-                            arrR[0].y = -100;
+                    //Sets xVel to 0 after colliding with something
+                    if (waitToSet){
+                        xVel = 0;
+                    }
 
-                            //Placeholder for the parallax bg rect
-                            g = {paraBGx % 1440, paraBGy % 810, 0, 0};
-
-                            //Blits parallax background
-                            SDL_BlitSurface(paraBG, nullptr, test, &g);
-
-                            //Placeholder for non-parallax bg rect
-                            currBG = roomsArr[currRoom].getBG();
-
-                            //Blits no-parallax bg
-                            SDL_BlitSurface(currBG, nullptr, test, &pHolder);
-
-                            //Tests blitting for room objects
-                            roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                          ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
-                        }
+                    //Blits curtain over everything
+                    if (enteringLevel){
+                        //Placeholder for curtain and blits it with blit function
+                        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
+                        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
                     }
 
                 } else {
 
-                    //Placeholder for the parallax bg rect
-                    g = {paraBGx % 1440, paraBGy % 810, 0, 0};
+                    if (!dead) {
+                        if (!transition) {
 
-                    //Blits parallax background
-                    SDL_BlitSurface(paraBG, nullptr, test, &g);
-
-                    //Placeholder for non-parallax bg rect
-                    currBG = roomsArr[currRoom].getBG();
-
-                    //Blits no-parallax bg
-                    SDL_BlitSurface(currBG, nullptr, test, &pHolder);
-
-                    //Tests blitting for room objects
-                    roomsArr[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                  ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie);
-
-                    deathCurrTime = static_cast<int>(SDL_GetTicks());
-
-                    if (!dropCurtain) {
-
-                        //Placeholder for image rects so that the blit function doesn't change the rectangle location, and
-                        // also centers the images to the player
-                        SDL_Rect imPlaceHolder = {imRect.x + imRect.w / 2 - 100, imRect.y + imRect.h / 2 - 100, 0, 0};
-
-                        //Blits death animation
-                        SDL_BlitSurface(deathAnimation[deathAnimationIndex], nullptr, test, &imPlaceHolder);
-
-                        if (deathCurrTime > deathPrevTime + 1000 / 10) {
-                            if (deathAnimationIndex < deathAnimation.size() - 1) {
-
-                                //Moves through death animation images
-                                deathAnimationIndex++;
+                            //Gets key inputs
+                            if ((keystates[SDL_SCANCODE_W])) {
+                                up = true;
                             } else {
-
-                                //Resets death animation and drops curtain after it is done and when the curtain has
-                                // been raised all the way
-                                deathAnimationIndex = 0;
-                                curtainOffset = -810;
-                                dropCurtain = true;
+                                up = false;
+                            }
+                            if (keystates[SDL_SCANCODE_A]) {
+                                left = true;
+                            } else {
+                                left = false;
+                            }
+                            if ((keystates[SDL_SCANCODE_D])) {
+                                right = true;
+                            } else {
+                                right = false;
+                            }
+                            if ((keystates[SDL_SCANCODE_S])) {
+                                down = true;
+                                dead = true;
+                            } else {
+                                down = false;
                             }
 
-                            deathPrevTime = deathCurrTime;
+
+                            //Function for player movement
+                            playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
+
+                            //Placeholder for the parallax bg rect
+                            paraBGRect = {paraBGx % 1440, paraBGy % 810, 0, 0};
+
+                            //Blits parallax background
+                            SDL_BlitSurface(paraBG, nullptr, test, &paraBGRect);
+
+                            //Blits no-parallax bg
+                            SDL_BlitSurface(roomsArr[currRoom].getBG(), nullptr, test, &pHolder);
+
+                            //Test if grappling hook is shooting
+                            if (shoot) {
+
+                                //Gets rects that can be hit with the hook in the current level
+                                roomRects = levels[currLevel].getRoom().getRects();
+
+                                vector<Enemies> roomEns = roomsArr[currRoom].getEnemies();
+
+                                //Function for shooting the grappling hook
+                                shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
+                                         retrac, track, test, roomRects, roomsArr[currRoom].getHittableRects(),
+                                         roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel,
+                                         hitEnemie);
+                            }
+
+                            //Test if grappling hook is retracting
+                            if (retrac) {
+
+                                //Function for retracting the grappling hook
+                                retracting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit,
+                                           retrac, track, test, yVel, xVel, mouseUp,
+                                           sideOffsetY, roomRects, sideOffsetX, hitEnemie);
+                            }
+
+                            //Applying gravity to the charter
+                            yVel -= gravity;
+
+                            //Applies y-axis velocity to the character
+                            imRect.y -= yVel;
+
+                            //Applies x-axis velocity to the character
+                            imRect.x -= xVel;
 
                         }
                     }
-                    else if (!raiseCurtain){
 
-                        //Placeholder for curtain and blits it with blit function
-                        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
-                        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
-
-                        if (curtainOffset < 0){
-                            curtainOffset = static_cast<int>(curtainOffset / 1.1);
-
-                            //Check so the curtain doesn't lower more than the screen hight
-                            if (curtainOffset > 0){
-                                curtainOffset = 0;
-                            }
-                        } else {
-
-                            //Gets curtain ready to raise
-                            curtainOffset = 5;
-                            roomsArr[currRoom].roomReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
-                            raiseCurtain = true;
-                            dropCurtain = false;
-                            dead = false;
-                        }
-                    }
-                }
-
-                if (raiseCurtain){
-                    if (curtainOffset > -810) {
-
-                        //Raises curtain
-                        curtainOffset = -static_cast<int>(fabs(curtainOffset * 1.39));
-
-                        //Curtain placeholder and blit function
-                        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
-                        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
-
-                    } else {
-
-                        //Resets curtain after raising all the way
-                        curtainOffset = -810;
-                        raiseCurtain = false;
-
-                    }
+                    levels[currLevel].levelUpdate(test, imRect, im, right, left, transition, shoot,
+                                                  retrac, hit, yVel, xVel, textRect, jump,
+                                                  ghPieceVelY, ghPieceVelX, dead, arrR, arr, track,
+                                                  sideOffsetX, sideOffsetY, mouseUp, s, hitEnemie,
+                                                  deathAnimation, deathAnimationIndex, dropCurtain, raiseCurtain,
+                                                  curtainOffset, curtain, deathCurrTime, deathPrevTime,
+                                                  paraBGRect, paraBGx, paraBGy);
                 }
 
                 //Updates text texture into a texture, so it can be rendered with new blit info

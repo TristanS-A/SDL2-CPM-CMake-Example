@@ -4,6 +4,7 @@
 
 #include "rooms.h"
 #include "enemies.h"
+#include "handleCollision.h"
 
 #include <utility>
 #include "SDL.h"
@@ -83,7 +84,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
     }
 
     //Bool to set xVel to 0 after running through every object so other objects can get collisions
-    bool d;
+    bool d = false;
 
     //Handle collision, where it determines the side of the rect that the player is intersecting on from the
     // distance the player is overlapping into the rect in relation to player's velocity for each obj in the
@@ -94,38 +95,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
             roomEnemie.collisionTest(roomObjs[t]);
         }
 
-        if (SDL_HasIntersection(&roomObjs[t], &imRect)){
-
-            //Top side
-            if ((imRect.y + imRect.h - roomObjs[t].y <= fabs(yVel) && yVel <= 0) || (imRect.y + imRect.h - roomObjs[t].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)){
-                imRect.y = roomObjs[t].y - imRect.h;
-                yVel = 0;
-                d = true;
-                jump = true;
-            }
-
-                //Bottom side
-            else if ((roomObjs[t].y + roomObjs[t].h - imRect.y <= fabs(yVel) && yVel >= 0) || (roomObjs[t].y + roomObjs[t].h - imRect.y <= fabs(ghPieceVelY) && ghPieceVelY >= 0)){
-                imRect.y = roomObjs[t].y + roomObjs[t].h;
-                yVel = 0;
-            }
-
-            //Left and Right side
-            if ((imRect.x + imRect.w - roomObjs[t].x <= fabs(xVel) && xVel <= 0) || (roomObjs[t].x + roomObjs[t].w - imRect.x <= fabs(xVel) && xVel >= 0)) {
-                //Left side
-                if (xVel < 0) {
-                    imRect.x = roomObjs[t].x - imRect.w;
-                    xVel = 0;
-                }
-
-                    //Right side
-                else {
-                    imRect.x = roomObjs[t].x + roomObjs[t].w;
-                    xVel = 0;
-                }
-            }
-        }
-
+        handleCollision(roomObjs[t], imRect, yVel, xVel, d, jump);
 
         //This is a placeholder so that the actual rect position does not get changed by the blit function
         SDL_Rect re = roomObjs[t];
