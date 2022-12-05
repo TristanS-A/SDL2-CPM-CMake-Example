@@ -25,7 +25,7 @@ private:
 public:
     Levels(vector<Rooms> levRooms, SDL_Surface *parallaxBG);
 
-    void levelUpdate(SDL_Surface *test, SDL_Rect &imRect, SDL_Surface *im, bool &right, bool &left, bool &transition, bool &shoot, bool &retrac, bool &hit, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *>arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, int &s, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain,  bool &goToLevSelScreen, bool &levelSelect, int &deathCurrTime, int &deathPrevTime, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy);
+    void levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth, SDL_Surface *im, bool &right, bool &left, bool &transition, bool &shoot, bool &retrac, bool &hit, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *>arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, int &s, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain,  bool &goToLevSelScreen, bool &levelSelect, int &deathCurrTime, int &deathPrevTime, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy);
 
     Rooms getRoom();
 

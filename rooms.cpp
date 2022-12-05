@@ -32,7 +32,7 @@ Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface
 }
 
 void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump,
-                       int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie) {
+                       int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth) {
 
     for (auto & roomEnemie : roomEnemies){
 
@@ -48,6 +48,17 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
                     hitEnemie = true;
                 }
             }
+
+            if (SDL_HasIntersection(&imRect, &r)) {
+                if (r.x + r.w / 2 < imRect.x + imRect.w / 2){
+                    xVel = -15;
+                } else {
+                    xVel = +15;
+                }
+                yVel = 15;
+                playerHealth -= 10;
+            }
+
         } else if (!roomEnemie.deathAnimationDone()){
             roomEnemie.enemieDeath(test);
         }
@@ -183,13 +194,15 @@ SDL_Rect Rooms::getRespawnLocation() {
     return respawnLocation;
 }
 
-void Rooms::roomAndPlayerReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac) {
+void Rooms::roomAndPlayerReset(SDL_Rect &imRect, int &playerHealth, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac) {
     for (auto & enemie : roomEnemies){
         enemie.resetEnemie();
     }
 
     imRect.x = respawnLocation.x;
     imRect.y = respawnLocation.y;
+
+    playerHealth = 50;
 
     for (auto &arr : arrR){
         arr.x = -100;

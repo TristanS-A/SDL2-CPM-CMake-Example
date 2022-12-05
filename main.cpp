@@ -88,6 +88,9 @@ int main(int argc, char* argv[])
         //Creates rectangle for cat image
         SDL_Rect imRect = {200, 200, 100, 100};
 
+        //The health of the player
+        int playerHealth = 50;
+
         //Death animation images
         vector<SDL_Surface *> deathAnimation;
         deathAnimation.push_back(loadImages("images/deathAnimation/ex1.png"));
@@ -581,7 +584,7 @@ int main(int argc, char* argv[])
                                         curtainOffset = 5;
                                         currLevel = d;
                                         levels[currLevel].resetLevel();
-                                        levels[currLevel].getRoom().roomAndPlayerReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
+                                        levels[currLevel].getRoom().roomAndPlayerReset(imRect, playerHealth, yVel, xVel, arrR, shoot, hit, retrac);
                                         raiseCurtain = true;
                                         dropCurtain = false;
                                         up = false;
@@ -739,7 +742,7 @@ int main(int argc, char* argv[])
                         }
                     }
 
-                    levels[currLevel].levelUpdate(test, imRect, im, right, left, transition, shoot,
+                    levels[currLevel].levelUpdate(test, imRect, playerHealth, im, right, left, transition, shoot,
                                                   retrac, hit, yVel, xVel, textRect, jump,
                                                   ghPieceVelY, ghPieceVelX, dead, arrR, arr, track,
                                                   sideOffsetX, sideOffsetY, mouseUp, s, hitEnemie,
