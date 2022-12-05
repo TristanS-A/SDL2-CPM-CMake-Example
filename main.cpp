@@ -581,6 +581,7 @@ int main(int argc, char* argv[])
                                         curtainOffset = 5;
                                         currLevel = d;
                                         levels[currLevel].resetLevel();
+                                        levels[currLevel].getRoom().roomAndPlayerReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
                                         raiseCurtain = true;
                                         dropCurtain = false;
                                         up = false;
@@ -629,6 +630,10 @@ int main(int argc, char* argv[])
                     //For raising the curtain after exiting level.
                     if (raiseCurtain){
                         if (curtainOffset > -810) {
+
+                            //Sets player position to the door position after exiting the level
+                            imRect.x = levelDoors[currLevel].x + levelDoors[currLevel].w / 2 - imRect.w / 2;
+                            imRect.y = levelDoors[currLevel].y + levelDoors[currLevel].h - imRect.h;
 
                             //So you can't enter until curtain has been risen
                             up = false;
