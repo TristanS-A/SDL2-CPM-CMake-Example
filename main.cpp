@@ -684,8 +684,6 @@ int main(int argc, char* argv[])
                                 //Gets rects that can be hit with the hook in the current level
                                 roomRects = levels[currLevel].getRoom().getRects();
 
-                                vector<Enemies> roomEns = roomsArr[currRoom].getEnemies();
-
                                 //Function for shooting the grappling hook
                                 shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
                                          retrac, track, test, roomRects, roomsArr[currRoom].getHittableRects(),

@@ -86,15 +86,20 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
     //Bool to set xVel to 0 after running through every object so other objects can get collisions
     bool d = false;
 
+    //Reset jump and sets to true if the player is on the ground
+    jump = false;
+
     //Handle collision, where it determines the side of the rect that the player is intersecting on from the
     // distance the player is overlapping into the rect in relation to player's velocity for each obj in the
     // current room
     for (int t = 0; t < roomObjs.size(); t++){
 
+        //Handles collision for enemies
         for(auto & roomEnemie : roomEnemies){
             roomEnemie.collisionTest(roomObjs[t]);
         }
 
+        //Handles collision for player
         handleCollision(roomObjs[t], imRect, yVel, xVel, d, jump);
 
         //This is a placeholder so that the actual rect position does not get changed by the blit function

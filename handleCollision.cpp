@@ -4,6 +4,7 @@
 
 #include "handleCollision.h"
 #include "SDL.h"
+#include <iostream>
 using namespace std;
 
 void handleCollision(SDL_Rect &collideRect, SDL_Rect &rectToMove, int &yVel, int &xVel, bool &d, bool &jump){
