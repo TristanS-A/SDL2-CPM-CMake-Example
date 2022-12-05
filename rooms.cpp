@@ -183,7 +183,7 @@ SDL_Rect Rooms::getRespawnLocation() {
     return respawnLocation;
 }
 
-void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac) {
+void Rooms::roomAndPlayerReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac) {
     for (auto & enemie : roomEnemies){
         enemie.resetEnemie();
     }
@@ -203,6 +203,12 @@ void Rooms::roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &
     retrac = false;
     hit = false;
 
+}
+
+void Rooms::roomReset() {
+    for (auto & enemie : roomEnemies){
+        enemie.resetEnemie();
+    }
 }
 
 SDL_Surface* Rooms::getBG() {

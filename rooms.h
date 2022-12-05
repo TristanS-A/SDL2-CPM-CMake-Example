@@ -75,7 +75,9 @@ public:
 
     SDL_Rect getRespawnLocation();
 
-    void roomReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac);
+    void roomAndPlayerReset(SDL_Rect &imRect, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac);
+
+    void roomReset();
 
     SDL_Surface* getBG();
 

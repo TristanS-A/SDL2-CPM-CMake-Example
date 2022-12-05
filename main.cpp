@@ -249,14 +249,14 @@ int main(int argc, char* argv[])
         //To keep track of the current room the player is in
         int currRoom = 0;
 
-        //To assign the next room to transition to
-        int nextRoom = 0;
-
         //To keep track of levels
         int currLevel = 0;
 
         //To tell if player is on the level select screen
         bool levelSelect = true;
+
+        //To tell when the screen should change to levelSelect screen
+        bool goToLevelSelScreen = false;
 
         //Checks if the player is entering a level
         bool enteringLevel = false;
@@ -267,20 +267,11 @@ int main(int argc, char* argv[])
         //Handles camera movement in levelSelectScreen
         int cameraOffset = 0;
 
-        //Speed the room switch will happen at
-        int speed = 0;
-
         //Makes it so the transition doesn't happen immediately again in the opposite direction
         bool noSwitch;
 
-        //Gets room backgroound
-        SDL_Surface *currBG;
-        SDL_Surface *nextBG;
-
         int paraBGx = 0;
         int paraBGy = 0;
-
-        SDL_Rect g;
 
         SDL_Surface *paraBG = loadImages("images/parallaxBG.png");
 
@@ -340,9 +331,6 @@ int main(int argc, char* argv[])
         vector<Levels> levels = {level1};
 
         bool transition = false;
-
-        int y = 0;
-        int x = 0;
 
         // Event loop
         while (!quit) {
@@ -591,11 +579,12 @@ int main(int argc, char* argv[])
 
                                         //Gets curtain ready to raise
                                         curtainOffset = 5;
-                                        levels[currLevel].getRoom().roomReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
+                                        currLevel = d;
+                                        levels[currLevel].resetLevel();
                                         raiseCurtain = true;
                                         dropCurtain = false;
+                                        up = false;
                                         dead = false;
-                                        enterIndex = 1;
                                         levelSelect = false;
                                     }
                                 }
@@ -637,6 +626,35 @@ int main(int argc, char* argv[])
                         SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
                     }
 
+                    //For raising the curtain after exiting level.
+                    if (raiseCurtain){
+                        if (curtainOffset > -810) {
+
+                            //So you can't enter until curtain has been risen
+                            up = false;
+
+                            //Raises curtain
+                            curtainOffset = -static_cast<int>(fabs(curtainOffset * 1.39));
+
+                            //Curtain placeholder and blit function
+                            SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
+                            SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+
+                        } else {
+
+                            //Resets the level entering variables, so you can enter again.
+                            enteringLevel = false;
+                            enterIndex = -1;
+
+                            goToLevelSelScreen = false;
+
+                            //Resets curtain after raising all the way
+                            curtainOffset = -810;
+                            raiseCurtain = false;
+
+                        }
+                    }
+
                 } else {
 
                     if (!dead) {
@@ -664,6 +682,10 @@ int main(int argc, char* argv[])
                             } else {
                                 down = false;
                             }
+                            if ((keystates[SDL_SCANCODE_R])) {
+                                goToLevelSelScreen = true;
+                                dropCurtain = true;
+                            }
 
 
                             //Function for player movement
@@ -686,8 +708,8 @@ int main(int argc, char* argv[])
 
                                 //Function for shooting the grappling hook
                                 shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
-                                         retrac, track, test, roomRects, roomsArr[currRoom].getHittableRects(),
-                                         roomsArr[currRoom].getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel,
+                                         retrac, track, test, roomRects, levels[currLevel].getRoom().getHittableRects(),
+                                         levels[currLevel].getRoom().getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel,
                                          hitEnemie);
                             }
 
@@ -717,7 +739,7 @@ int main(int argc, char* argv[])
                                                   ghPieceVelY, ghPieceVelX, dead, arrR, arr, track,
                                                   sideOffsetX, sideOffsetY, mouseUp, s, hitEnemie,
                                                   deathAnimation, deathAnimationIndex, dropCurtain, raiseCurtain,
-                                                  curtainOffset, curtain, deathCurrTime, deathPrevTime,
+                                                  curtainOffset, curtain, goToLevelSelScreen, levelSelect, deathCurrTime, deathPrevTime,
                                                   paraBGRect, paraBGx, paraBGy);
                 }
 

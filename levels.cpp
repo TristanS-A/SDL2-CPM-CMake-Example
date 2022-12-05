@@ -15,7 +15,7 @@ Levels::Levels(vector<Rooms> levRooms, SDL_Surface *parallaxBG){
     currRoom = 0;
 }
 
-void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, SDL_Surface *im, bool &right, bool &left, bool &transition, bool &shoot, bool &retrac, bool &hit, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, int &s, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, int &deathCurrTime, int &deathPrevTime, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
+void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, SDL_Surface *im, bool &right, bool &left, bool &transition, bool &shoot, bool &retrac, bool &hit, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, int &s, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, bool &goToLevSelScreen, bool &levelSelect, int &deathCurrTime, int &deathPrevTime, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
 
     if (!dead) {
         if (!transition) {
@@ -149,28 +149,33 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, SDL_Surface *im, b
 
             }
         }
-        else if (!raiseCurtain){
+    }
 
-            //Placeholder for curtain and blits it with blit function
-            SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
-            SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+    if (!raiseCurtain && dropCurtain){
 
-            if (curtainOffset < 0){
-                curtainOffset = static_cast<int>(curtainOffset / 1.1);
+        //Placeholder for curtain and blits it with blit function
+        SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
+        SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
 
-                //Check so the curtain doesn't lower more than the screen hight
-                if (curtainOffset > 0){
-                    curtainOffset = 0;
-                }
-            } else {
+        if (curtainOffset < 0){
+            curtainOffset = static_cast<int>(curtainOffset / 1.1);
 
-                //Gets curtain ready to raise
-                curtainOffset = 5;
-                levelRooms[currRoom].roomReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
-                raiseCurtain = true;
-                dropCurtain = false;
-                dead = false;
+            //Check so the curtain doesn't lower more than the screen hight
+            if (curtainOffset > 0){
+                curtainOffset = 0;
             }
+        } else {
+
+            if (goToLevSelScreen){
+                levelSelect = true;
+            }
+
+            //Gets curtain ready to raise
+            curtainOffset = 5;
+            levelRooms[currRoom].roomAndPlayerReset(imRect, yVel, xVel, arrR, shoot, hit, retrac);
+            raiseCurtain = true;
+            dropCurtain = false;
+            dead = false;
         }
     }
 
@@ -197,4 +202,14 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, SDL_Surface *im, b
 
 Rooms Levels::getRoom() {
     return levelRooms[currRoom];
+}
+
+void Levels::resetLevel() {
+
+    currRoom = 0;
+
+    for (auto & levelRoom : levelRooms){
+        levelRoom.roomReset();
+    }
+
 }
