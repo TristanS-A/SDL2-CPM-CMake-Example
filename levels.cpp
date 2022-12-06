@@ -8,6 +8,7 @@
 #include "rooms.h"
 #include "roomSwitch.h"
 #include "grappleHook.h"
+#include "globalVariables.h"
 
 Levels::Levels(vector<Rooms> levRooms, SDL_Surface *parallaxBG){
     levelRooms = std::move(levRooms);
@@ -15,7 +16,7 @@ Levels::Levels(vector<Rooms> levRooms, SDL_Surface *parallaxBG){
     currRoom = 0;
 }
 
-void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth, SDL_Surface *im, bool &right, bool &left, bool &transition, bool &shoot, bool &retrac, bool &hit, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, int &s, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, bool &goToLevSelScreen, bool &levelSelect, int &deathCurrTime, int &deathPrevTime, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
+void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth, bool &right, bool &left, bool &transition, bool &shoot, bool &retrac, bool &hit, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, int &s, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, bool &goToLevSelScreen, bool &levelSelect, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
 
     if (!dead) {
         if (!transition) {
@@ -45,6 +46,10 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
                 }
             } else if (exitInfo[0] == -1) {
                 noSwitch = false;
+            }
+
+            if (damageCoolDown <= 0){
+                im = playerImage;
             }
 
             //Placeholder so that imRect does not get altered by the blitting function
@@ -80,7 +85,7 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
             if (switchRooms(currObjs, nextObjs, nextSurfs, currSurfs, currEnemieRects, currEnemieSurfs,
                             nextEnemieRects, nextEnemieSurfs, levelRooms[currRoom].getEnemies(),
                             levelRooms[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs,
-                            imRect, offseetY, offsetX, exitInfo[2] + exitInfo[3], transitionSpeed, test, im, currBG, nextBG,
+                            imRect, offseetY, offsetX, exitInfo[2] + exitInfo[3], transitionSpeed, test, currBG, nextBG,
                             paraBGRect, paraBG, paraBGx, paraBGy)) {
                 transition = false;
                 noSwitch = true;
@@ -126,6 +131,7 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
 
         deathCurrTime = static_cast<int>(SDL_GetTicks());
 
+        //This is for if the player dies normally in the level
         if (!dropCurtain) {
 
             //Placeholder for image rects so that the blit function doesn't change the rectangle location, and
@@ -142,9 +148,8 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
                     deathAnimationIndex++;
                 } else {
 
-                    //Resets death animation and drops curtain after it is done and when the curtain has
+                    //Drops curtain after death animation is done and when the curtain has
                     // been raised all the way
-                    deathAnimationIndex = 0;
                     curtainOffset = -810;
                     dropCurtain = true;
                 }
@@ -156,6 +161,33 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
     }
 
     if (!raiseCurtain && dropCurtain){
+
+        //This is for if the player dies while exiting to the level select screen because I wanted the curtain to drop
+        // after the death animation has played, so I need to know what to do if the player dies while the curtain is
+        // lowering.
+        if (dead){
+
+            deathCurrTime = static_cast<int>(SDL_GetTicks());
+
+            //Placeholder for image rects so that the blit function doesn't change the rectangle location, and
+            // also centers the images to the player
+            SDL_Rect imPlaceHolder = {imRect.x + imRect.w / 2 - 100, imRect.y + imRect.h / 2 - 100, 0, 0};
+
+            if (deathAnimationIndex < deathAnimation.size() - 1) {
+
+                    //Blits death animation
+                    SDL_BlitSurface(deathAnimation[deathAnimationIndex], nullptr, test, &imPlaceHolder);
+
+                if (deathCurrTime > deathPrevTime + 1000 / 10) {
+
+                    //Moves through death animation images
+                    deathAnimationIndex++;
+
+                    deathPrevTime = deathCurrTime;
+                }
+
+            }
+        }
 
         //Placeholder for curtain and blits it with blit function
         SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
@@ -180,6 +212,9 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
             raiseCurtain = true;
             dropCurtain = false;
             dead = false;
+            damageCoolDown = 0;
+            deathAnimationIndex = 0;
+            im = playerImage;
         }
     }
 

@@ -13,6 +13,7 @@
 #include "enemies.h"
 #include "levels.h"
 #include "handleCollision.h"
+#include "globalVariables.h"
 
 using namespace std;
 
@@ -76,9 +77,6 @@ int main(int argc, char* argv[])
 
     if (!error) {
 
-        //Loads cat image
-        SDL_Surface *im = loadImages("images/cat.png");
-
         //Loads circle image
         SDL_Surface *circle = loadImages("images/circle.png");
 
@@ -108,10 +106,6 @@ int main(int argc, char* argv[])
 
         //Death index to display images
         int deathAnimationIndex = 0;
-
-        //To play death animation at specific speed
-        int deathCurrTime = static_cast<int>(SDL_GetTicks());
-        int deathPrevTime = 0;
 
         //Curtain to fall after death
         SDL_Surface *curtain = loadImages("images/curtain.png");
@@ -742,12 +736,12 @@ int main(int argc, char* argv[])
                         }
                     }
 
-                    levels[currLevel].levelUpdate(test, imRect, playerHealth, im, right, left, transition, shoot,
+                    levels[currLevel].levelUpdate(test, imRect, playerHealth, right, left, transition, shoot,
                                                   retrac, hit, yVel, xVel, textRect, jump,
                                                   ghPieceVelY, ghPieceVelX, dead, arrR, arr, track,
                                                   sideOffsetX, sideOffsetY, mouseUp, s, hitEnemie,
                                                   deathAnimation, deathAnimationIndex, dropCurtain, raiseCurtain,
-                                                  curtainOffset, curtain, goToLevelSelScreen, levelSelect, deathCurrTime, deathPrevTime,
+                                                  curtainOffset, curtain, goToLevelSelScreen, levelSelect,
                                                   paraBGRect, paraBGx, paraBGy);
                 }
 

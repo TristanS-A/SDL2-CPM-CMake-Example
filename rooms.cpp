@@ -5,6 +5,7 @@
 #include "rooms.h"
 #include "enemies.h"
 #include "handleCollision.h"
+#include "globalVariables.h"
 
 #include <utility>
 #include "SDL.h"
@@ -49,6 +50,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
                 }
             }
 
+            //Tests if an ememie damages the player.
             if (SDL_HasIntersection(&imRect, &r)) {
                 if (r.x + r.w / 2 < imRect.x + imRect.w / 2){
                     xVel = -15;
@@ -56,12 +58,21 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
                     xVel = +15;
                 }
                 yVel = 15;
-                playerHealth -= 10;
+
+                if (damageCoolDown <= 0) {
+                    playerHealth -= 10;
+                    damageCoolDown = 10;
+                }
             }
 
         } else if (!roomEnemie.deathAnimationDone()){
             roomEnemie.enemieDeath(test);
         }
+    }
+
+    if (damageCoolDown > 0){
+        damageCoolDown--;
+        im = playerDamaged;
     }
 
     //Gets console ticks for delta time calculations
