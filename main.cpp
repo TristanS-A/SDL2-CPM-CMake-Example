@@ -151,21 +151,9 @@ int main(int argc, char* argv[])
         //Bool to test if the mouse button is down
         bool mouseUp;
 
-        //Bool for if grappling hook is shooting out
-        bool shoot = false;
-
-        //Bool for if the grappling hook is retracting
-        bool retrac;
-
         //To test what side of an object the hook contacts
         int sideOffsetY = 0;
         int sideOffsetX = 0;
-
-        //Iteration variable to keep track of grappling hook vector indexes as it shoots and retracts
-        int s;
-
-        //Bool for if the grappling hook collides with a rect
-        bool hit = false;
 
         //Bool to test if grapling hook collides with an enemie
         bool hitEnemie;
@@ -194,10 +182,6 @@ int main(int argc, char* argv[])
         for (u = 0; u < 20; u++) {
             arrR.push_back(placeHolder);
         }
-
-        //Ints holding x and y velocity for each grappling hook piece
-        int ghPieceVelX = 0;
-        int ghPieceVelY = 0;
 
         //Set up for delta time FPS calculator
         Uint32 currTime;
@@ -363,7 +347,7 @@ int main(int argc, char* argv[])
                         //To test if the mouse button is pressed and/or held down
                         mouseUp = false;
 
-                        if (!transition && !dead) {
+                        if (!transition && !dead && !levelSelect) {
                             //So you cant fire the grappling hook while already firring it or retracting it
                             if (!shoot && !retrac) {
 
@@ -578,7 +562,7 @@ int main(int argc, char* argv[])
                                         curtainOffset = 5;
                                         currLevel = d;
                                         levels[currLevel].resetLevel();
-                                        levels[currLevel].getRoom().roomAndPlayerReset(imRect, playerHealth, yVel, xVel, arrR, shoot, hit, retrac);
+                                        levels[currLevel].getRoom().roomAndPlayerReset(imRect, playerHealth, yVel, xVel, arrR);
                                         raiseCurtain = true;
                                         dropCurtain = false;
                                         up = false;
@@ -709,8 +693,7 @@ int main(int argc, char* argv[])
                                 roomRects = levels[currLevel].getRoom().getRects();
 
                                 //Function for shooting the grappling hook
-                                shooting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit, shoot,
-                                         retrac, track, test, roomRects, levels[currLevel].getRoom().getHittableRects(),
+                                shooting(arrR, arr, imRect, track, test, roomRects, levels[currLevel].getRoom().getHittableRects(),
                                          levels[currLevel].getRoom().getHitTest(), sideOffsetY, sideOffsetX, yVel, xVel,
                                          hitEnemie);
                             }
@@ -719,8 +702,7 @@ int main(int argc, char* argv[])
                             if (retrac) {
 
                                 //Function for retracting the grappling hook
-                                retracting(s, arrR, arr, imRect, ghPieceVelY, ghPieceVelX, hit,
-                                           retrac, track, test, yVel, xVel, mouseUp,
+                                retracting(arrR, arr, imRect, track, test, yVel, xVel, mouseUp,
                                            sideOffsetY, roomRects, sideOffsetX, hitEnemie);
                             }
 
@@ -736,10 +718,8 @@ int main(int argc, char* argv[])
                         }
                     }
 
-                    levels[currLevel].levelUpdate(test, imRect, playerHealth, right, left, transition, shoot,
-                                                  retrac, hit, yVel, xVel, textRect, jump,
-                                                  ghPieceVelY, ghPieceVelX, dead, arrR, arr, track,
-                                                  sideOffsetX, sideOffsetY, mouseUp, s, hitEnemie,
+                    levels[currLevel].levelUpdate(test, imRect, playerHealth, right, left, transition, yVel, xVel, textRect, jump, dead, arrR, arr, track,
+                                                  sideOffsetX, sideOffsetY, mouseUp, hitEnemie,
                                                   deathAnimation, deathAnimationIndex, dropCurtain, raiseCurtain,
                                                   curtainOffset, curtain, goToLevelSelScreen, levelSelect,
                                                   paraBGRect, paraBGx, paraBGy);

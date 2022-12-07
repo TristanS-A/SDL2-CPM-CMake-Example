@@ -16,7 +16,7 @@ Levels::Levels(vector<Rooms> levRooms, SDL_Surface *parallaxBG){
     currRoom = 0;
 }
 
-void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth, bool &right, bool &left, bool &transition, bool &shoot, bool &retrac, bool &hit, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, int &s, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, bool &goToLevSelScreen, bool &levelSelect, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
+void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth, bool &right, bool &left, bool &transition, int &yVel, int &xVel, SDL_Rect &textRect, bool &jump, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, bool &goToLevSelScreen, bool &levelSelect, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
 
     if (!dead) {
         if (!transition) {
@@ -48,10 +48,6 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
                 noSwitch = false;
             }
 
-            if (damageCoolDown <= 0){
-                im = playerImage;
-            }
-
             //Placeholder so that imRect does not get altered by the blitting function
             SDL_Rect placeH = imRect;
 
@@ -60,8 +56,7 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
             SDL_BlitSurface(im, nullptr, test, &placeH);
 
             //Tests blitting for room objects
-            levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                            ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie, playerHealth);
+            levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump, dead, arrR, s, hitEnemie, playerHealth);
 
             if (playerHealth <= 0){
                 dead = true;
@@ -108,8 +103,7 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
                 SDL_BlitSurface(levelRooms[currRoom].getBG(), nullptr, test, &pHolder);
 
                 //Tests blitting for room objects
-                levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                                ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie, playerHealth);
+                levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump, dead, arrR, s, hitEnemie, playerHealth);
             }
         }
     } else {
@@ -126,8 +120,7 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
         SDL_BlitSurface(levelRooms[currRoom].getBG(), nullptr, test, &pHolder);
 
         //Tests blitting for room objects
-        levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump,
-                                      ghPieceVelY, ghPieceVelX, dead, arrR, s, hitEnemie, playerHealth);
+        levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, jump, dead, arrR, s, hitEnemie, playerHealth);
 
         deathCurrTime = static_cast<int>(SDL_GetTicks());
 
@@ -208,7 +201,7 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
 
             //Gets curtain ready to raise
             curtainOffset = 5;
-            levelRooms[currRoom].roomAndPlayerReset(imRect, playerHealth, yVel, xVel, arrR, shoot, hit, retrac);
+            levelRooms[currRoom].roomAndPlayerReset(imRect, playerHealth, yVel, xVel, arrR);
             raiseCurtain = true;
             dropCurtain = false;
             dead = false;

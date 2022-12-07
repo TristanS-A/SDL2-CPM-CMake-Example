@@ -9,7 +9,90 @@
 void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &yVel, int &xVel, SDL_Rect &imRect){
 
     if (damageCoolDown <= 0) {
-        im = playerImage;
+        walkingCurrTime = static_cast<int>(SDL_GetTicks());
+        if (shoot || retrac){
+            if (jump && (left || right)){
+                if (walkingCurrTime > walkingPrevTime + 1000 / 5) {
+                    walkingPrevTime = walkingCurrTime;
+                    walkIndex++;
+                }
+                if (walkIndex == grappleWalkL.size()) {
+                    walkIndex = 0;
+                }
+
+                if (ghPieceVelX < 0) {
+                    im = grappleWalkL[walkIndex];
+                } else {
+                    im = grappleWalkR[walkIndex];
+                }
+            } else if (jump){
+                if (ghPieceVelX < 0){
+
+                    im = grappleWalkL[0];
+                    saveDir = true;
+
+                } else {
+
+                    saveDir = false;
+                    im = grappleWalkR[0];
+
+                }
+            }
+            else if (saveDir){
+
+                im = grapplingImageL;
+
+            } else {
+
+                im = grapplingImageR;
+
+            }
+        }
+        else if (left){
+            saveDir = true;
+            if (jump) {
+                if (walkingCurrTime > walkingPrevTime + 1000 / 5) {
+                    walkingPrevTime = walkingCurrTime;
+                    walkIndex++;
+                }
+                if (walkIndex == leftMovement.size()) {
+                    walkIndex = 0;
+                }
+                im = leftMovement[walkIndex];
+            } else {
+                im = leftMovement[1];
+            }
+        } else if (right) {
+            saveDir = false;
+            if (jump) {
+                if (walkingCurrTime > walkingPrevTime + 1000 / 5) {
+                    walkingPrevTime = walkingCurrTime;
+                    walkIndex++;
+                }
+                if (walkIndex == rightMovement.size()) {
+                    walkIndex = 0;
+                }
+
+                im = rightMovement[walkIndex];
+            } else {
+                im = rightMovement[1];
+            }
+
+        } else {
+            if (jump) {
+                if (saveDir) {
+                    im = leftMovement[0];
+                } else {
+                    im = rightMovement[0];
+                }
+            } else {
+                if (saveDir) {
+                    im = leftMovement[1];
+                } else {
+                    im = rightMovement[1];
+                }
+            }
+        }
     }
 
     //Character control

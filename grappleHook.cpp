@@ -3,13 +3,14 @@
 //
 
 #include "grappleHook.h"
+#include "globalVariables.h"
 #include "SDL.h"
 #include <algorithm>
 
 //Function for shooting the grappling hook
-void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int ghPieceVelY,
-              int ghPieceVelX, bool &hit, bool &shoot, bool &retrac, int &track, SDL_Surface *test,
-              vector<SDL_Rect> &hitObjects, vector<SDL_Rect> possibleHit, vector<bool> hitTest, int &sideOffsetY, int &sideOffsetX, int &yVel, int &xVel, bool &hitEnemie){
+void shooting(vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int &track, SDL_Surface *test, vector<SDL_Rect> &hitObjects,
+              vector<SDL_Rect> possibleHit, vector<bool> hitTest, int &sideOffsetY, int &sideOffsetX, int &yVel,
+              int &xVel, bool &hitEnemie){
 
     //Shoots out rectangles until hitting something or until shooting all the graphing hook pieces. I made this an if
     // statement instead of a for loop so that the pieces don't instantly all go out at once before displaying and so
@@ -166,8 +167,15 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 
     //If something was hit, sets retrac to true to start retracting the grappling hook and pull the player to the object
     if (hit || hitEnemie){
+
         if (hitEnemie){
             hit = false;
+        }
+
+        if (ghPieceVelX < 0){
+            saveDir = true;
+        } else {
+            saveDir = false;
         }
 
         hitEnemie = false;
@@ -185,8 +193,7 @@ void shooting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rec
 }
 
 //Function for retracting the grappling hook
-void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int &ghPieceVelY,
-                int &ghPieceVelX, bool &hit, bool &retrac, int &track, SDL_Surface *test, int &yVel, int
+void retracting(vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRect, int &track, SDL_Surface *test, int &yVel, int
                 &xVel, bool mouseUp, int &sideOffsetY,
                 vector<SDL_Rect> &hitObjects, int &sideOffsetX, bool &hitEnemie){
 
@@ -250,7 +257,7 @@ void retracting(int &s, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_R
             }
 
             //Blits here so the hook piece of the grappling hook blits over the other pieces
-            for (int h = s - 1; h >= 0; h--) {
+            for (int h = s - 2; h >= 0; h--) {
 
                 //Placeholder so that the rects don't get changed when blitted by the blit function
                 SDL_Rect p = arrR[h];

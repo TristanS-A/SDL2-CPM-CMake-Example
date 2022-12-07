@@ -32,8 +32,7 @@ Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface
     prevTime = 0;
 }
 
-void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump,
-                       int &ghPieceVelY, int &ghPieceVelX, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth) {
+void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth) {
 
     for (auto & roomEnemie : roomEnemies){
 
@@ -54,8 +53,12 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
             if (SDL_HasIntersection(&imRect, &r)) {
                 if (r.x + r.w / 2 < imRect.x + imRect.w / 2){
                     xVel = -15;
+                    im = playerDamagedL;
+                    saveDir = true;
                 } else {
                     xVel = +15;
+                    im = playerDamagedR;
+                    saveDir = false;
                 }
                 yVel = 15;
 
@@ -72,7 +75,6 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
 
     if (damageCoolDown > 0){
         damageCoolDown--;
-        im = playerDamaged;
     }
 
     //Gets console ticks for delta time calculations
@@ -205,7 +207,7 @@ SDL_Rect Rooms::getRespawnLocation() {
     return respawnLocation;
 }
 
-void Rooms::roomAndPlayerReset(SDL_Rect &imRect, int &playerHealth, int &yVel, int &xVel, vector<SDL_Rect> &arrR, bool &shoot, bool &hit, bool &retrac) {
+void Rooms::roomAndPlayerReset(SDL_Rect &imRect, int &playerHealth, int &yVel, int &xVel, vector<SDL_Rect> &arrR) {
     for (auto & enemie : roomEnemies){
         enemie.resetEnemie();
     }
