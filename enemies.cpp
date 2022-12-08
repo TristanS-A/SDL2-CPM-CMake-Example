@@ -7,13 +7,15 @@
 #include <iostream>
 using namespace std;
 
-Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Surface *hurtImage, vector<SDL_Surface *> deathAni, int health, int grav) {
+Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImagesLeft, vector<SDL_Surface *> enemieImagesRight, SDL_Surface *hurtImageLeft, SDL_Surface *hurtImageRight, vector<SDL_Surface *> deathAni, int health, int grav) {
 
     hitbox = enemieRec;
     resetHitbox = enemieRec;
-    animationCycle = std::move(enemieImages);
-    hitImage = hurtImage;
-    maxIndex = static_cast<int>(animationCycle.size());
+    animationCycleL = std::move(enemieImagesLeft);
+    hitImageL = hurtImageLeft;
+    animationCycleR = std::move(enemieImagesRight);
+    hitImageR = hurtImageRight;
+    maxIndex = static_cast<int>(animationCycleL.size());
     index = 0;
     prevTime = 0;
     yVel = 0;
@@ -34,13 +36,16 @@ void Enemies::update(SDL_Surface *test, SDL_Rect &imRect) {
     //Applying gravity to the enemies
     yVel -= gravity;
 
+    //To make the enemie follow the player
     if (imRect.x + imRect.w / 2 > hitbox.x + hitbox.w / 2){
         if (xVel > -5) {
             xVel -= 1;
+            dir = false;
         }
     } else {
         if (xVel < 5) {
             xVel += 1;
+            dir = true;
         }
     }
 
@@ -73,13 +78,21 @@ void Enemies::update(SDL_Surface *test, SDL_Rect &imRect) {
     }
 
     if (damageTime == 0) {
-        currImage = animationCycle[index];
+        if (dir) {
+            currImage = animationCycleL[index];
+        } else {
+            currImage = animationCycleR[index];
+        }
     } else if (damageTime > 0){
-        currImage = hitImage;
+        if (dir) {
+            currImage = hitImageL;
+        } else {
+            currImage = hitImageR;
+        }
         damageTime -= 1;
     }
 
-    SDL_BlitSurface(currImage, &enemieTemp, test, &enemieTemp);
+    SDL_BlitSurface(currImage, nullptr, test, &enemieTemp);
 
 }
 
@@ -164,7 +177,11 @@ SDL_Surface *Enemies::getCurrImage() {
 
 SDL_Surface *Enemies::getDefaultImage() {
     damageTime = 0;
-    return animationCycle[0];
+    if (dir) {
+        return animationCycleL[0];
+    } else {
+        return animationCycleR[0];
+    }
 }
 
 void Enemies::resetEnemie() {

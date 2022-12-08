@@ -20,11 +20,17 @@ private:
     //To reset the position of enemies
     SDL_Rect resetHitbox;
 
-    //Images for animation
-    vector<SDL_Surface *> animationCycle;
+    //Images for left moving animation
+    vector<SDL_Surface *> animationCycleL;
 
-    //Image for when enemies are hurt
-    SDL_Surface *hitImage;
+    //Image for when enemies are hurt from left side
+    SDL_Surface *hitImageL;
+
+    //Images for right moving animation
+    vector<SDL_Surface *> animationCycleR;
+
+    //Image for when enemies are hurt from right side
+    SDL_Surface *hitImageR;
 
     //Indexes to cycle through images
     int maxIndex;
@@ -41,6 +47,9 @@ private:
     int yVel;
     int xVel;
     int gravity;
+
+    //To tell what direction the enemie is moving in
+    bool dir;
 
     //To let the enemies die
     bool dead;
@@ -65,7 +74,7 @@ private:
     int deathIndex;
 
 public:
-    Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImages, SDL_Surface *hurtImage, vector<SDL_Surface *> deathAni, int health, int grav);
+    Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImagesLeft, vector<SDL_Surface *> enemieImagesRight, SDL_Surface *hurtImageLeft, SDL_Surface *hurtImageRight, vector<SDL_Surface *> deathAni, int health, int grav);
 
     void update(SDL_Surface *test, SDL_Rect &imRect);
 
