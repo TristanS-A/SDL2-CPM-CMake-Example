@@ -308,8 +308,8 @@ int main(int argc, char* argv[])
         vector<vector<SDL_Surface *>> levelDoorSurfs = {{placeHolderColor1, placeHolderColor2, placeHolderColor1}};
 
         //Creating enemies to be put in a vector of enemies in a room
-        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
-        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
+        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, placeHolderColor1, enemieHurtR, deathAnimation, 10, gravity);
+        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, placeHolderColor1, enemieHurtR, deathAnimation, 10, gravity);
 
         //Creates room objects
         Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));

@@ -101,7 +101,7 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
 
                 //Blits rect object with offset
                 if (xOffset != -speed || yOffset != -speed) {
-                    SDL_BlitSurface(enemieSurf[j], &tempCurrEnemie, test, &tempCurrEnemie);
+                    SDL_BlitSurface(enemieSurf[j], nullptr, test, &tempCurrEnemie);
                 }
             }
         }
@@ -120,7 +120,7 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
 
                 //Blits rect object with offset
                 if (xOffset != -speed || yOffset != -speed) {
-                    SDL_BlitSurface(nextEnemieSurfs[e], &tempNextEnemie, test, &tempNextEnemie);
+                    SDL_BlitSurface(nextEnemieSurfs[e], nullptr, test, &tempNextEnemie);
                 }
             }
         }
