@@ -265,52 +265,75 @@ int main(int argc, char* argv[])
         // (Like in case the screen needs to change left or right
         vector<int> exitInfo;
 
-        SDL_Surface * colorImage = loadImages("images/color.png");
+        //Loads level textures
+        SDL_Surface * groundText = loadImages("images/ground.png");
+        SDL_Surface *placeHolderColor1 = loadImages("images/color2.png");
+        SDL_Surface *placeHolderColor2 = loadImages("images/color3.png");
 
-        //Creates a vector of surfaces to blit into the Rect objects of the room object
-        vector<SDL_Surface *> roomSkellSurfs = {colorImage, colorImage, colorImage};
-        vector<SDL_Surface *> roomSkellSurfs2 = {colorImage, colorImage,
-                                                 colorImage, colorImage, colorImage};
+        //Creates a vector of surfaces to blit into the Rect objects of the room objects
+        vector<SDL_Surface *> roomSkellSurfs = {groundText, groundText, groundText};
+        vector<SDL_Surface *> roomSkellSurfs2 = {groundText, groundText,
+                                                 groundText, groundText, groundText};
 
+        //Creates exits into new rooms from the room
         vector<SDL_Rect> exits = {{SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
 
+        //Vector of obstacle rects that can kill the player in a room
         vector<SDL_Rect> placeHolderObsRects = {{500, 400, 100, 100}};
 
-        vector<vector<SDL_Surface *>> placeHolderObsSurfs = {{colorImage, loadImages("images/color2.png")}};
+        //Vector or surfaces for the obstacles in a level
+        vector<vector<SDL_Surface *>> placeHolderObsSurfs = {{placeHolderColor2, placeHolderColor1}};
 
+        //Vector of bools to tell is the player can grapple onto the obstacles in a room
         vector<bool> placeHolderObsHookable = {true};
 
+        //Vector of rects for the level select room
         vector<SDL_Rect> levelSelectRects = {{0, 710, SCREEN_WIDTH, 100}};
-        vector<SDL_Surface *> levelSelectSurfs = {loadImages("images/color2.png")};
+
+        //Vector of surfaces to blit onto the rects in the level select room
+        vector<SDL_Surface *> levelSelectSurfs = {placeHolderColor1};
+
+        //Vector of rects for level doors that take you to a level in the level select room
         vector<SDL_Rect> levelDoors = {{200, 510, 200, 200}};
-        vector<vector<SDL_Surface *>> levelDoorSurfs = {{loadImages("images/color2.png"), loadImages("images/color3.png"), loadImages("images/color.png")}};
 
-        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), deathAnimation, 10, gravity);
+        //Vector of surfaces to blit to the level doors in the level select room
+        vector<vector<SDL_Surface *>> levelDoorSurfs = {{placeHolderColor1, placeHolderColor2, placeHolderColor1}};
 
-        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {colorImage, loadImages("images/color2.png")}, loadImages("images/color3.png"), deathAnimation, 10, gravity);
+        //Creating enemies to be put in a vector of enemies in a room
+        Enemies enemie1 = *new Enemies({100, 200, 100, 100}, {placeHolderColor1, placeHolderColor1}, placeHolderColor2, deathAnimation, 10, gravity);
+        Enemies enemie2 = *new Enemies({500, 200, 100, 100}, {placeHolderColor1, placeHolderColor1}, placeHolderColor2, deathAnimation, 10, gravity);
 
         //Creates room objects
         Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSkellSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));
 
+        //Reassigns exits for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
 
+        //Creates next room object
         Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects2, roomSkellSurfs2, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/bg.png"));
 
+        //Reassigns exits for new room exits for the next room
         exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
 
+        //Creates next room object
         Rooms room3 = *new Rooms({200, 605, 0, 0}, roomRects3, roomSkellSurfs2, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/bg.png"));
 
+        //Reassigns exits for new room exits for the next room
         exits = {{500, -100, 440, 50}};
 
+        //Creates next room object
         Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects4, roomSkellSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/bg.png"));
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4};
 
+        //Creates level object to make a level
         Levels level1 = *new Levels(roomsArr, paraBG);
 
+        //Vector of all the levels
         vector<Levels> levels = {level1};
 
+        //Bool to tell if the rooms are transitioning from the current room to the next one
         bool transition = false;
 
         // Event loop
