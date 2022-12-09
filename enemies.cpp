@@ -77,6 +77,11 @@ void Enemies::update(SDL_Surface *test, SDL_Rect &imRect) {
         hitbox.x = 1440 - hitbox.w;
     }
 
+    //In case enemie falls out of stage
+    if (hitbox.y > 810){
+        dead = true;
+    }
+
     if (damageTime == 0) {
         if (dir) {
             currImage = animationCycleL[index];

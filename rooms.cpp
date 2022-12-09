@@ -24,8 +24,8 @@ Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface
     roomObsSurfs = std::move(obsSurfs);
     roomObsHookable = std::move(hookable);
     bgImage = backImage;
-    for (int j = 0; j < roomObs.size(); j++){
-        cycleLoopMax.push_back(static_cast<int>(roomObsSurfs.size()));
+    for (int j = 0; j < roomObsSurfs.size(); j++){
+        cycleLoopMax.push_back(static_cast<int>(roomObsSurfs[j].size() - 1));
         cycleLoopIndex.push_back(0);
     }
     currTime = static_cast<int>(SDL_GetTicks());
@@ -40,6 +40,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
             roomEnemie.update(test, imRect);
             SDL_Rect r = roomEnemie.getHitBox();
 
+            //Tests if player damages enemie
             if (SDL_HasIntersection(&grappleArr[0], &r) && !hitEnemie) {
                 roomEnemie.addForce(ghPieceVelX, ghPieceVelY);
                 if (roomEnemie.dealDamage(1)) {
@@ -49,7 +50,14 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
                 }
             }
 
-            //Tests if an ememie damages the player.
+            //Kills enemie if they hit an obstacle
+            for (auto & roomOb : roomObs){
+                if (SDL_HasIntersection(&roomOb, &r)){
+                    roomEnemie.setDead(true);
+                }
+            }
+
+            //Tests if an enemie damages the player.
             if (SDL_HasIntersection(&imRect, &r)) {
                 if (r.x + r.w / 2 < imRect.x + imRect.w / 2){
                     xVel = -15;
@@ -84,25 +92,32 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
 
         SDL_Rect placeHolder = roomObs[k];
 
-        if (currTime > prevTime + 1000) {
-            prevTime = currTime;
-            if (cycleLoopIndex[k] < cycleLoopMax[k]) {
-                cycleLoopIndex[k]++;
-            } else {
-                cycleLoopIndex[k] = 0;
+        if (cycleLoopMax[k] > 0) {
+            if (currTime > prevTime + 1000 / 5) {
+                prevTime = currTime;
+                if (cycleLoopIndex[k] < cycleLoopMax[k]) {
+                    cout << cycleLoopMax[k] << endl;
+                    cycleLoopIndex[k]++;
+                } else {
+                    cycleLoopIndex[k] = 0;
+                }
             }
         }
 
-        SDL_BlitSurface(roomObsSurfs[k][cycleLoopIndex[k]], &roomObs[k], test, &placeHolder);
+        //This is a placeholder so that the surface blits at the 0, 0 location on the rect, but still only blits inside
+        // the w and h of the rect
+        SDL_Rect o = {0,0,roomObs[k].w,roomObs[k].h};
+
+        SDL_BlitSurface(roomObsSurfs[k][cycleLoopIndex[k]], &o, test, &placeHolder);
 
         if (SDL_HasIntersection(&roomObs[k], &imRect)) {
             dead = true;
         }
 
-        for (auto &hitEnemie: roomEnemies) {
-            SDL_Rect r = hitEnemie.getHitBox();
+        for (auto &enemie: roomEnemies) {
+            SDL_Rect r = enemie.getHitBox();
             if (SDL_HasIntersection(&roomObs[k], &r)) {
-                hitEnemie.setDead(true);
+                enemie.setDead(true);
             }
         }
     }
@@ -129,8 +144,12 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
         //This is a placeholder so that the actual rect position does not get changed by the blit function
         SDL_Rect re = roomObjs[t];
 
+        //This is a placeholder so that the surface blits at the 0, 0 location on the rect, but still only blits inside
+        // the w and h of the rect
+        SDL_Rect o = {0,0,roomObjs[t].w,roomObjs[t].h};
+
         //Blits surfaces
-        SDL_BlitSurface(roomSurfs[t], &roomObjs[t], test, &re);
+        SDL_BlitSurface(roomSurfs[t], &o, test, &re);
     }
     if (d){
         xVel = 0;

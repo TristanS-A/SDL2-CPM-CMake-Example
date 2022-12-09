@@ -11,7 +11,7 @@ void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &
     if (damageCoolDown <= 0) {
         walkingCurrTime = static_cast<int>(SDL_GetTicks());
         if (shoot || retrac){
-            if (jump && (left || right)){
+            if (jump && (left || right) && s != 0){
                 if (walkingCurrTime > walkingPrevTime + 1000 / 5) {
                     walkingPrevTime = walkingCurrTime;
                     walkIndex++;
@@ -21,12 +21,14 @@ void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &
                 }
 
                 if (ghPieceVelX < 0) {
+                    saveDir = true;
                     im = grappleWalkL[walkIndex];
                 } else {
+                    saveDir = false;
                     im = grappleWalkR[walkIndex];
                 }
             } else if (jump){
-                if (ghPieceVelX < 0){
+                if (ghPieceVelX <= 0){
 
                     im = grappleWalkL[0];
                     saveDir = true;

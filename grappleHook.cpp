@@ -57,6 +57,11 @@ void shooting(vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRec
             arrR[b].x += ghPieceVelX;
         }
 
+        //This is so that if the hook collides with two rects, it can reposition itself with respect to both by adding
+        // both offsets rather than just resting it to the second one after the first
+        sideOffsetY = 0;
+        sideOffsetX = 0;
+
         //Test for if the hook intersects with something
         for (auto & hitObject : hitObjects) {
             if (SDL_HasIntersection(&arrR[0], &hitObject)) {
@@ -67,23 +72,23 @@ void shooting(vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRec
                                                                                                        ghPieceVelY >=
                                                                                                        0)) {
                     arrR[0].y = hitObject.y - arrR[0].h + arrR[0].h / 2;
-                    sideOffsetY = -arrR[0].h / 2;
-                    sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
+                    sideOffsetY += -arrR[0].h / 2;
+                    sideOffsetX += -imRect.w / 2 + arrR[0].w / 2;
                 } else if ((hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0) ||
                            (hitObject.y + hitObject.h - arrR[0].y <= fabs(ghPieceVelY) && ghPieceVelY <= 0)) {
                     arrR[0].y = hitObject.y + hitObject.h - arrR[0].h / 2;
-                    sideOffsetY = arrR[0].h / 2;
-                    sideOffsetX = -imRect.w / 2 + arrR[0].w / 2;
+                    sideOffsetY += arrR[0].h / 2;
+                    sideOffsetX += -imRect.w / 2 + arrR[0].w / 2;
                 } else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX > 0) ||
                            (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX > 0)) {
                     arrR[0].x = hitObject.x - arrR[0].w / 2;
-                    sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
-                    sideOffsetX = -arrR[0].w / 2;
+                    sideOffsetY += -imRect.h / 2 + arrR[0].h / 2;
+                    sideOffsetX += -arrR[0].w / 2;
                 } else if ((arrR[0].x + arrR[0].w - hitObject.x <= fabs(ghPieceVelX) && ghPieceVelX < 0) ||
                            (hitObject.x + hitObject.w - arrR[0].x <= fabs(ghPieceVelX) && ghPieceVelX < 0)) {
                     arrR[0].x = hitObject.x + hitObject.w - arrR[0].w / 2;
-                    sideOffsetY = -imRect.h / 2 + arrR[0].h / 2;
-                    sideOffsetX = arrR[0].w / 2;
+                    sideOffsetY += -imRect.h / 2 + arrR[0].h / 2;
+                    sideOffsetX += arrR[0].w / 2;
                 }
 
                 if (yVel > 5) {

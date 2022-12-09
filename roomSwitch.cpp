@@ -139,9 +139,13 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
                 tempObs.y = tempObs.y - constDis + yOffset;
             }
 
+            //This is a placeholder so that the surface blits at the 0, 0 location on the rect, but still only blits inside
+            // the w and h of the rect
+            SDL_Rect o = {0,0,tempObs.w,tempObs.h};
+
             //Blits rect object with offset
             if (xOffset != -speed || yOffset != -speed) {
-                SDL_BlitSurface(obsSurfs[q], &tempObs, test, &tempObs);
+                SDL_BlitSurface(obsSurfs[q], &o, test, &tempObs);
             }
         }
 
@@ -157,9 +161,13 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
                 tempNextObs.y = tempNextObs.y + yOffset;
             }
 
+            //This is a placeholder so that the surface blits at the 0, 0 location on the rect, but still only blits inside
+            // the w and h of the rect
+            SDL_Rect o = {0,0, tempNextObs.w,tempNextObs.h};
+
             //Blits rect object with offset
             if (xOffset != -speed || yOffset != -speed) {
-                SDL_BlitSurface(nextObsSurfs[z], &tempNextObs, test, &tempNextObs);
+                SDL_BlitSurface(nextObsSurfs[z], &o, test, &tempNextObs);
             }
         }
 
@@ -179,9 +187,13 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
                 tempCurr.y = tempCurr.y - constDis + yOffset;
             }
 
+            //This is a placeholder so that the surface blits at the 0, 0 location on the rect, but still only blits inside
+            // the w and h of the rect
+            SDL_Rect o = {0,0,tempCurr.w,tempCurr.h};
+
             //Blits rect object with offset
             if (xOffset != -speed || yOffset != -speed) {
-            SDL_BlitSurface(surfsCurr[p], &currRects[p], test, &tempCurr);
+            SDL_BlitSurface(surfsCurr[p], &o, test, &tempCurr);
             }
         }
 
@@ -199,8 +211,12 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
                 temp.y = temp.y + yOffset;
             }
 
+            //This is a placeholder so that the surface blits at the 0, 0 location on the rect, but still only blits inside
+            // the w and h of the rect
+            SDL_Rect o = {0,0,temp.w,temp.h};
+
             //Blits rect object with offset
-            SDL_BlitSurface(surfsNext[t], &nextRects[t], test, &temp);
+            SDL_BlitSurface(surfsNext[t], &o, test, &temp);
         }
         return false;
     } else {
