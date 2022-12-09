@@ -6,7 +6,7 @@
 #include "globalVariables.h"
 #include "SDL.h"
 
-void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &yVel, int &xVel, SDL_Rect &imRect){
+void playerMovement(bool up, bool left, bool right, bool down, int &yVel, int &xVel, SDL_Rect &imRect){
 
     if (damageCoolDown <= 0) {
         walkingCurrTime = static_cast<int>(SDL_GetTicks());
@@ -99,7 +99,7 @@ void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &
 
     //Character control
     if (up && jump) {
-        yVel = 30;
+        yVel = 25;
         jump = false;
         imRect.y -= yVel;
     }

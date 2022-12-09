@@ -135,9 +135,6 @@ int main(int argc, char* argv[])
         int xVel = 0;
         int yVel = 0;
 
-        //Jump variable to tell when the character can jump
-        bool jump = false;
-
         //For if the player dies
         bool dead = false;
 
@@ -198,9 +195,6 @@ int main(int argc, char* argv[])
         //Creates Rect for test surface so that its dimensions can be rescaled and repositioned
         SDL_Rect textRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
-        //Sets up key presses
-        const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
-
         //To keep track of the current room the player is in
         int currRoom = 0;
 
@@ -237,7 +231,7 @@ int main(int argc, char* argv[])
 
         //Checks if the user is exiting a room and what room, gets room number to travel to and the speed to transition
         // (Like in case the screen needs to change left or right
-        vector<int> exitInfo;
+        vector<vector<int>> exitInfo;
 
         //Loads level door textures
         SDL_Surface * door1 = loadImages("images/door1.png");
@@ -260,17 +254,21 @@ int main(int argc, char* argv[])
         SDL_Surface * enemieHurtL = loadImages("images/hurtL.png");
         SDL_Surface * enemieHurtR = loadImages("images/hurtR.png");
 
-        //Creates exits into new rooms from the room
+        //Creates rect exits into new rooms from the room
         vector<SDL_Rect> exits = {{SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
 
+        //A vector to hold info for the exits like transition speed and to what room the player is traveling to and
+        // corresponds to the index in the exit rects vector.
+        exitInfo = {{1, 40, SCREEN_WIDTH, -40}};
+
         //Vector of obstacle rects that can kill the player in a room
-        vector<SDL_Rect> placeHolderObsRects = {{500, 600, 100, 100}};
+        vector<SDL_Rect> placeHolderObsRects;
 
         //Vector or surfaces for the obstacles in a level
-        vector<vector<SDL_Surface *>> placeHolderObsSurfs = {{spikes}};
+        vector<vector<SDL_Surface *>> placeHolderObsSurfs;
 
         //Vector of bools to tell is the player can grapple onto the obstacles in a room
-        vector<bool> placeHolderObsHookable = {true};
+        vector<bool> placeHolderObsHookable;
 
         //Vector of rects for the level select room
         vector<SDL_Rect> levelSelectRects = {{0, 710, SCREEN_WIDTH, 100}};
@@ -285,77 +283,76 @@ int main(int argc, char* argv[])
         vector<vector<SDL_Surface *>> levelDoorSurfs = {{door1, door2, door3, door4, door5}};
 
         //Creating enemies to be put in a vector of enemies in a room
-        Enemies enemie1 = *new Enemies({800, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
+        Enemies enemie1 = *new Enemies({200, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
         Enemies enemie2 = *new Enemies({1200, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
 
         //Commonly used rects for a room
         SDL_Rect roof = {0, 0, SCREEN_WIDTH, 100};
         SDL_Rect floor = {0, 710, SCREEN_WIDTH, 100};
-        SDL_Rect leftWall = {0, 100, 100, SCREEN_HEIGHT - 200};
-        SDL_Rect rightWall = {SCREEN_WIDTH - 100, 100, 100, SCREEN_HEIGHT - 200};
+        SDL_Rect leftWall = {0, 0, 100, SCREEN_HEIGHT};
+        SDL_Rect rightWall = {SCREEN_WIDTH - 100, 0, 100, SCREEN_HEIGHT};
+        SDL_Rect rightWallExit = {SCREEN_WIDTH - 200, 0, 200, 500};
+        SDL_Rect leftWallExit = {0, 0, 200, 500};
+
+        //More custom shapes that will be resigned
+        SDL_Rect squareRect1;
+        SDL_Rect squareRect2;
+        SDL_Rect squareRect3;
+        SDL_Rect squareRect4;
 
         //Vector holding all rects for a room
-        vector<SDL_Rect> roomRects = {roof, floor, leftWall};
+        vector<SDL_Rect> roomRects = {roof, floor, leftWall, rightWallExit};
 
         //Creates a vector of surfaces to blit into the Rect objects of the room objects
-        vector<SDL_Surface *> roomSurfs = {groundText, groundText, groundText};
+        vector<SDL_Surface *> roomSurfs = {groundText, rockPlatform, groundText, groundText};
 
         //Creates room objects
-        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, {{1, 40, SCREEN_WIDTH, -40}}, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));
+        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {}, loadImages("images/bg.png"));
 
         //Reassigns exits for new room exits for the next room
-        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, -100, 440, 50}, {500, SCREEN_HEIGHT + 50, 440, 50}};
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, SCREEN_HEIGHT + 50, 440, 50}};
+        exitInfo = {{0, -40, -SCREEN_WIDTH, 40}, {2, 30, -30, SCREEN_HEIGHT}};
 
         //Rects of next room
-        SDL_Rect squareRect1 = {0, 0, 500, 100};
-        SDL_Rect squareRect2 = {500 + 440, 0, 500, 100};
-        SDL_Rect squareRect3 = {0, 710, 500, 100};
-        SDL_Rect squareRect4 = {500 + 440, 710, 500, 100};
+        squareRect1 = {0, 710, 500, 100};
+        squareRect2 = {500 + 440, 710, 500, 100};
+        squareRect3 = {SCREEN_WIDTH / 2 - 150, 500, 300, 50};
 
         //Vector holding all rects of the next room
-        roomRects = {{600, 300, 150, 150}, squareRect1, squareRect2, squareRect3, squareRect4};
+        roomRects = {squareRect3, roof, squareRect1, squareRect2, leftWallExit, rightWallExit};
 
-        //Reasigns surfaces to blit into the Rect objects of the room objects
-        roomSurfs = {rockPlatform, groundText, groundText, groundText, groundText};
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {rockPlatform, groundText, rockPlatform, rockPlatform, groundText, groundText};
 
-        //Creates next room object
-        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, {{0, -40, -SCREEN_WIDTH, 40}, {2, -30, 30, -SCREEN_HEIGHT}, {3, 30, -30, SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/bg.png"));
-
-        //Reassigns exits for new room exits for the next room
-        exits = {{500, SCREEN_HEIGHT + 50, 440, 50}};
-
-        //Rects of the next room
-        squareRect1 = {0, 0 + 710, 500, 100};
-        squareRect2 = {500 + 440, 0 + 710, 500, 100};
-
-        //Vector of rects for the next room
-        roomRects = {squareRect1, squareRect2, roof, rightWall, leftWall};
-
-        //Reasigns surfaces to blit into the Rect objects of the room objects
-        roomSurfs = {groundText, groundText, groundText, groundText, groundText};
+        //Assigns rects, surfaces, and tests if the player can hook onto the obstacle for obstacles in the next room
+        placeHolderObsRects = {{100, 100, SCREEN_WIDTH - 200, 100}};
+        placeHolderObsSurfs = {{spikes}};
+        placeHolderObsHookable = {true};
 
         //Creates next room object
-        Rooms room3 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, {{1, 30, -30, SCREEN_HEIGHT}}, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/bg.png"));
+        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/bg.png"));
 
-        //Reassigns exits for new room exits for the next room
+        //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{500, -100, 440, 50}};
+        exitInfo = {{1, -30, 30, -SCREEN_HEIGHT}};
 
         //Rects for next room
         squareRect1 = {0, 0, 500, 100};
         squareRect2 = {500 + 440, 0, 500, 100};
-        squareRect3 = {0, 0 + 710, SCREEN_WIDTH, 100};
+        squareRect3 = {400, 100, 100, 200};
+        squareRect4 = {500 + 440, 100, 100, 200};
 
         //Vector holding rect for the next room
-        roomRects = {squareRect1, squareRect2, squareRect3};
+        roomRects = {squareRect1, squareRect2, floor, leftWall, rightWall, squareRect3, squareRect4};
 
-        //Reasigns surfaces to blit into the Rect objects of the room objects
-        roomSurfs = {groundText, groundText, groundText};
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, groundText, rockPlatform, groundText, groundText, groundText, groundText};
 
         //Creates next room object
-        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, {{1, -30, 30, -SCREEN_HEIGHT}}, {}, {{}}, {}, {}, loadImages("images/bg.png"));
+        Rooms room3 = *new Rooms({SCREEN_WIDTH / 2 - 50, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));
 
         //Vector of all the rooms
-        vector<Rooms> roomsArr = {room1, room2, room3, room4};
+        vector<Rooms> roomsArr = {room1, room2, room3};
 
         //Creates level object to make a level
         Levels level1 = *new Levels(roomsArr, paraBG);
@@ -522,7 +519,7 @@ int main(int argc, char* argv[])
                         }
 
                         //Function for player movement
-                        playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
+                        playerMovement(up, left, right, down, yVel, xVel, imRect);
                     }
 
                     //Placeholder for the parallax bg rect
@@ -640,7 +637,7 @@ int main(int argc, char* argv[])
 
                     //Blits level select room rects
                     for (int h = 0; h < levelSelectRects.size(); h++){
-                        handleCollision(levelSelectRects[h], imRect, yVel, xVel, waitToSet, jump);
+                        handleCollision(levelSelectRects[h], imRect, yVel, xVel, waitToSet);
 
                         //This is a placeholder so that the actual rect position does not get changed by the blit function
                         SDL_Rect holder = levelSelectRects[h];
@@ -728,7 +725,7 @@ int main(int argc, char* argv[])
 
 
                             //Function for player movement
-                            playerMovement(jump, up, left, right, down, yVel, xVel, imRect);
+                            playerMovement(up, left, right, down, yVel, xVel, imRect);
 
                             //Placeholder for the parallax bg rect
                             paraBGRect = {paraBGx % 1440, paraBGy % 810, 0, 0};
@@ -771,7 +768,7 @@ int main(int argc, char* argv[])
                         }
                     }
 
-                    levels[currLevel].levelUpdate(test, imRect, playerHealth, right, left, transition, yVel, xVel, textRect, jump, dead, arrR, arr, track,
+                    levels[currLevel].levelUpdate(test, imRect, playerHealth, right, left, transition, yVel, xVel, textRect, dead, arrR, arr, track,
                                                   sideOffsetX, sideOffsetY, mouseUp, hitEnemie,
                                                   deathAnimation, deathAnimationIndex, dropCurtain, raiseCurtain,
                                                   curtainOffset, curtain, goToLevelSelScreen, levelSelect,

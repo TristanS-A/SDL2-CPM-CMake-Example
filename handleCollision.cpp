@@ -3,11 +3,12 @@
 //
 
 #include "handleCollision.h"
+#include "globalVariables.h"
 #include "SDL.h"
 #include <iostream>
 using namespace std;
 
-void handleCollision(SDL_Rect &collideRect, SDL_Rect &rectToMove, int &yVel, int &xVel, bool &d, bool &jump){
+void handleCollision(SDL_Rect &collideRect, SDL_Rect &rectToMove, int &yVel, int &xVel, bool &d){
     if (SDL_HasIntersection(&collideRect, &rectToMove)){
 
         //Top side

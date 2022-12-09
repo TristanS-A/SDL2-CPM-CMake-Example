@@ -45,7 +45,7 @@ public:
     Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies, SDL_Surface *backImage);
 
     //Blits the surfaces in the level and handles collision for the rects in the level
-    void updateRoom(SDL_Surface * test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth);
+    void updateRoom(SDL_Surface * test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth);
 
     //Function to tell if the player is exiting the current room
     vector<int> exitRoom(SDL_Rect &imRect);

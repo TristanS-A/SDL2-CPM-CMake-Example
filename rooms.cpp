@@ -32,7 +32,7 @@ Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface
     prevTime = 0;
 }
 
-void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &jump, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth) {
+void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth) {
 
     for (auto & roomEnemie : roomEnemies){
 
@@ -139,7 +139,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
         }
 
         //Handles collision for player
-        handleCollision(roomObjs[t], imRect, yVel, xVel, d, jump);
+        handleCollision(roomObjs[t], imRect, yVel, xVel, d);
 
         //This is a placeholder so that the actual rect position does not get changed by the blit function
         SDL_Rect re = roomObjs[t];

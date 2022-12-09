@@ -10,6 +10,6 @@
 
 using namespace std;
 
-void playerMovement(bool &jump, bool up, bool left, bool right, bool down, int &yVel, int &xVel, SDL_Rect &imRect);
+void playerMovement(bool up, bool left, bool right, bool down, int &yVel, int &xVel, SDL_Rect &imRect);
 
 #endif //MYPROJECT_PLAYERMOVEMENT_H

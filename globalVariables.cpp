@@ -72,3 +72,9 @@ bool hit = false;
 //Ints holding x and y velocity for each grappling hook piece
 int ghPieceVelX = 0;
 int ghPieceVelY = 0;
+
+//Jump variable to tell when the character can jump
+bool jump = false;
+
+//Sets up key presses
+const Uint8 *keystates = SDL_GetKeyboardState(nullptr);

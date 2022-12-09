@@ -9,6 +9,6 @@
 #include <algorithm>
 using namespace std;
 
-void handleCollision(SDL_Rect &collideRects, SDL_Rect &rectToMove, int &yVel, int &xVel, bool &d, bool &jump);
+void handleCollision(SDL_Rect &collideRects, SDL_Rect &rectToMove, int &yVel, int &xVel, bool &d);
 
 #endif //MYPROJECT_HANDLECOLLISION_H

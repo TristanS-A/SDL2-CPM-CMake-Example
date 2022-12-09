@@ -53,4 +53,8 @@ extern bool hit;
 extern int ghPieceVelX;
 extern int ghPieceVelY;
 
+extern bool jump;
+
+extern const Uint8 *keystates;
+
 #endif //MYPROJECT_GLOBALVARIABLES_H

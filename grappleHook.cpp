@@ -289,6 +289,26 @@ void retracting(vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imR
             imRect.x = arrR[s].x + sideOffsetX;
             yVel = 0;
             xVel = 0;
+
+           //For wall jumping off wall
+            if ((keystates[SDL_SCANCODE_W])){
+                if (arrR[0].x > imRect.x){
+                    xVel = 10;
+                } else {
+                    xVel = -10;
+                }
+               yVel = 25;
+               retrac = false;
+               hit = false;
+               hitEnemie = false;
+               ghPieceVelY = 0;
+               ghPieceVelX = 0;
+
+               //So that it doesn't hit the enemies again after retracting
+               arrR[0].x = -100;
+               arrR[0].y = -100;
+           }
+
         }
 
         //Keeps setting the player velocity to zero until the mouse button is not being held, where retracting is set
