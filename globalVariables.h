@@ -55,6 +55,8 @@ extern int ghPieceVelY;
 
 extern bool jump;
 
+extern bool sprint;
+
 extern const Uint8 *keystates;
 
 #endif //MYPROJECT_GLOBALVARIABLES_H

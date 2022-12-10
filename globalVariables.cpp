@@ -76,5 +76,8 @@ int ghPieceVelY = 0;
 //Jump variable to tell when the character can jump
 bool jump = false;
 
+//To tell if the player is sprinting
+bool sprint = false;
+
 //Sets up key presses
 const Uint8 *keystates = SDL_GetKeyboardState(nullptr);

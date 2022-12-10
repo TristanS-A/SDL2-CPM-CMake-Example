@@ -24,8 +24,8 @@ Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface
     roomObsSurfs = std::move(obsSurfs);
     roomObsHookable = std::move(hookable);
     bgImage = backImage;
-    for (int j = 0; j < roomObsSurfs.size(); j++){
-        cycleLoopMax.push_back(static_cast<int>(roomObsSurfs[j].size() - 1));
+    for (auto & roomObsSurf : roomObsSurfs){
+        cycleLoopMax.push_back(static_cast<int>(roomObsSurf.size() - 1));
         cycleLoopIndex.push_back(0);
     }
     currTime = static_cast<int>(SDL_GetTicks());
@@ -96,7 +96,6 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
             if (currTime > prevTime + 1000 / 5) {
                 prevTime = currTime;
                 if (cycleLoopIndex[k] < cycleLoopMax[k]) {
-                    cout << cycleLoopMax[k] << endl;
                     cycleLoopIndex[k]++;
                 } else {
                     cycleLoopIndex[k] = 0;

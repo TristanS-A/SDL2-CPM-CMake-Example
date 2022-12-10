@@ -119,9 +119,7 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
                 }
 
                 //Blits rect object with offset
-                if (xOffset != -speed || yOffset != -speed) {
-                    SDL_BlitSurface(nextEnemieSurfs[e], nullptr, test, &tempNextEnemie);
-                }
+                SDL_BlitSurface(nextEnemieSurfs[e], nullptr, test, &tempNextEnemie);
             }
         }
 
@@ -166,9 +164,7 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
             SDL_Rect o = {0,0, tempNextObs.w,tempNextObs.h};
 
             //Blits rect object with offset
-            if (xOffset != -speed || yOffset != -speed) {
-                SDL_BlitSurface(nextObsSurfs[z], &o, test, &tempNextObs);
-            }
+            SDL_BlitSurface(nextObsSurfs[z], &o, test, &tempNextObs);
         }
 
         //Placeholder for the current room rect objects, so they don't change when getting blit

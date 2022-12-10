@@ -102,6 +102,13 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
                 //Blits no-parallax bg
                 SDL_BlitSurface(levelRooms[currRoom].getBG(), nullptr, test, &pHolder);
 
+                //Placeholder so that imRect does not get altered by the blitting function
+                SDL_Rect placeH = imRect;
+
+                //Blits cat image to test at the location, and showing the dimensions, of imRect (the image
+                // rectangle)
+                SDL_BlitSurface(im, nullptr, test, &placeH);
+
                 //Tests blitting for room objects
                 levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, dead, arrR, s, hitEnemie, playerHealth);
             }
@@ -207,7 +214,8 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
             dead = false;
             damageCoolDown = 0;
             deathAnimationIndex = 0;
-            im = playerImage;
+            im = rightMovement[0];
+            saveDir = false;
         }
     }
 

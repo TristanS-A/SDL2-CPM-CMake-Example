@@ -99,18 +99,26 @@ void playerMovement(bool up, bool left, bool right, bool down, int &yVel, int &x
 
     //Character control
     if (up && jump) {
-        yVel = 25;
+        yVel = 23;
         jump = false;
         imRect.y -= yVel;
     }
     if (left) {
         if (xVel < 1) {
-            xVel += 5;
+            if (sprint){
+                xVel += 10;
+            } else {
+                xVel += 5;
+            }
         }
     }
     if (right) {
         if (xVel > -1) {
-            xVel += -5;
+            if (sprint) {
+                xVel += -10;
+            } else {
+                xVel += -5;
+            }
         }
     }
     if (down) {

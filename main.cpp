@@ -299,6 +299,7 @@ int main(int argc, char* argv[])
         SDL_Rect squareRect2;
         SDL_Rect squareRect3;
         SDL_Rect squareRect4;
+        SDL_Rect squareRect5;
 
         //Vector holding all rects for a room
         vector<SDL_Rect> roomRects = {roof, floor, leftWall, rightWallExit};
@@ -310,8 +311,8 @@ int main(int argc, char* argv[])
         Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {}, loadImages("images/bg.png"));
 
         //Reassigns exits for new room exits for the next room
-        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, SCREEN_HEIGHT + 50, 440, 50}};
-        exitInfo = {{0, -40, -SCREEN_WIDTH, 40}, {2, 30, -30, SCREEN_HEIGHT}};
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, SCREEN_HEIGHT + 50, 440, 50}, {SCREEN_WIDTH + 50, 500, 100, 310}};
+        exitInfo = {{0, -40, -SCREEN_WIDTH, 40}, {2, 30, -30, SCREEN_HEIGHT}, {3, 40, SCREEN_WIDTH, -40}};
 
         //Rects of next room
         squareRect1 = {0, 710, 500, 100};
@@ -351,8 +352,51 @@ int main(int argc, char* argv[])
         //Creates next room object
         Rooms room3 = *new Rooms({SCREEN_WIDTH / 2 - 50, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));
 
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, 310}};
+        exitInfo = {{1, -40, -SCREEN_WIDTH, 40}, {4, 40, SCREEN_WIDTH, -40}};
+
+        squareRect1 = {SCREEN_WIDTH - 300, 300, 300, SCREEN_HEIGHT - 300};
+        squareRect2 = {200, 450, 200, 50};
+        squareRect3 = {650, 300, SCREEN_WIDTH - 650, 50};
+
+        //Vector holding rect for the next room
+        roomRects = {roof, floor, squareRect3, leftWallExit, squareRect1, squareRect2};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, rockPlatform, groundText, groundText, groundText, groundText};
+
+        Enemies enemie3 = *new Enemies({800, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 5, gravity);
+        //Creates next room object
+        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie3},loadImages("images/bg.png"));
+
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, SCREEN_HEIGHT}};
+        exitInfo = {{3, -40, -SCREEN_WIDTH, 40}, {4, 40, SCREEN_WIDTH, 40}};
+
+        squareRect1 = {0, 300, 200, SCREEN_HEIGHT - 200};
+        squareRect2 = {SCREEN_WIDTH - 200, 300, 200, SCREEN_HEIGHT - 300};
+        squareRect3 = {400, 600, 200, 50};
+        squareRect4 = {800, 450, 200, 50};
+
+        //Vector holding rect for the next room
+        roomRects = {squareRect1, squareRect2, squareRect3, squareRect4, roof};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, groundText, groundText, groundText, groundText};
+
+        //Assigns rects, surfaces, and tests if the player can hook onto the obstacle for obstacles in the next room
+        placeHolderObsRects = {{200, 700, SCREEN_WIDTH - 400, 200}};
+        placeHolderObsSurfs = {lava};
+        placeHolderObsHookable = {false};
+
+        Enemies enemie4 = *new Enemies({SCREEN_WIDTH - 100, 200, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 5, gravity);
+
+
+        Rooms room5 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {enemie4},loadImages("images/bg.png"));
+
         //Vector of all the rooms
-        vector<Rooms> roomsArr = {room1, room2, room3};
+        vector<Rooms> roomsArr = {room1, room2, room3, room4, room5};
 
         //Creates level object to make a level
         Levels level1 = *new Levels(roomsArr, paraBG);
@@ -516,6 +560,11 @@ int main(int argc, char* argv[])
                             dead = true;
                         } else {
                             down = false;
+                        }
+                        if (keystates[SDL_SCANCODE_LSHIFT]){
+                            sprint = true;
+                        } else {
+                            sprint = false;
                         }
 
                         //Function for player movement
@@ -721,6 +770,11 @@ int main(int argc, char* argv[])
                             if ((keystates[SDL_SCANCODE_R])) {
                                 goToLevelSelScreen = true;
                                 dropCurtain = true;
+                            }
+                            if (keystates[SDL_SCANCODE_LSHIFT]){
+                                sprint = true;
+                            } else {
+                                sprint = false;
                             }
 
 
