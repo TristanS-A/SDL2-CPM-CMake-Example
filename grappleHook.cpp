@@ -5,6 +5,7 @@
 #include "grappleHook.h"
 #include "globalVariables.h"
 #include "SDL.h"
+#include <SDL_mixer.h>
 #include <algorithm>
 
 //Function for shooting the grappling hook
@@ -21,6 +22,7 @@ void shooting(vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imRec
         //Resets grappling hook rect locations to the player's location, but since the first grappling hook rec is a
         // bigger rect, it will spawn under the player if not for the if statement
         if (s == 0){
+            Mix_PlayChannel(-1, woossh, 0);
             arrR[s].x = imRect.x + 100 / 2 - arrR[s].w / 2;
             arrR[s].y = imRect.y;
         } else {
@@ -292,6 +294,7 @@ void retracting(vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, SDL_Rect &imR
 
            //For wall jumping off wall
             if ((keystates[SDL_SCANCODE_W])){
+                Mix_PlayChannel(-1, jumpSound, 0);
                 if (arrR[0].x > imRect.x){
                     xVel = 10;
                 } else {

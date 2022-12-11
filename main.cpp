@@ -9,7 +9,6 @@
 #include "grappleHook.h"
 #include "rooms.h"
 #include "loadImages.h"
-#include "roomSwitch.h"
 #include "enemies.h"
 #include "levels.h"
 #include "handleCollision.h"
@@ -19,6 +18,7 @@ using namespace std;
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 
 #define SCREEN_WIDTH    1440
 #define SCREEN_HEIGHT   810
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     (void) argv;
 
     // Initialize SDL
-    if(SDL_Init(SDL_INIT_VIDEO) < 0)
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     {
         cout << "SDL could not be initialized!" << endl
              << "SDL_Error: " << SDL_GetError() << endl;
@@ -77,14 +77,16 @@ int main(int argc, char* argv[])
 
     if (!error) {
 
-        //Loads circle image
+        //------------------------Creation and assignment of variables and vectors------------------------
+
+        //Loads circle image for grappling hook body pieces
         SDL_Surface *circle = loadImages("images/circle.png");
 
-        //Loads circle2 image
+        //Loads circle2 image for the hook of the grappling hook
         SDL_Surface *circle2 = loadImages("images/circle2.png");
 
-        //Creates rectangle for cat image
-        SDL_Rect imRect = {200, 200, 100, 100};
+        //Creates rectangle for player image
+        SDL_Rect imRect = {200, -200, 100, 100};
 
         //The health of the player
         int playerHealth = 50;
@@ -163,6 +165,7 @@ int main(int argc, char* argv[])
 
         int u;
 
+        //Filling grappling hook vector with grappling hook piece images
         for (u = 0; u < 20; u++) {
             if (u == 0) {
                 arr.push_back(circle2);
@@ -176,6 +179,7 @@ int main(int argc, char* argv[])
 
         SDL_Rect placeHolder = {0, 0, 50, 50};
 
+        //Filling grappling hook rect vector with grappling hook piece rects
         for (u = 0; u < 20; u++) {
             arrR.push_back(placeHolder);
         }
@@ -222,7 +226,11 @@ int main(int argc, char* argv[])
         int paraBGx = 0;
         int paraBGy = 0;
 
+        //Loads parallax bg
         SDL_Surface *paraBG = loadImages("images/parallaxBG.png");
+
+        SDL_Surface *levSelFloor = loadImages("images/levSelFloor.png");
+        SDL_Surface *levSelBG = loadImages("images/bgLevSelect.png");
 
         SDL_Rect paraBGRect;
 
@@ -262,6 +270,60 @@ int main(int argc, char* argv[])
         SDL_Surface * bossHurtL = loadImages("images/bossHurtL.png");
         SDL_Surface * bossHurtR = loadImages("images/bossHurtR.png");
 
+        //Sets up SDL_Mixer Audio
+        int audio_rate = 22050;
+        Uint16 audio_format = AUDIO_S16SYS;
+        int audio_channels = 2;
+        int audio_buffers = 4096;
+
+        //Initializes/Opens mixer audio
+        if(Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers) != 0){
+            fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError()); exit(1);
+        }
+
+        //Loads sounds
+        titleMusic = (Mix_LoadMUS("sounds/titleSong.wav"));
+        caveMusic = (Mix_LoadMUS("sounds/caveMusic.wav"));
+        hitSound = Mix_LoadWAV("sounds/hit.wav");
+        chest = Mix_LoadWAV("sounds/chest.wav");
+        enemiehit = Mix_LoadWAV("sounds/enemiehit.wav");
+        jumpSound = Mix_LoadWAV("sounds/jump.wav");
+        woossh = Mix_LoadWAV("sounds/woosh.wav");
+        explosion = Mix_LoadWAV("sounds/explosion.wav");
+        door = Mix_LoadWAV("sounds/door.wav");
+
+        //Checks if sounds loaded
+        if (!titleMusic){
+            cout << "Failed to titleMusic sound\n";
+        }
+        if (!caveMusic){
+            cout << "Failed to caveMusic sound\n";
+        }
+        if (!chest){
+            cout << "Failed to chest sound\n";
+        }
+        if (!hitSound){
+            cout << "Failed to hit sound\n";
+        }
+        if (!enemiehit){
+            cout << "Failed to enemiehit sound\n";
+        }
+        if (!jumpSound){
+            cout << "Failed to load sound\n";
+        }
+        if (!woossh){
+            cout << "Failed to load sound\n";
+        }
+        if (!explosion){
+            cout << "Failed to load sound\n";
+        }
+        if (!door){
+            cout << "Failed to load door sound\n";
+        }
+
+        //Starts playing beginning music
+        Mix_PlayMusic(titleMusic, -1);
+
         //Creates rect exits into new rooms from the room
         vector<SDL_Rect> exits = {{SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
 
@@ -279,13 +341,13 @@ int main(int argc, char* argv[])
         vector<bool> placeHolderObsHookable;
 
         //Vector of rects for the level select room
-        vector<SDL_Rect> levelSelectRects = {{0, 710, SCREEN_WIDTH, 100}};
+        vector<SDL_Rect> levelSelectRects = {{0, 710, SCREEN_WIDTH * 2 + 50, 100}, {0, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH * 2 - 100, 0, 150, SCREEN_HEIGHT}};
 
         //Vector of surfaces to blit onto the rects in the level select room
-        vector<SDL_Surface *> levelSelectSurfs = {rockPlatform};
+        vector<SDL_Surface *> levelSelectSurfs = {levSelFloor, groundText, groundText};
 
         //Vector of rects for level doors that take you to a level in the level select room
-        vector<SDL_Rect> levelDoors = {{200, 510, 200, 200}};
+        vector<SDL_Rect> levelDoors = {{2400, 510, 200, 200}};
 
         //Vector of surfaces to blit to the level doors in the level select room
         vector<vector<SDL_Surface *>> levelDoorSurfs = {{door1, door2, door3, door4, door5}};
@@ -318,7 +380,12 @@ int main(int argc, char* argv[])
         //Vector for the exit chest rect
         vector<SDL_Rect> chestRect;
 
-        //Creates room objects
+        //Bool to tell if the rooms are transitioning from the current room to the next one
+        bool transition = false;
+
+        //--------------------------------Creation of rooms--------------------------------
+
+        //Create room object
         Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {}, loadImages("images/bg.png"), chestRect);
 
         //Reassigns exits for new room exits for the next room
@@ -514,16 +581,18 @@ int main(int argc, char* argv[])
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4, room5, room6, room7, room8, room9, room10, room11};
 
+
+        //--------------------------------Creation of Levels--------------------------------
+
         //Creates level object to make a level
         Levels level1 = *new Levels(roomsArr, paraBG);
 
         //Vector of all the levels
         vector<Levels> levels = {level1};
 
-        //Bool to tell if the rooms are transitioning from the current room to the next one
-        bool transition = false;
 
-        // Event loop
+        // --------------------------------Main Game loop--------------------------------
+
         while (!quit) {
             //Gets console ticks for delta time calculations
             currTime = SDL_GetTicks();
@@ -537,9 +606,6 @@ int main(int argc, char* argv[])
 
                 //Gets events
                 SDL_Event e;
-
-                // Wait indefinitely for the next available event
-                //SDL_WaitEvent(&e);
 
                 //I used poll instead of wait because the key presses had a delay with wait.
                 SDL_PollEvent(&e);
@@ -673,7 +739,6 @@ int main(int argc, char* argv[])
                         }
                         if ((keystates[SDL_SCANCODE_S])) {
                             down = true;
-                            dead = true;
                         } else {
                             down = false;
                         }
@@ -694,7 +759,7 @@ int main(int argc, char* argv[])
                     SDL_BlitSurface(paraBG, nullptr, test, &paraBGRect);
 
                     //Blits no-parallax bg
-                    SDL_BlitSurface(roomsArr[currRoom].getBG(), nullptr, test, &pHolder);
+                    SDL_BlitSurface(levSelBG, nullptr, test, &pHolder);
 
 
                     //Applying gravity to the charter
@@ -706,15 +771,12 @@ int main(int argc, char* argv[])
                     //Applies x-axis velocity to the character
                     imRect.x -= xVel;
 
-
                     //Makes it appear that the camera is following the player by moving everything but the player
-                    if (imRect.x + imRect.w / 2 > SCREEN_WIDTH / 2 || cameraOffset > 0){
+                    if (cameraOffset + imRect.x + imRect.w / 2 < SCREEN_WIDTH * 2 - SCREEN_WIDTH / 2 && (imRect.x + imRect.w / 2 > SCREEN_WIDTH / 2 || (cameraOffset > 0))){
 
+                        imRect.x = SCREEN_WIDTH / 2 - imRect.w / 2;
                         //Adds the offset to the parallax bg at a different rate than the rest to add the parallax effect
                         paraBGx += xVel / 2;
-
-                        //Adds the offset to the non-parallax bg
-                        pHolder.x = -cameraOffset;
 
                         //Adds the offset to the levelSelectRects
                         for (auto & levelSelectRect : levelSelectRects){
@@ -733,6 +795,12 @@ int main(int argc, char* argv[])
                         cameraOffset -= xVel;
                     }
 
+                    //Adds the offset to the non-parallax bg
+                    pHolder.x = -cameraOffset;
+
+                    //Resets this
+                    readyToEnter = false;
+
                     //Goes through all doors in levelDoors
                     for (int d = 0; d < levelDoors.size(); d ++){
 
@@ -741,19 +809,27 @@ int main(int argc, char* argv[])
                         SDL_BlitSurface(levelDoorSurfs[d][0], nullptr, test, &doorHolder);
 
                         //Tests is player enters a door
-                        if (SDL_HasIntersection(&levelDoors[d], &imRect) && up){
+                        if (SDL_HasIntersection(&levelDoors[d], &imRect)){
 
-                            enteringLevel = true;
+                            readyToEnter = true;
 
-                            //So the player doesn't jump when entering a level or move
-                            if (yVel > 0){
-                                imRect.y += yVel * 2;
-                                yVel = 0;
-                            }
-                            xVel = 0;
+                            if (up){
+                                //So sound only plays once
+                                if (!enteringLevel) {
+                                    Mix_FadeOutMusic(1000);
+                                    Mix_PlayChannel(-1, door, 0);
+                                }
+                                enteringLevel = true;
 
-                            //Does door entering animation and then lowers the curtain
-                            deathCurrTime = static_cast<int>(SDL_GetTicks());
+                                //So the player doesn't jump when entering a level or move
+                                if (yVel > 0) {
+                                    imRect.y += yVel * 2;
+                                    yVel = 0;
+                                }
+                                xVel = 0;
+
+                                //Does door entering animation and then lowers the curtain
+                                deathCurrTime = static_cast<int>(SDL_GetTicks());
                                 if (enterIndex < static_cast<int>(levelDoorSurfs[d].size()) - 1) {
                                     if (deathCurrTime > deathPrevTime + 1000 / 20) {
                                         deathPrevTime = deathCurrTime;
@@ -764,11 +840,11 @@ int main(int argc, char* argv[])
                                     SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
                                     SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
 
-                                    if (curtainOffset < 0){
+                                    if (curtainOffset < 0) {
                                         curtainOffset = static_cast<int>(curtainOffset / 1.1);
 
                                         //Check so the curtain doesn't lower more than the screen height
-                                        if (curtainOffset > 0){
+                                        if (curtainOffset > 0) {
                                             curtainOffset = 0;
                                         }
                                     } else {
@@ -777,7 +853,10 @@ int main(int argc, char* argv[])
                                         curtainOffset = 5;
                                         currLevel = d;
                                         levels[currLevel].resetLevel();
-                                        levels[currLevel].getRoom().roomAndPlayerReset(imRect, playerHealth, yVel, xVel, arrR);
+                                        levels[currLevel].getRoom().roomAndPlayerReset(imRect, playerHealth, yVel, xVel,
+                                                                                       arrR);
+                                        readyToEnter = false;
+                                        Mix_PlayMusic(caveMusic, -1);
                                         raiseCurtain = true;
                                         dropCurtain = false;
                                         up = false;
@@ -786,8 +865,9 @@ int main(int argc, char* argv[])
                                     }
                                 }
 
-                            //Blits animation over opening door
-                            SDL_BlitSurface(levelDoorSurfs[d][enterIndex], nullptr, test, &doorHolder);
+                                //Blits animation over opening door
+                                SDL_BlitSurface(levelDoorSurfs[d][enterIndex], nullptr, test, &doorHolder);
+                            }
                         }
                     }
 
@@ -806,8 +886,9 @@ int main(int argc, char* argv[])
 
                         //This is a placeholder so that the actual rect position does not get changed by the blit function
                         SDL_Rect holder = levelSelectRects[h];
+                        SDL_Rect g = {0, 0, holder.w, holder.h};
 
-                        SDL_BlitSurface(levelSelectSurfs[h], nullptr, test, &holder);
+                        SDL_BlitSurface(levelSelectSurfs[h], &g, test, &holder);
 
                     }
 
@@ -826,13 +907,24 @@ int main(int argc, char* argv[])
                     //For raising the curtain after exiting level.
                     if (raiseCurtain){
                         if (curtainOffset > -810) {
+                            if (!enteringLevel) {
+                                Mix_PlayMusic(titleMusic, -1);
 
-                            //Sets player position to the door position after exiting the level
-                            imRect.x = levelDoors[currLevel].x + levelDoors[currLevel].w / 2 - imRect.w / 2;
-                            imRect.y = levelDoors[currLevel].y + levelDoors[currLevel].h - imRect.h;
+                                //Sets player position to the door position after exiting the level
+                                if (cameraOffset > 0 && (cameraOffset + imRect.x + imRect.w / 2 < SCREEN_WIDTH * 2 - SCREEN_WIDTH / 2)) {
+                                    imRect.x = SCREEN_WIDTH / 2 - imRect.w / 2;
+                                    imRect.y = levelDoors[currLevel].y + levelDoors[currLevel].h - imRect.h;
+                                } else {
+                                    imRect.x = levelDoors[currLevel].x + levelDoors[currLevel].w / 2 - imRect.w / 2;
+                                    imRect.y = levelDoors[currLevel].y + levelDoors[currLevel].h - imRect.h;
+                                }
+                            }
 
                             //So you can't enter until curtain has been risen
                             up = false;
+
+                            //Resets the level entering variables, so you can enter again.
+                            enteringLevel = false;
 
                             //Raises curtain
                             curtainOffset = -static_cast<int>(fabs(curtainOffset * 1.39));
@@ -843,8 +935,6 @@ int main(int argc, char* argv[])
 
                         } else {
 
-                            //Resets the level entering variables, so you can enter again.
-                            enteringLevel = false;
                             enterIndex = -1;
 
                             goToLevelSelScreen = false;
@@ -880,7 +970,6 @@ int main(int argc, char* argv[])
                             }
                             if ((keystates[SDL_SCANCODE_S])) {
                                 down = true;
-                                dead = true;
                             } else {
                                 down = false;
                             }
@@ -911,6 +1000,7 @@ int main(int argc, char* argv[])
                             if (!levels[currLevel].getRoom().getChestRect().empty()){
                                 if (SDL_HasIntersection(&levels[currLevel].getRoom().getChestRect()[0], &arrR[0])){
                                     if (!exiting) {
+                                        Mix_PlayChannel(-1, chest, 0);
                                         deathCurrTime = static_cast<int>(SDL_GetTicks());
                                         deathPrevTime = deathCurrTime;
                                     }
@@ -983,12 +1073,6 @@ int main(int argc, char* argv[])
             // dimensions of textRect
             SDL_RenderCopy(renderer, text, nullptr, &textRect);
 
-            // Set renderer color red to draw the square
-//            SDL_SetRenderDrawColor(renderer, 0xFF, 0x0F, 0x00, 0xFF);
-//
-//            // Draw filled square
-//            SDL_RenderFillRect(renderer, &squareRect);
-
             // Update screen
             SDL_RenderPresent(renderer);
         }
@@ -999,6 +1083,19 @@ int main(int argc, char* argv[])
         //Frees surfaces
         SDL_FreeSurface(test);
         SDL_FreeSurface(im);
+
+        //Frees sounds
+        Mix_FreeMusic(titleMusic);
+        Mix_FreeMusic(caveMusic);
+        Mix_FreeChunk(hitSound);
+        Mix_FreeChunk(enemiehit);
+        Mix_FreeChunk(explosion);
+        Mix_FreeChunk(chest);
+        Mix_FreeChunk(woossh);
+        Mix_FreeChunk(jumpSound);
+
+        //Closes audio
+        Mix_CloseAudio();
 
         // Destroy window
         SDL_DestroyWindow(window);

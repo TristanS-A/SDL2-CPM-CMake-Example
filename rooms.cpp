@@ -73,7 +73,8 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
 
                 if (damageCoolDown <= 0) {
                     //So the player doesn't die whn exiting the level
-                    if (!exiting) {
+                    if (!exiting && !dead) {
+                        Mix_PlayChannel(-1, enemiehit, 0);
                         playerHealth -= 10;
                     }
                     damageCoolDown = 10;

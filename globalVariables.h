@@ -6,6 +6,7 @@
 #define MYPROJECT_GLOBALVARIABLES_H
 
 #include "SDL.h"
+#include <SDL_mixer.h>
 #include <utility>
 #include <algorithm>
 
@@ -62,5 +63,17 @@ extern const Uint8 *keystates;
 extern vector<SDL_Surface *> chestSurfs;
 
 extern bool exiting;
+
+extern bool readyToEnter;
+
+extern Mix_Music *titleMusic;
+extern Mix_Music *caveMusic;
+extern Mix_Chunk *hitSound;
+extern Mix_Chunk *chest;
+extern Mix_Chunk *enemiehit;
+extern Mix_Chunk *jumpSound;
+extern Mix_Chunk *woossh;
+extern Mix_Chunk *explosion;
+extern Mix_Chunk *door;
 
 #endif //MYPROJECT_GLOBALVARIABLES_H

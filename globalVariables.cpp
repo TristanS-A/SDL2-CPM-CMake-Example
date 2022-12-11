@@ -7,6 +7,8 @@
 #include "SDL.h"
 #include <utility>
 #include <algorithm>
+#include <SDL_mixer.h>
+#include <iostream>
 
 using namespace std;
 
@@ -87,3 +89,16 @@ vector<SDL_Surface *> chestSurfs = {loadImages("images/chest1.png"), loadImages(
 
 //To tell if the player is leaving the level after getting the thing
 bool exiting = false;
+
+//So the jump sound doesn't play when you enter a level and so it can tell if you are about to enter a level
+bool readyToEnter = false;
+
+Mix_Music *titleMusic;
+Mix_Music *caveMusic;
+Mix_Chunk *hitSound;
+Mix_Chunk *chest;
+Mix_Chunk *enemiehit;
+Mix_Chunk *jumpSound;
+Mix_Chunk *woossh;
+Mix_Chunk *explosion;
+Mix_Chunk *door;

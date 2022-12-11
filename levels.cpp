@@ -4,6 +4,8 @@
 
 #include "levels.h"
 
+#include <SDL_mixer.h>
+
 #include <utility>
 #include "rooms.h"
 #include "roomSwitch.h"
@@ -179,6 +181,9 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
 
             if (deathCurrTime > deathPrevTime + 1000 / 10) {
                 if (deathAnimationIndex < deathAnimation.size() - 1) {
+                    if (deathAnimationIndex == 0){
+                        Mix_PlayChannel(-1, explosion, 0);
+                    }
 
                     //Moves through death animation images
                     deathAnimationIndex++;
@@ -228,6 +233,10 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
         //Placeholder for curtain and blits it with blit function
         SDL_Rect curtainRect = {0, curtainOffset, 0, 0};
         SDL_BlitSurface(curtain, nullptr, test, &curtainRect);
+
+        if (curtainOffset < -800 && (exiting || goToLevSelScreen)){
+            Mix_FadeOutMusic(1000);
+        }
 
         if (curtainOffset < 0){
             curtainOffset = static_cast<int>(curtainOffset / 1.1);

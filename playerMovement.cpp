@@ -99,6 +99,9 @@ void playerMovement(bool up, bool left, bool right, bool down, int &yVel, int &x
 
     //Character control
     if (up && jump) {
+        if (!readyToEnter) {
+            Mix_PlayChannel(-1, jumpSound, 0);
+        }
         yVel = 23;
         jump = false;
         imRect.y -= yVel;
@@ -122,6 +125,6 @@ void playerMovement(bool up, bool left, bool right, bool down, int &yVel, int &x
         }
     }
     if (down) {
-        yVel -= 5;
+        yVel -= 2;
     }
 }

@@ -2,7 +2,9 @@
 // Created by tropi on 11/30/2022.
 //
 #include "enemies.h"
+#include "globalVariables.h"
 
+#include <SDL_mixer.h>
 #include <utility>
 #include <iostream>
 using namespace std;
@@ -156,6 +158,7 @@ bool Enemies::dealDamage(int damage) {
 
     if (bufferCurrTime > bufferPrevTime + 1000 / 5) {
         bufferPrevTime = bufferCurrTime;
+        Mix_PlayChannel(-1, hitSound, 0);
         enemieHealth -= damage;
         damageTime = 10;
     }
@@ -207,6 +210,9 @@ void Enemies::enemieDeath(SDL_Surface *test) {
     currTime = static_cast<int>(SDL_GetTicks());
 
     if (currTime > prevTime + 1000 / 10) {
+        if (deathIndex == 0){
+            Mix_PlayChannel(-1, explosion, 0);
+        }
         prevTime = currTime;
         deathIndex++;
     }
