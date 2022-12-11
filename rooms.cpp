@@ -43,7 +43,7 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
 
             //Tests if player damages enemie
             if (SDL_HasIntersection(&grappleArr[0], &r) && !hitEnemie) {
-                roomEnemie.addForce(ghPieceVelX, ghPieceVelY);
+                roomEnemie.addForce(ghPieceVelX);
                 if (roomEnemie.dealDamage(1)) {
                     roomEnemie.setDead(true);
                 } else {

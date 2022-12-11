@@ -18,7 +18,7 @@ private:
     SDL_Rect hitbox{};
 
     //To reset the position of enemies
-    SDL_Rect resetHitbox;
+    SDL_Rect resetHitbox{};
 
     //Images for left moving animation
     vector<SDL_Surface *> animationCycleL;
@@ -37,11 +37,11 @@ private:
     int index;
 
     //To keep track of animation speed
-    int currTime{};
+    int currTime = 0;
     int prevTime;
 
     //To keep track of current image for the enemies
-    SDL_Surface *currImage;
+    SDL_Surface *currImage{};
 
     //To move the enemies
     int yVel;
@@ -49,7 +49,7 @@ private:
     int gravity;
 
     //To tell what direction the enemie is moving in
-    bool dir;
+    bool dir = false;
 
     //To let the enemies die
     bool dead;
@@ -61,7 +61,7 @@ private:
     int resetHealth;
 
     //Buffer so you can't damage the enemies every frame
-    int bufferCurrTime;
+    int bufferCurrTime = 0;
     int bufferPrevTime;
 
     //Time showing damageImage
@@ -84,7 +84,7 @@ public:
 
     void collisionTest(SDL_Rect testRect);
 
-    void addForce(int xForce, int yForce);
+    void addForce(int xForce);
 
     bool dealDamage(int damage);
 

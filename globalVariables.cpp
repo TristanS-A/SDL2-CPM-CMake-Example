@@ -2,17 +2,14 @@
 // Created by tropi on 12/5/2022.
 //
 
-#include "globalVariables.h"
 #include "loadImages.h"
 #include "SDL.h"
-#include <utility>
 #include <algorithm>
 #include <SDL_mixer.h>
-#include <iostream>
 
 using namespace std;
 
-//Loads cat image
+//Loads player image and is called im for image
 SDL_Surface *im = loadImages("images/left1.png");
 
 //Loads player image

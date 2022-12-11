@@ -6,7 +6,6 @@
 
 #include <SDL_mixer.h>
 #include <utility>
-#include <iostream>
 using namespace std;
 
 Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImagesLeft, vector<SDL_Surface *> enemieImagesRight, SDL_Surface *hurtImageLeft, SDL_Surface *hurtImageRight, vector<SDL_Surface *> deathAni, int health, int grav) {
@@ -26,7 +25,6 @@ Enemies::Enemies(SDL_Rect enemieRec, vector<SDL_Surface *> enemieImagesLeft, vec
     dead = false;
     enemieHealth = health;
     resetHealth = health;
-    bufferCurrTime = static_cast<int>(SDL_GetTicks());
     bufferPrevTime = 0;
     damageTime = 0;
     deathAnimation = std::move(deathAni);
@@ -143,7 +141,7 @@ void Enemies::collisionTest(SDL_Rect testRect) {
     }
 }
 
-void Enemies::addForce(int xForce, int yForce) {
+void Enemies::addForce(int xForce) {
     if (xForce > 0){
         xVel = -30;
     } else {

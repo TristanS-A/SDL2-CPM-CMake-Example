@@ -1,3 +1,24 @@
+/*Author: Tristan Schonfeldt-Aultman
+Class : CSI-140-05/06
+Assignment : Final Project
+Due Date : Dec 11 at 11:59pm - Dec 11 4:40pm
+
+
+Description :
+
+    Submission for the Final Project as alternative individual assignment
+
+
+Certification of Authenticity :
+
+    I certify that this is entirely my own work, except where I have given fully - documented
+    references to the work of others.I understand the definition and consequences of plagiarism and
+    acknowledge that the assessor of this assignment may, for the purpose of assessing this assignment :
+
+    Reproduce this assignmentand provide a copy to another member of academic staff;and /or
+    Communicate a copy of this assignment to a plagiarism checking service(which may then retain
+    a copy of this assignment on its database for the purpose of future plagiarism checking)*/
+
 #define SDL_MAIN_HANDLED true
 #define _USE_MATH_DEFINES
 #include <iostream>
@@ -85,7 +106,7 @@ int main(int argc, char* argv[])
         //Loads circle2 image for the hook of the grappling hook
         SDL_Surface *circle2 = loadImages("images/circle2.png");
 
-        //Creates rectangle for player image
+        //Creates rectangle for player image and is called imRect for image Rectangle
         SDL_Rect imRect = {200, -200, 100, 100};
 
         //The health of the player
