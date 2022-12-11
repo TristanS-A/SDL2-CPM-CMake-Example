@@ -254,6 +254,14 @@ int main(int argc, char* argv[])
         SDL_Surface * enemieHurtL = loadImages("images/hurtL.png");
         SDL_Surface * enemieHurtR = loadImages("images/hurtR.png");
 
+        //Load boss images
+        SDL_Surface * bossWalk1L = loadImages("images/bossWalkL1.png");
+        SDL_Surface * bossWalk2L = loadImages("images/bossWalkL2.png");
+        SDL_Surface * bossWalk1R = loadImages("images/bossWalkR1.png");
+        SDL_Surface * bossWalk2R = loadImages("images/bossWalkR2.png");
+        SDL_Surface * bossHurtL = loadImages("images/bossHurtL.png");
+        SDL_Surface * bossHurtR = loadImages("images/bossHurtR.png");
+
         //Creates rect exits into new rooms from the room
         vector<SDL_Rect> exits = {{SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
 
@@ -307,8 +315,11 @@ int main(int argc, char* argv[])
         //Creates a vector of surfaces to blit into the Rect objects of the room objects
         vector<SDL_Surface *> roomSurfs = {groundText, rockPlatform, groundText, groundText};
 
+        //Vector for the exit chest rect
+        vector<SDL_Rect> chestRect;
+
         //Creates room objects
-        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {}, loadImages("images/bg.png"));
+        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {}, loadImages("images/bg.png"), chestRect);
 
         //Reassigns exits for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, SCREEN_HEIGHT + 50, 440, 50}, {SCREEN_WIDTH + 50, 500, 100, 310}};
@@ -331,7 +342,7 @@ int main(int argc, char* argv[])
         placeHolderObsHookable = {true};
 
         //Creates next room object
-        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/bg.png"));
+        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{500, -100, 440, 50}};
@@ -350,7 +361,7 @@ int main(int argc, char* argv[])
         roomSurfs = {groundText, groundText, rockPlatform, groundText, groundText, groundText, groundText};
 
         //Creates next room object
-        Rooms room3 = *new Rooms({SCREEN_WIDTH / 2 - 50, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"));
+        Rooms room3 = *new Rooms({SCREEN_WIDTH / 2 - 50, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, 310}};
@@ -368,11 +379,11 @@ int main(int argc, char* argv[])
 
         Enemies enemie3 = *new Enemies({800, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 5, gravity);
         //Creates next room object
-        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie3},loadImages("images/bg.png"));
+        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie3},loadImages("images/bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
-        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, SCREEN_HEIGHT}};
-        exitInfo = {{3, -40, -SCREEN_WIDTH, 40}, {4, 40, SCREEN_WIDTH, 40}};
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
+        exitInfo = {{3, -40, -SCREEN_WIDTH, 40}, {5, 40, SCREEN_WIDTH, -40}};
 
         squareRect1 = {0, 300, 200, SCREEN_HEIGHT - 200};
         squareRect2 = {SCREEN_WIDTH - 200, 300, 200, SCREEN_HEIGHT - 300};
@@ -392,11 +403,116 @@ int main(int argc, char* argv[])
 
         Enemies enemie4 = *new Enemies({SCREEN_WIDTH - 100, 200, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 5, gravity);
 
+        Rooms room5 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {enemie4},loadImages("images/bg.png"), chestRect);
 
-        Rooms room5 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {enemie4},loadImages("images/bg.png"));
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
+        exitInfo = {{4, -40, -SCREEN_WIDTH, 40}, {6, 40, SCREEN_WIDTH, -40}};
+
+        squareRect1 = {0, 300, 200, SCREEN_HEIGHT - 150};
+        squareRect2 = {SCREEN_WIDTH - 400, 660, 400, SCREEN_HEIGHT - 300};
+
+        //Vector holding rect for the next room
+        roomRects = {squareRect1, squareRect2, rightWallExit, roof};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, groundText, groundText, groundText};
+
+        //Assigns rects, surfaces, and tests if the player can hook onto the obstacle for obstacles in the next room
+        placeHolderObsRects = {{200, 700, SCREEN_WIDTH - 600, 200}};
+        placeHolderObsSurfs = {lava};
+        placeHolderObsHookable = {false};
+
+        Rooms room6 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {},loadImages("images/bg.png"), chestRect);
+
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
+        exitInfo = {{5, -40, -SCREEN_WIDTH, 40}, {7, 40, SCREEN_WIDTH, -40}};
+
+        squareRect1 = {0, 660, 300, 500};
+        squareRect2 = {SCREEN_WIDTH - 400, 660, 400, 500};
+
+        //Vector holding rect for the next room
+        roomRects = {leftWallExit, squareRect1, rightWallExit, squareRect2, roof};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, groundText, groundText, groundText, groundText};
+
+        //Assigns rects, surfaces, and tests if the player can hook onto the obstacle for obstacles in the next room
+        placeHolderObsRects = {{200, 700, SCREEN_WIDTH - 600, 200}};
+        placeHolderObsSurfs = {lava};
+        placeHolderObsHookable = {false};
+
+        Rooms room7 = *new Rooms({200, 555, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {},loadImages("images/bg.png"), chestRect);
+
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}, {0, SCREEN_HEIGHT + 50, SCREEN_WIDTH, 100}};
+        exitInfo = {{6, -40, -SCREEN_WIDTH, 40}, {8, 30, -30, SCREEN_HEIGHT}};
+
+        squareRect1 = {0, 660, 300, SCREEN_HEIGHT - 660};
+
+        //Vector holding rect for the next room
+        roomRects = {rightWall, squareRect1, leftWallExit, roof};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, groundText, groundText, groundText};
+
+        Rooms room8 = *new Rooms({200, 555, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {},loadImages("images/bg.png"), chestRect);
+
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{0, -150, SCREEN_WIDTH, 100}, {0, SCREEN_HEIGHT + 50, SCREEN_WIDTH, 100}};
+        exitInfo = {{7, -30, 30, -SCREEN_HEIGHT}, {9, 30, -30, SCREEN_HEIGHT}};
+
+        squareRect1 = {0, 0, 300, 100};
+
+        //Vector holding rect for the next room
+        roomRects = {leftWall, rightWall, squareRect1};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, groundText, groundText};
+
+        Rooms room9 = *new Rooms({SCREEN_WIDTH / 2 - imRect.w / 2, 0, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {},loadImages("images/bg.png"), chestRect);
+
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{0, -150, SCREEN_WIDTH, 100}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
+        exitInfo = {{8, -30, 30, -SCREEN_HEIGHT}, {10, 40, SCREEN_WIDTH, -40}};
+
+        squareRect1 = {SCREEN_WIDTH - 100, 0, 100, 500};
+
+        //Vector holding rect for the next room
+        roomRects = {leftWall, floor, squareRect1};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, rockPlatform, groundText};
+
+        //Creating enemies to be put in a vector of enemies in a room
+        Enemies enemie5 = *new Enemies({200, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
+        Enemies enemie6 = *new Enemies({1200, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
+
+        Rooms room10 = *new Rooms({SCREEN_WIDTH / 2 - imRect.w / 2, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie5, enemie6},loadImages("images/bg.png"), chestRect);
+
+        //Reassigns rect exits and exit info for new room exits for the next room
+        exits = {{-150, 0, 100, SCREEN_HEIGHT}};
+        exitInfo = {{9, -40, -SCREEN_WIDTH, 40}};
+
+        squareRect1 = {950, 500, SCREEN_WIDTH - 950, SCREEN_HEIGHT - 500};
+        squareRect2 = {0, 0, SCREEN_WIDTH, 200};
+
+        //Vector holding rect for the next room
+        roomRects = {leftWallExit, rightWall, floor, squareRect2, squareRect1};
+
+        //Resigns surfaces to blit into the Rect objects of the room objects
+        roomSurfs = {groundText, groundText, rockPlatform, groundText, groundText};
+
+        Enemies boss = *new Enemies({500, 310, 400, 400}, {bossWalk1L, bossWalk2L}, {bossWalk1R, bossWalk2R}, bossHurtL, bossHurtR, deathAnimation, 25, gravity);
+
+        //Assigns chest location
+        chestRect = {{1000, 305, 300, 200}};
+
+        Rooms room11 = *new Rooms({100, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {boss},loadImages("images/bg.png"), chestRect);
 
         //Vector of all the rooms
-        vector<Rooms> roomsArr = {room1, room2, room3, room4, room5};
+        vector<Rooms> roomsArr = {room1, room2, room3, room4, room5, room6, room7, room8, room9, room10, room11};
 
         //Creates level object to make a level
         Levels level1 = *new Levels(roomsArr, paraBG);
@@ -732,6 +848,7 @@ int main(int argc, char* argv[])
                             enterIndex = -1;
 
                             goToLevelSelScreen = false;
+                            exiting = false;
 
                             //Resets curtain after raising all the way
                             curtainOffset = -810;
@@ -789,6 +906,29 @@ int main(int argc, char* argv[])
 
                             //Blits no-parallax bg
                             SDL_BlitSurface(roomsArr[currRoom].getBG(), nullptr, test, &pHolder);
+
+                            //So chest blits over grappling hook
+                            if (!levels[currLevel].getRoom().getChestRect().empty()){
+                                if (SDL_HasIntersection(&levels[currLevel].getRoom().getChestRect()[0], &arrR[0])){
+                                    if (!exiting) {
+                                        deathCurrTime = static_cast<int>(SDL_GetTicks());
+                                        deathPrevTime = deathCurrTime;
+                                    }
+
+                                    exiting = true;
+                                }
+                                if (exiting){
+                                    deathCurrTime = static_cast<int>(SDL_GetTicks());
+                                    if (deathCurrTime > deathPrevTime + 3000){
+                                        dropCurtain = true;
+                                    }
+                                    SDL_Rect exitHolder = levels[currLevel].getRoom().getChestRect()[0];
+                                    SDL_BlitSurface(chestSurfs[1], nullptr, test, &exitHolder);
+                                } else {
+                                    SDL_Rect exitHolder = levels[currLevel].getRoom().getChestRect()[0];
+                                    SDL_BlitSurface(chestSurfs[0], nullptr, test, &exitHolder);
+                                }
+                            }
 
                             //Test if grappling hook is shooting
                             if (shoot) {

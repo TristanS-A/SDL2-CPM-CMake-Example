@@ -16,7 +16,7 @@ Levels::Levels(vector<Rooms> levRooms, SDL_Surface *parallaxBG){
     currRoom = 0;
 }
 
-void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth, bool &right, bool &left, bool &transition, int &yVel, int &xVel, SDL_Rect &textRect, bool &dead, vector<SDL_Rect> arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, bool &goToLevSelScreen, bool &levelSelect, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
+void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth, bool &right, bool &left, bool &transition, int &yVel, int &xVel, SDL_Rect &textRect, bool &dead, vector<SDL_Rect> &arrR, vector<SDL_Surface *> arr, int &track, int &sideOffsetX, int &sideOffsetY, bool &mouseUp, bool &hitEnemie, vector<SDL_Surface *> deathAnimation, int &deathAnimationIndex, bool &dropCurtain, bool &raiseCurtain, int &curtainOffset, SDL_Surface *curtain, bool &goToLevSelScreen, bool &levelSelect, SDL_Rect &paraBGRect, int &paraBGx, int &paraBGy) {
 
     if (!dead) {
         if (!transition) {
@@ -34,15 +34,31 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
             }
 
             if (exitInfo[0] != -1 && !noSwitch) {
-                transition = true;
-                retrac = false;
-                shoot = false;
-                nextRoom = exitInfo[0];
-                transitionSpeed = exitInfo[1];
-                offsetX = exitInfo[2];
-                offseetY = exitInfo[3];
-                if (offseetY < -transitionSpeed) {
-                    yVel = 30;
+                //So the player cannot leave the room after opening the chest to leave the level
+                if (!exiting) {
+                    transition = true;
+                    arrR[0].x = -100;
+                    arrR[0].y = -100;
+                    retrac = false;
+                    shoot = false;
+                    nextRoom = exitInfo[0];
+                    transitionSpeed = exitInfo[1];
+                    offsetX = exitInfo[2];
+                    offseetY = exitInfo[3];
+                    if (offseetY < -transitionSpeed) {
+                        yVel = 30;
+                    }
+                } else {
+                    if (imRect.x > 1440 + 50){
+                        imRect.x = 1440 + 50;
+                    } else if (imRect.x < -50){
+                        imRect.x = -50;
+                    }
+                    if (imRect.y > 810 + 50){
+                        imRect.y = 810 + 50;
+                    } else if (imRect.y < -50){
+                        imRect.y = -50;
+                    }
                 }
             } else if (exitInfo[0] == -1) {
                 noSwitch = false;
@@ -81,15 +97,15 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
                             nextEnemieRects, nextEnemieSurfs, levelRooms[currRoom].getEnemies(),
                             levelRooms[nextRoom].getEnemies(), currObs, currObsSurfs, nextObs, nextObsSurfs,
                             imRect, offseetY, offsetX, exitInfo[2] + exitInfo[3], transitionSpeed, test, currBG, nextBG,
-                            paraBGRect, paraBG, paraBGx, paraBGy)) {
+                            paraBGRect, paraBG, paraBGx, paraBGy, levelRooms[currRoom].getChestRect(), levelRooms[nextRoom].getChestRect())) {
                 transition = false;
                 noSwitch = true;
                 currRoom = exitInfo[0];
 
                 //So that if you leave the room while shooting the grappling hook, it resets, so it doesn't
                 // stay if you go back to that room before shooting the hook again
-                arrR[0].x = -100;
-                arrR[0].y = -100;
+                arrR[0].x = imRect.x;
+                arrR[0].y = imRect.y;
 
                 paraBGRect.x = paraBGx % 1440;
                 paraBGRect.y = paraBGy % 810;
@@ -101,6 +117,16 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
 
                 //Blits no-parallax bg
                 SDL_BlitSurface(levelRooms[currRoom].getBG(), nullptr, test, &pHolder);
+
+                if (!levelRooms[currRoom].getChestRect().empty()){
+                    if (exiting){
+                        SDL_Rect exitHolder = levelRooms[currRoom].getChestRect()[0];
+                        SDL_BlitSurface(chestSurfs[1], nullptr, test, &exitHolder);
+                    } else {
+                        SDL_Rect exitHolder = levelRooms[currRoom].getChestRect()[0];
+                        SDL_BlitSurface(chestSurfs[0], nullptr, test, &exitHolder);
+                    }
+                }
 
                 //Placeholder so that imRect does not get altered by the blitting function
                 SDL_Rect placeH = imRect;
@@ -125,6 +151,16 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
 
         //Blits no-parallax bg
         SDL_BlitSurface(levelRooms[currRoom].getBG(), nullptr, test, &pHolder);
+
+        if (!levelRooms[currRoom].getChestRect().empty()){
+            if (exiting){
+                SDL_Rect exitHolder = levelRooms[currRoom].getChestRect()[0];
+                SDL_BlitSurface(chestSurfs[1], nullptr, test, &exitHolder);
+            } else {
+                SDL_Rect exitHolder = levelRooms[currRoom].getChestRect()[0];
+                SDL_BlitSurface(chestSurfs[0], nullptr, test, &exitHolder);
+            }
+        }
 
         //Tests blitting for room objects
         levelRooms[currRoom].updateRoom(test, textRect, imRect, yVel, xVel, dead, arrR, s, hitEnemie, playerHealth);
@@ -202,7 +238,7 @@ void Levels::levelUpdate(SDL_Surface *test, SDL_Rect &imRect, int &playerHealth,
             }
         } else {
 
-            if (goToLevSelScreen){
+            if (goToLevSelScreen || exiting){
                 levelSelect = true;
             }
 

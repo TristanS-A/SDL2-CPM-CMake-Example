@@ -59,4 +59,8 @@ extern bool sprint;
 
 extern const Uint8 *keystates;
 
+extern vector<SDL_Surface *> chestSurfs;
+
+extern bool exiting;
+
 #endif //MYPROJECT_GLOBALVARIABLES_H

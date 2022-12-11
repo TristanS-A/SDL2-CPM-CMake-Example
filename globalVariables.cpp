@@ -81,3 +81,9 @@ bool sprint = false;
 
 //Sets up key presses
 const Uint8 *keystates = SDL_GetKeyboardState(nullptr);
+
+//Vector for holding exit chest surfaces
+vector<SDL_Surface *> chestSurfs = {loadImages("images/chest1.png"), loadImages("images/chest2.png")};
+
+//To tell if the player is leaving the level after getting the thing
+bool exiting = false;

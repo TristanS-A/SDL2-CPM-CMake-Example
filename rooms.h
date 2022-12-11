@@ -39,10 +39,13 @@ private:
     //Background image for room
     SDL_Surface *bgImage;
 
+    //Rectangle for the thing you need to get to exit the level (It is a vector so if the size is 0 it can be skipped.
+    vector<SDL_Rect> levelExitRect;
+
 public:
 
     //Constructor
-    Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies, SDL_Surface *backImage);
+    Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies, SDL_Surface *backImage, vector<SDL_Rect> &leaveLevelRect);
 
     //Blits the surfaces in the level and handles collision for the rects in the level
     void updateRoom(SDL_Surface * test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth);
@@ -79,6 +82,8 @@ public:
     void roomReset();
 
     SDL_Surface* getBG();
+
+    vector<SDL_Rect> getChestRect();
 
 };
 

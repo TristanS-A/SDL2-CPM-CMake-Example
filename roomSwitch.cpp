@@ -12,7 +12,7 @@
 using namespace std;
 
 //Function for switching rooms
-bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<Enemies> currEnemies, vector<Enemies> nextEnemies, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface *currBG, SDL_Surface *nextBG, SDL_Rect &g, SDL_Surface *paraBG, int &paraBGx, int &paraBGy){
+bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vector<SDL_Surface *> &surfsNext, vector<SDL_Surface *> &surfsCurr, vector<SDL_Rect> enemieRects, vector <SDL_Surface *> enemieSurf, vector<SDL_Rect> nextEnemieRects, vector<SDL_Surface *> nextEnemieSurfs, vector<Enemies> currEnemies, vector<Enemies> nextEnemies, vector<SDL_Rect> obsRects, vector<SDL_Surface *> obsSurfs, vector<SDL_Rect> nextObsRects, vector<SDL_Surface *> nextObsSurfs, SDL_Rect &imRect, int &yOffset, int &xOffset, int constDis, int speed, SDL_Surface* test, SDL_Surface *currBG, SDL_Surface *nextBG, SDL_Rect &g, SDL_Surface *paraBG, int &paraBGx, int &paraBGy, vector<SDL_Rect> currChestRect, vector<SDL_Rect> nextChestRect){
 
     //Doesn't return true until the rooms have fully switched, where the current stage has been moved off screen
     if (yOffset != -speed || xOffset != -speed) {
@@ -77,6 +77,68 @@ bool switchRooms(vector<SDL_Rect> &currRects, vector<SDL_Rect> &nextRects, vecto
         //Blits non-parallax backgrounds for incoming and current room
         SDL_BlitSurface(currBG, nullptr, test, &phBG1);
         SDL_BlitSurface(nextBG, nullptr, test, &phBG2);
+
+        if (!currChestRect.empty()){
+            if (exiting){
+
+                SDL_Rect exitHolder = currChestRect[0];
+
+                //Applies offset to placeholder
+                if (xOffset != -speed) {
+                    exitHolder.x = exitHolder.x - constDis + xOffset;
+                }
+                if (yOffset != -speed) {
+                    exitHolder.y = exitHolder.y - constDis + yOffset;
+                }
+
+                SDL_BlitSurface(chestSurfs[1], nullptr, test, &exitHolder);
+
+            } else {
+                SDL_Rect exitHolder = currChestRect[0];
+
+                //Applies offset to placeholder
+                if (xOffset != -speed) {
+                    exitHolder.x = exitHolder.x - constDis + xOffset;
+                }
+                if (yOffset != -speed) {
+                    exitHolder.y = exitHolder.y - constDis + yOffset;
+                }
+
+                if (xOffset != -speed || yOffset != -speed) {
+                    SDL_BlitSurface(chestSurfs[0], nullptr, test, &exitHolder);
+                }
+            }
+        }
+
+        if (!nextChestRect.empty()){
+            if (exiting){
+
+                SDL_Rect exitHolder = nextChestRect[0];
+
+                //Applies offset to placeholder
+                if (xOffset != -speed) {
+                    exitHolder.x = exitHolder.x + xOffset;
+                }
+                if (yOffset != -speed) {
+                    exitHolder.y = exitHolder.y + yOffset;
+                }
+
+                SDL_BlitSurface(chestSurfs[1], nullptr, test, &exitHolder);
+
+            } else {
+                SDL_Rect exitHolder = nextChestRect[0];
+
+                //Applies offset to placeholder
+                if (xOffset != -speed) {
+                    exitHolder.x = exitHolder.x + xOffset;
+                }
+                if (yOffset != -speed) {
+                    exitHolder.y = exitHolder.y + yOffset;
+                }
+
+                SDL_BlitSurface(chestSurfs[0], nullptr, test, &exitHolder);
+            }
+        }
 
         //Placeholder so imRect doesn't get moved when blitted
         SDL_Rect placeH = imRect;

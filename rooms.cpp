@@ -13,7 +13,7 @@
 using namespace std;
 
 //Constructor description
-Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies, SDL_Surface *backImage){
+Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface *> &surfs, vector<SDL_Rect> exits, vector<vector<int>> exitInfo, vector<SDL_Rect> obstacles, vector<vector<SDL_Surface *>> obsSurfs, vector<bool> hookable, vector<Enemies> enemies, SDL_Surface *backImage, vector<SDL_Rect> &leaveLevelRect){
     respawnLocation = resetLocation;
     roomObjs = rects;
     roomSurfs = surfs;
@@ -30,6 +30,7 @@ Rooms::Rooms(SDL_Rect resetLocation, vector<SDL_Rect> &rects, vector<SDL_Surface
     }
     currTime = static_cast<int>(SDL_GetTicks());
     prevTime = 0;
+    levelExitRect = leaveLevelRect;
 }
 
 void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, int &yVel, int &xVel, bool &dead, vector<SDL_Rect> &grappleArr, int track, bool &hitEnemie, int &playerHealth) {
@@ -71,7 +72,10 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
                 yVel = 15;
 
                 if (damageCoolDown <= 0) {
-                    playerHealth -= 10;
+                    //So the player doesn't die whn exiting the level
+                    if (!exiting) {
+                        playerHealth -= 10;
+                    }
                     damageCoolDown = 10;
                 }
             }
@@ -153,7 +157,6 @@ void Rooms::updateRoom(SDL_Surface *test, SDL_Rect &textRect, SDL_Rect &imRect, 
     if (d){
         xVel = 0;
     }
-
 }
 
 vector<int> Rooms::exitRoom(SDL_Rect &imRect) {
@@ -259,5 +262,9 @@ SDL_Surface* Rooms::getBG() {
 
     return bgImage;
 
+}
+
+vector<SDL_Rect> Rooms::getChestRect() {
+    return levelExitRect;
 }
 
