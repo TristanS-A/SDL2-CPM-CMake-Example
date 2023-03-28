@@ -15,7 +15,7 @@ SDL_Surface * loadImages(const char *name){
     SDL_Surface* image = IMG_Load(name);
 
     if (image == nullptr) {
-        cout << "Error loading image: " << IMG_GetError();
+        cout << "Error loading image: " << IMG_GetError() << "\n";
         return image;
     }
 

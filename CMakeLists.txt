@@ -64,7 +64,7 @@ MESSAGE(STATUS "SDL2 TIME: ${DELTASDL}s")
 # SDL_ttf
 string(TIMESTAMP BEFORE "%s")
 CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_ttf
-        GIT_TAG main
+        GIT_TAG release-2.20.1
         OPTIONS "SDL2TTF_INSTALL FALSE" "SDL2TTF_VENDORED TRUE") # vendor is required for mingw builds
 find_package(SDL_ttf REQUIRED)
 string(TIMESTAMP AFTER "%s")
@@ -74,7 +74,7 @@ MESSAGE(STATUS "SDL_ttf TIME: ${DELTASDL_ttf}s")
 # SDL_image
 string(TIMESTAMP BEFORE "%s")
 CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_image
-        GIT_TAG main
+        GIT_TAG release-2.6.2
         OPTIONS "SDL2IMAGE_INSTALL FALSE")
 find_package(SDL_image REQUIRED)
 string(TIMESTAMP AFTER "%s")
@@ -84,8 +84,8 @@ MESSAGE(STATUS "SDL_image TIME: ${DELTASDL_image}s")
 ## SDL_mixer
 string(TIMESTAMP BEFORE "%s")
 CPMAddPackage(GITHUB_REPOSITORY libsdl-org/SDL_mixer
-        GIT_TAG main
-        OPTIONS "SDL2IMIXER_INSTALL FALSE" "SDL2MIXER_VENDORED TRUE") # vendor is required for mingw builds
+        GIT_TAG release-2.6.2
+        OPTIONS "SDL2MIXER_INSTALL FALSE" "SDL2MIXER_VENDORED TRUE") # vendor is required for mingw builds
 find_package(SDL_mixer REQUIRED)
 string(TIMESTAMP AFTER "%s")
 math(EXPR DELTASDL_mixer "${AFTER} - ${BEFORE}")

@@ -251,7 +251,7 @@ int main(int argc, char* argv[])
         SDL_Surface *paraBG = loadImages("images/parallaxBG.png");
 
         SDL_Surface *levSelFloor = loadImages("images/levSelFloor.png");
-        SDL_Surface *levSelBG = loadImages("images/bgLevSelect.png");
+        SDL_Surface *levSelBG = loadImages("bgLevSelect.png");
 
         SDL_Rect paraBGRect;
 
@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
         //--------------------------------Creation of rooms--------------------------------
 
         //Create room object
-        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {}, loadImages("images/bg.png"), chestRect);
+        Rooms room1 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {}, loadImages("bg.png"), chestRect);
 
         //Reassigns exits for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {500, SCREEN_HEIGHT + 50, 440, 50}, {SCREEN_WIDTH + 50, 500, 100, 310}};
@@ -430,7 +430,7 @@ int main(int argc, char* argv[])
         placeHolderObsHookable = {true};
 
         //Creates next room object
-        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("images/bg.png"), chestRect);
+        Rooms room2 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {}, loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{500, -100, 440, 50}};
@@ -449,7 +449,7 @@ int main(int argc, char* argv[])
         roomSurfs = {groundText, groundText, rockPlatform, groundText, groundText, groundText, groundText};
 
         //Creates next room object
-        Rooms room3 = *new Rooms({SCREEN_WIDTH / 2 - 50, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie1, enemie2}, loadImages("images/bg.png"), chestRect);
+        Rooms room3 = *new Rooms({SCREEN_WIDTH / 2 - 50, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie1, enemie2}, loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, 310}};
@@ -467,7 +467,7 @@ int main(int argc, char* argv[])
 
         Enemies enemie3 = *new Enemies({800, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 5, gravity);
         //Creates next room object
-        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie3},loadImages("images/bg.png"), chestRect);
+        Rooms room4 = *new Rooms({200, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie3},loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
@@ -491,7 +491,7 @@ int main(int argc, char* argv[])
 
         Enemies enemie4 = *new Enemies({SCREEN_WIDTH - 100, 200, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 5, gravity);
 
-        Rooms room5 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {enemie4},loadImages("images/bg.png"), chestRect);
+        Rooms room5 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {enemie4},loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
@@ -511,7 +511,7 @@ int main(int argc, char* argv[])
         placeHolderObsSurfs = {lava};
         placeHolderObsHookable = {false};
 
-        Rooms room6 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {},loadImages("images/bg.png"), chestRect);
+        Rooms room6 = *new Rooms({100, 200, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {},loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
@@ -531,7 +531,7 @@ int main(int argc, char* argv[])
         placeHolderObsSurfs = {lava};
         placeHolderObsHookable = {false};
 
-        Rooms room7 = *new Rooms({200, 555, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {},loadImages("images/bg.png"), chestRect);
+        Rooms room7 = *new Rooms({200, 555, 0, 0}, roomRects, roomSurfs, exits, exitInfo, placeHolderObsRects, placeHolderObsSurfs, placeHolderObsHookable, {},loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}, {0, SCREEN_HEIGHT + 50, SCREEN_WIDTH, 100}};
@@ -545,7 +545,7 @@ int main(int argc, char* argv[])
         //Resigns surfaces to blit into the Rect objects of the room objects
         roomSurfs = {groundText, groundText, groundText, groundText};
 
-        Rooms room8 = *new Rooms({200, 555, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {},loadImages("images/bg.png"), chestRect);
+        Rooms room8 = *new Rooms({200, 555, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {},loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{0, -150, SCREEN_WIDTH, 100}, {0, SCREEN_HEIGHT + 50, SCREEN_WIDTH, 100}};
@@ -559,7 +559,7 @@ int main(int argc, char* argv[])
         //Resigns surfaces to blit into the Rect objects of the room objects
         roomSurfs = {groundText, groundText, groundText};
 
-        Rooms room9 = *new Rooms({SCREEN_WIDTH / 2 - imRect.w / 2, 0, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {},loadImages("images/bg.png"), chestRect);
+        Rooms room9 = *new Rooms({SCREEN_WIDTH / 2 - imRect.w / 2, 0, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {},loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{0, -150, SCREEN_WIDTH, 100}, {SCREEN_WIDTH + 50, 0, 100, SCREEN_HEIGHT}};
@@ -577,7 +577,7 @@ int main(int argc, char* argv[])
         Enemies enemie5 = *new Enemies({200, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
         Enemies enemie6 = *new Enemies({1200, 610, 100, 100}, {enemieWalk1L, enemieWalk2L}, {enemieWalk1R, enemieWalk2R}, enemieHurtL, enemieHurtR, deathAnimation, 10, gravity);
 
-        Rooms room10 = *new Rooms({SCREEN_WIDTH / 2 - imRect.w / 2, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie5, enemie6},loadImages("images/bg.png"), chestRect);
+        Rooms room10 = *new Rooms({SCREEN_WIDTH / 2 - imRect.w / 2, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {enemie5, enemie6},loadImages("bg.png"), chestRect);
 
         //Reassigns rect exits and exit info for new room exits for the next room
         exits = {{-150, 0, 100, SCREEN_HEIGHT}};
@@ -597,7 +597,7 @@ int main(int argc, char* argv[])
         //Assigns chest location
         chestRect = {{1000, 305, 300, 200}};
 
-        Rooms room11 = *new Rooms({100, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {boss},loadImages("images/bg.png"), chestRect);
+        Rooms room11 = *new Rooms({100, 605, 0, 0}, roomRects, roomSurfs, exits, exitInfo, {}, {{}}, {}, {boss},IMG_Load("bg.png"), chestRect);
 
         //Vector of all the rooms
         vector<Rooms> roomsArr = {room1, room2, room3, room4, room5, room6, room7, room8, room9, room10, room11};
